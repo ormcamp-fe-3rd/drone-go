@@ -42,3 +42,6 @@ npm run dev
     <td><a href="https://github.com/baaanjy">baaanjy</a></td>
   </tr>
 </table>
+
+## WIKI
+#### [프로젝트 멘토링](https://github.com/ormcamp-fe-3rd/drone-go/wiki/%EB%A9%98%ED%86%A0%EB%A7%81)
