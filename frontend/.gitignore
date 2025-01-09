@@ -25,3 +25,8 @@ dist-ssr
 
 # TypeScript
 *.tsbuildinfo
+
+# test
+test.html
+test.css
+test.js
