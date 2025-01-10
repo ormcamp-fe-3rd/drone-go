@@ -4,7 +4,22 @@
 #### [🎨 피그마 작업](https://www.figma.com/design/eyJ9BGiaD3NO9xKcYjLSLC/DroneGo?node-id=0-1&t=VSSbvUxYUdEaGgDN-1)
 
 ## 프로젝트 소개
-⚠️
+### 주요 기능
+#### 🏡 Home
+- 로그인 및 데이터 목록 제공
+- 드론 애니메이션 및 스크롤 효과
+#### 🖋️ Introduce
+- 서비스의 주요 기능 및 Use Case 소개
+#### 📈 Chart
+- 비행데이터의 Chart 시각화
+- 시간에 따른 연결된 위성 수, 고도와 속도, 배터리 데이터를 Line Chart로 제공
+- Chart Export(jpg, excel 등)
+- Chart의 위치 이동
+#### 🌎 Map
+- 비행데이터의 Map 시각화
+- 시간에 따른 2D 지도 이동(위도, 경도, 드론의 머리방향, 속도, 날씨, 나침반 정보 제공)
+- 시간에 따른 3D 지도 이동(위도, 경도, 고도, 드론의 머리방향, 속도) 및 드론의 자세 변화(roll, pitch, yaw) 정보 제공
+- 특정 시간 선택하면 해당 시간의 정보 제공
 <br/>
 <br/>
 
@@ -42,3 +57,6 @@ npm run dev
     <td><a href="https://github.com/baaanjy">baaanjy</a></td>
   </tr>
 </table>
+
+## WIKI
+#### [프로젝트 멘토링](https://github.com/ormcamp-fe-3rd/drone-go/wiki/%EB%A9%98%ED%86%A0%EB%A7%81)
