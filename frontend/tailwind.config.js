@@ -1,8 +1,33 @@
 /** @type {import('tailwindcss').Config} */
+import plugin from "tailwindcss/plugin";
+
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
-    extend: {},
+    extend: {
+      colors: {
+        title: "#353740",
+        hover: "#B2B3B7",
+        click: "#242222",
+      },
+    },
   },
-  plugins: [],
+  plugins: [
+    plugin(function ({ addComponents }) {
+      addComponents({
+        ".title": {
+          fontSize: "30px",
+          fontWeight: "700",
+          color: "#353740",
+          lineHeight: "36px",
+        },
+        ".subtitle": {
+          fontSize: "18px",
+          fontWeight: "500",
+          color: "#353740",
+          lineHeight: "20px",
+        },
+      });
+    }),
+  ],
 };
