@@ -1,4 +1,24 @@
+import { useState, useEffect } from "react";
+
 export function HeroSection() {
+  const [currentText, setCurrentText] = useState("Your Turn to Review");
+
+  const texts = [
+    "Ready to Check the Path?",
+    "Review the Details Now",
+    "Your Turn to Review",
+  ];
+
+  useEffect(() => {
+    let index = 0;
+    const intervalId = setInterval(() => {
+      setCurrentText(texts[index]);
+      index = (index + 1) % texts.length; // 순차적으로 변경
+    }, 5000); // 3초마다 문구 변경
+
+    return () => clearInterval(intervalId); // 컴포넌트가 언마운트될 때 인터벌을 정리
+  }, []);
+
   return (
     <div className="mx-auto">
       <img
@@ -24,7 +44,7 @@ export function HeroSection() {
         <div className="relative z-10 ml-3">
           <div className="mt-32 text-[4.17vw] font-semibold leading-[5.5vw]">
             <p className="text-[#3D3D43]">Every Path Mapped</p>
-            <p className="text-[#3027F1]">Your Turn to Review</p>
+            <p className="animate-slotMachine text-[#3027F1]">{currentText}</p>
           </div>
           <p className="mt-5 w-[60%] text-[14px] text-[#3D3D43]">
             Discover the best drones with real user reviews and expert insights.
