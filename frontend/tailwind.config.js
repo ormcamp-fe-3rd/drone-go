@@ -7,7 +7,7 @@ export default {
     extend: {
       colors: {
         title: "#353740",
-        hover: "#B2B3B7",
+        hover: "#E1E1EA",
         click: "#242222",
       },
     },
