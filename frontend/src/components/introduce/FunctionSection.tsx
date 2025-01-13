@@ -8,6 +8,7 @@ export default function FunctionSection(){
         <br /> enhance operational safety, and optimize mission parameters
         through comprehensive flight data analysis.
       </div>
+      {/* TODO: scroll effect 추가 */}
       {/* chart 기능 소개 */}
       <div className="relative flex h-[631px] w-[920px] justify-center">
         <img
