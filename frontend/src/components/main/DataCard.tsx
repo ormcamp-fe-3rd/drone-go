@@ -11,7 +11,7 @@ export function DataCard({ day, name, timetotal }: DataCardProps) {
 
   return (
     <div
-      className="group relative mx-auto h-[400px] w-[300px] flex-col items-center justify-center rounded border-2 border-[#B2B7B7] bg-white py-16 hover:bg-hover active:bg-click active:text-white"
+      className="group relative mx-auto h-[400px] w-[300px] flex-col items-center justify-center rounded border-2 border-[#B2B7B7] bg-white py-16 hover:bg-click hover:text-white"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -66,14 +66,15 @@ export function DataCard({ day, name, timetotal }: DataCardProps) {
       </div>
 
       {/* Hover Content */}
-      <div className="mx-auto my-10 hidden h-24 w-36 items-center justify-center text-center transition-opacity duration-300 ease-in-out group-hover:flex group-active:hidden">
+      <div className="mx-auto my-10 hidden h-24 w-36 items-center justify-center text-center transition-opacity duration-300 ease-in-out group-hover:flex">
         <p className="text-lg">Would you like to review this data?</p>
       </div>
 
       {/* Active Content */}
+      {/*
       <div className="mx-auto my-10 hidden h-24 w-36 items-center justify-center text-center transition-opacity duration-300 ease-in-out group-active:flex">
         <p className="text-lg text-white">Let's dive into the details!</p>
-      </div>
+      </div>*/}
     </div>
   );
 }
