@@ -1,6 +1,6 @@
 export default function FunctionSection(){
   return (
-    <div className="flex w-full max-w-[1440px] flex-col items-center justify-center gap-10 text-center pb-[650px]">
+    <div className="flex w-full max-w-[1440px] flex-col items-center justify-center gap-10 text-center">
       <div className="title">Advanced drone flight analytics platform</div>
       <div className="subtitle">
         This powerful visualization toolkit empowers drone operators and fleet
@@ -9,9 +9,9 @@ export default function FunctionSection(){
         through comprehensive flight data analysis.
       </div>
       {/* chart 기능 소개 */}
-      <div className="relative flex h-full w-full justify-center">
+      <div className="relative flex h-[631px] w-[920px] justify-center">
         <img
-          className="absolute"
+          className="absolute drop-shadow-lg"
           src="/public/images/introduce/section01-chart-bg.png"
           alt=""
         />
@@ -27,9 +27,9 @@ export default function FunctionSection(){
         />
       </div>
       {/* map 기능 소개 */}
-      <div className="relative flex h-full w-full justify-center">
+      <div className="relative flex h-[631px] w-[920px] justify-center">
         <img
-          className="absolute"
+          className="absolute drop-shadow-lg"
           src="/public/images/introduce/section01-map-bg.png"
           alt=""
         />

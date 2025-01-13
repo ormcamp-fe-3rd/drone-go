@@ -14,22 +14,22 @@ export default function UsecaseSection(){
         efficiency and decision-making.
       </div>
       <div className="grid w-full grid-cols-3">
-        <div className="justify-top flex flex-col items-center">
-          <img src="/public/images/introduce/section02-main.png" alt="" className="w-[410px]"/>
+        <div className="justify-top flex flex-col items-center gap-8">
+          <img src="/public/images/introduce/section02-main.png" alt="" className="w-[410px] shadow-lg rounded-2xl"/>
           <div>
-            Manage your drone flight data through our secure login system
+            Manage your drone flight data<br/> through our secure login system
           </div>
         </div>
-        <div className="justify-top flex flex-col items-center">
-          <img src="/public/images/introduce/section02-chart.png" alt="" className="w-[410px]"/>
+        <div className="justify-top flex flex-col items-center gap-8">
+          <img src="/public/images/introduce/section02-chart.png" alt="" className="w-[410px] shadow-lg rounded-2xl"/>
           <div>
             Analyze every moment of your flight with powerful data visualization
             tools. Monitor flight status over time and export your analyzed data
             as images or Excel files.
           </div>
         </div>
-        <div className="justify-top flex flex-col items-center">
-          <img src="/public/images/introduce/section02-map.png" alt="" />
+        <div className="justify-top flex flex-col items-center gap-8">
+          <img src="/public/images/introduce/section02-map.png" alt="" className="w-[410px] shadow-lg rounded-2xl"/>
           <div>
             Track actual flight paths and drone attitude changes on our
             interactive map. Intuitively understand comprehensive flight
