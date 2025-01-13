@@ -16,8 +16,22 @@ const telemetrySchema = new Schema({
     required: true,
   },
   payload: {
-    type: Object,
-    required: true
+    timeBootMs: {
+      type: Number,
+      required: true,
+    },
+    roll: {
+      type: Number,
+      required: true,
+    },
+    pitch: {
+      type: Number,
+      required: true,
+    },
+    yaw: {
+      type: Number,
+      required: true,
+    },
   },
   timestamp: {
     type: Date,
