@@ -14,7 +14,7 @@ export function HeroSection() {
     const intervalId = setInterval(() => {
       setCurrentText(texts[index]);
       index = (index + 1) % texts.length; // 순차적으로 변경
-    }, 5000); // 3초마다 문구 변경
+    }, 3000); // 3초마다 문구 변경
 
     return () => clearInterval(intervalId); // 컴포넌트가 언마운트될 때 인터벌을 정리
   }, []);
