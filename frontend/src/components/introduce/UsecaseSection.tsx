@@ -1,3 +1,5 @@
+import UsecaseCard from "./UsecaseCard"
+
 export default function UsecaseSection(){
   return (
     <div className="flex w-full max-w-[1440px] flex-col items-center justify-center gap-10 text-center">
@@ -13,29 +15,23 @@ export default function UsecaseSection(){
         Elevate your drone operations with powerful features designed to enhance
         efficiency and decision-making.
       </div>
-      <div className="grid w-full grid-cols-3">
-        <div className="justify-top flex flex-col items-center gap-8">
-          <img src="/public/images/introduce/section02-main.png" alt="" className="w-[410px] shadow-lg rounded-2xl"/>
-          <div>
-            Manage your drone flight data<br/> through our secure login system
-          </div>
-        </div>
-        <div className="justify-top flex flex-col items-center gap-8">
-          <img src="/public/images/introduce/section02-chart.png" alt="" className="w-[410px] shadow-lg rounded-2xl"/>
-          <div>
-            Analyze every moment of your flight with powerful data visualization
+      <div className="grid w-full grid-cols-3 gap-5">
+        <UsecaseCard
+          img="/public/images/introduce/section02-main.png"
+          content="Manage your drone flight data through our secure login system"
+        />
+        <UsecaseCard
+          img="/public/images/introduce/section02-chart.png"
+          content="Analyze every moment of your flight with powerful data visualization
             tools. Monitor flight status over time and export your analyzed data
-            as images or Excel files.
-          </div>
-        </div>
-        <div className="justify-top flex flex-col items-center gap-8">
-          <img src="/public/images/introduce/section02-map.png" alt="" className="w-[410px] shadow-lg rounded-2xl"/>
-          <div>
-            Track actual flight paths and drone attitude changes on our
+            as images or Excel files."
+        />
+        <UsecaseCard
+          img="/public/images/introduce/section02-map.png"
+          content="Track actual flight paths and drone attitude changes on our
             interactive map. Intuitively understand comprehensive flight
-            information including weather conditions and altitude data.
-          </div>
-        </div>
+            information including weather conditions and altitude data."
+        />
       </div>
     </div>
   );
