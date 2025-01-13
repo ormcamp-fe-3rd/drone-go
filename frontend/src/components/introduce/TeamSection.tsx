@@ -9,7 +9,7 @@ export default function TeamSection(){
         Coming from diverse backgrounds, we come together as one, supporting
         each other and growing together.
       </div>
-      <div className="flex gap-14">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-14 ">
         <MemberCard
           img={"/public/images/introduce/section03-01.png"}
           name={"BanJaeYeong"}

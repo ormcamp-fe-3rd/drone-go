@@ -10,7 +10,7 @@ export default function FunctionSection(){
       </div>
       {/* TODO: scroll effect 추가 */}
       {/* chart 기능 소개 */}
-      <div className="relative flex h-[631px] w-[920px] justify-center">
+      <div className="relative flex aspect-[10/7] w-full justify-center lg:w-[920px]">
         <img
           className="absolute drop-shadow-lg"
           src="/public/images/introduce/section01-chart-bg.png"
@@ -28,7 +28,7 @@ export default function FunctionSection(){
         />
       </div>
       {/* map 기능 소개 */}
-      <div className="relative flex h-[631px] w-[920px] justify-center">
+      <div className="relative flex aspect-[10/7] w-full justify-center lg:w-[920px]">
         <img
           className="absolute drop-shadow-lg"
           src="/public/images/introduce/section01-map-bg.png"
