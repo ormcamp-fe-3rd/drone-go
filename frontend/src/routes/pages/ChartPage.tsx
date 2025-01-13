@@ -7,23 +7,22 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import DropdownDroneType from "../../components/charts/DropdownDroneType";
+
+interface Robot {
+  _id: string;
+  name: string;
+  robot_id: string;
+}
+
+const handleSelect = (item: Robot) => {
+  console.log("Selected item:", item); // 선택한 로봇 아이템을 처리하는 로직
+  console.log("Selected Robot:", item);
+};
 
 const DropdownSection: React.FC = () => (
   <div className="flex gap-3 mx-3">
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          className="border-#BBBBBF rounded-[8px] border"
-        >
-          DronType
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="rounded-[8px] bg-white">
-        <DropdownMenuItem>1</DropdownMenuItem>
-        <DropdownMenuItem>2</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+    <DropdownDroneType label="Select Drone" onSelect={handleSelect} />
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
@@ -41,9 +40,13 @@ const DropdownSection: React.FC = () => (
   </div>
 );
 
-const ChartCard: React.FC<{ title: string }> = ({ title }) => (
+const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
+  title,
+  children,
+}) => (
   <div className="h-[400px]">
     <h2>{title}</h2>
+    {children}
   </div>
 );
 
@@ -129,9 +132,13 @@ const ChartPage: React.FC = () => {
             </div>
           </div>
         </div>
-        <ChartCard title="chart1" />
-        <ChartCard title="chart2" />
-        <ChartCard title="chart3" />
+        <ChartCard title="chart1">{/* <TelemetryChart /> */}</ChartCard>
+        <ChartCard title="chart2">
+          <div />
+        </ChartCard>
+        <ChartCard title="chart3">
+          <div />
+        </ChartCard>
       </div>
     </>
   );
