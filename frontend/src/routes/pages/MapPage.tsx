@@ -1,6 +1,7 @@
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
-// 로봇 정보 가져오는 API
+// API 호출출
 const fetchRobots = async () => {
   const response = await fetch('http://localhost:3000/api/robots');
   if (!response.ok) {
@@ -9,9 +10,10 @@ const fetchRobots = async () => {
   return response.json();
 };
 
-// 오퍼레이션 정보 가져오는 API
-const fetchOperations = async () => {
-  const response = await fetch('http://localhost:3000/api/operations');
+const fetchOperationsByRobot = async (robotId: string) => {
+  const url = `http://localhost:3000/api/operations/filter?robotId=${encodeURIComponent(robotId)}`;
+  console.log(`Fetching operations for robot: ${robotId}`);
+  const response = await fetch(url);
   if (!response.ok) {
     throw new Error('Failed to fetch operations');
   }
@@ -24,7 +26,7 @@ interface Robot {
 }
 
 interface Operation {
-  _id: string;  // MongoDB ObjectId이므로 string으로 처리
+  _id: string;
   name: string;
 }
 
@@ -34,12 +36,20 @@ const MapPage = () => {
     queryFn: fetchRobots,
   });
 
+  const [selectedDrone, setSelectedDrone] = useState<string>('');
+
   const { data: operations, isLoading: isOperationsLoading, error: operationsError } = useQuery({
-    queryKey: ['operations'],
-    queryFn: fetchOperations,
+    queryKey: ['operations', selectedDrone],
+    queryFn: () => fetchOperationsByRobot(selectedDrone),
+    enabled: !!selectedDrone,  // selectedDrone이 설정된 경우에만 요청
   });
 
-  // 로딩 및 에러 처리
+  const handleDroneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const selectedId = e.target.value;
+    console.log('Selected robotId:', selectedId);
+    setSelectedDrone(selectedId);
+  };
+
   if (isRobotsLoading || isOperationsLoading) {
     return <div>Loading...</div>;
   }
@@ -52,16 +62,13 @@ const MapPage = () => {
     return <div>Error loading operations: {operationsError.message}</div>;
   }
 
-  // 디버깅을 위한 로그
-  console.log("Operations:", operations);
-
   return (
     <div className="bg-slate-400 p-4">
       <h2>드론 및 오퍼레이션 선택</h2>
 
       {/* 드론 종류 선택 드롭다운 */}
       <label htmlFor="droneSelect">드론 선택:</label>
-      <select id="droneSelect">
+      <select id="droneSelect" onChange={handleDroneChange} value={selectedDrone}>
         <option value="">드론 선택</option>
         {robots?.map((robot: Robot) => (
           <option key={robot.id} value={robot.id}>
@@ -74,21 +81,22 @@ const MapPage = () => {
       <label htmlFor="operationSelect">오퍼레이션 선택:</label>
       <select id="operationSelect">
         <option value="">오퍼레이션 선택</option>
-        {operations?.map((operation: Operation) => {
-          console.log("Operation:", operation);  // 오퍼레이션 로그 출력
-
-          return (
-            <option key={operation._id} value={operation._id}>
-              {operation._id ? String(operation._id).slice(-2) : "No ID"} {/* _id가 존재하면 뒤 두 글자만 표시 */}
-            </option>
-          );
-        })}
+        {operations?.map((operation: Operation) => (
+          <option key={operation._id} value={operation._id}>
+            {`op. ${String(operation._id).slice(-4)}`}
+          </option>
+        ))}
       </select>
     </div>
   );
 };
 
 export default MapPage;
+
+
+
+
+
 
 
 
