@@ -12,18 +12,28 @@ const DropdownSection: React.FC = () => (
   <div className="flex gap-3 mx-3">
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">DronType</Button>
+        <Button
+          variant="outline"
+          className="border-#BBBBBF rounded-[8px] border"
+        >
+          DronType
+        </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent className="rounded-[8px] bg-white">
         <DropdownMenuItem>1</DropdownMenuItem>
         <DropdownMenuItem>2</DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">DATE / version</Button>
+        <Button
+          variant="outline"
+          className="border-#BBBBBF rounded-[8px] border"
+        >
+          DATE / version
+        </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent>
+      <DropdownMenuContent className="rounded-[8px] bg-white">
         <DropdownMenuItem>2025.01.01 / vo1</DropdownMenuItem>
         <DropdownMenuItem>2025.01.01 / vo1</DropdownMenuItem>
       </DropdownMenuContent>
@@ -41,7 +51,7 @@ const ChartPage: React.FC = () => {
   return (
     <>
       {/* 상단 */}
-      <div className="flex flex-row items-center gap-4 px-5 py-4 mx-10 my-8 border rounded-lg justify-evenly">
+      <div className="mx-10 my-8 flex flex-row items-center justify-evenly gap-4 rounded-[10px] border px-5 py-4">
         {/* btn클릭 시 list 페이지로 */}
         <Button className="h-20 w-14 min-w-[56px]" variant="ghost">
           {/*드론 리스트 페이지로 이동*/}
@@ -62,14 +72,14 @@ const ChartPage: React.FC = () => {
           </span>
         </article>
         <DropdownSection />
-        <Button variant="outline" className="h-16 w-16 min-w-[64px]">
+        <Button className="h-16 w-16 min-w-[64px] rounded-[10px]">
           <img
             src="/icons/download.png"
             alt="Button Icon"
             className="object-contain w-16 h-16"
           />
         </Button>
-        <Button variant="outline" className="h-16 w-16 min-w-[64px]">
+        <Button className="h-16 w-16 min-w-[64px] rounded-[10px]">
           <img
             src="/icons/maps.png"
             alt="Button Icon"
