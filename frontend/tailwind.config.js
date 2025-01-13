@@ -52,19 +52,14 @@ export default {
   				'3': 'hsl(var(--chart-3))',
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
-  			}
+  			},
+        title: "#353740",
+        hover: "#F4F4F9",
+        click: "#242222",
   		}
   	}
   },
   plugins: [require("tailwindcss-animate")],
-
-    extend: {
-      colors: {
-        title: "#353740",
-        hover: "#F4F4F9",
-        click: "#242222",
-      },
-    },
   },
   plugins: [
     plugin(function ({ addComponents }) {
