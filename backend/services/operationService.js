@@ -22,6 +22,3 @@ const getOperationsByRobotId = async (robotName) => {
 };
 
 module.exports = { getOperationsByRobotId };
-
-
-
