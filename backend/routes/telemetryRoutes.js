@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { Telemetry } = require('../models');
+const { Telemetry } = require('../models/telemetryModel');
 
 // 모든 텔레메트리 데이터를 가져오는 API (msgId에 따른 필터링은 클라이언트에서 처리)
 router.get('/', async (req, res) => {
