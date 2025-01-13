@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { SignButton } from "./main/SignButton";
+import { SignButton } from "./SignButton";
 
 export function Header() {
   return (
