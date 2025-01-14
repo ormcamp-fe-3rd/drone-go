@@ -9,8 +9,9 @@ export default function FunctionSection(){
         through comprehensive flight data analysis.
       </div>
       {/* TODO: scroll effect 추가 */}
+      {/* 멘토의견: 아래 이미지들을 하나의 이미지로 만들어서 사용하는 것이 편리할수도 있음 */}
       {/* chart 기능 소개 */}
-      <div className="relative flex aspect-[10/7] w-full justify-center lg:w-[920px]">
+      <div className="relative aspect-[10/7] w-full lg:w-[920px]">
         <img
           className="absolute drop-shadow-lg"
           src="/public/images/introduce/section01-chart-bg.png"
@@ -28,7 +29,7 @@ export default function FunctionSection(){
         />
       </div>
       {/* map 기능 소개 */}
-      <div className="relative flex aspect-[10/7] w-full justify-center lg:w-[920px]">
+      <div className="relative aspect-[10/7] w-full lg:w-[920px]">
         <img
           className="absolute drop-shadow-lg"
           src="/public/images/introduce/section01-map-bg.png"
@@ -45,7 +46,7 @@ export default function FunctionSection(){
           alt=""
         />
         <img
-          className="absolute z-10"
+          className="absolute"
           src="/public/images/introduce/section01-map-03.png"
           alt=""
         />

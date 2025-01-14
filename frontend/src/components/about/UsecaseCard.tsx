@@ -1,6 +1,6 @@
 interface Props{
-  img: string,
-  content: string
+  img: string;
+  content: string;
 }
 
 export default function UsecaseCard({img, content}: Props){
