@@ -1,4 +1,3 @@
-import React from "react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -26,7 +25,7 @@ const DropdownComponent = <T extends { _id: string; name: string }>({
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="border-#BBBBBF flex w-44 justify-around rounded-[8px] border"
+          className="border-#BBBBBF flex w-44 justify-around rounded-[8px] border bg-white"
         >
           {label}
           <FaCaretDown className="ml-2" />
