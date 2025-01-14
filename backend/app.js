@@ -1,6 +1,9 @@
 const express = require('express')
+const cors = require('cors');  // CORS 패키지 가져오기
 const app = express()
 const cors = require('cors');  // CORS 미들웨어 불러오기
+
+app.use(cors());  // CORS 미들웨어 추가
 
 const run = require('./db')
 run()
