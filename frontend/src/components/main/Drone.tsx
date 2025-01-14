@@ -1,11 +1,11 @@
-import { useRef, useEffect } from "react"; // React에서 useRef와 useEffect를 임포트
+import { useRef, useEffect } from "react";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-import { OrbitControls } from "@react-three/drei";
+
 import * as THREE from "three";
 
-export default function Drone() {
-  const glb = useLoader(GLTFLoader, "../../public/objects/drone.glb"); // GLB 파일 로드
+export default function Drone({ scale = 110, rotation = [0, -110, 0] }) {
+  const glb = useLoader(GLTFLoader, "../../public/objects/drone.glb");
   const mixerRef = useRef<THREE.AnimationMixer | null>(null);
   const clock = new THREE.Clock();
 
@@ -16,19 +16,6 @@ export default function Drone() {
       glb.animations.forEach((clip) => {
         mixerRef.current?.clipAction(clip).play();
       });
-    }
-
-    // 본체와 날개의 위치 설정
-    glb.scene.position.set(0, 0, 0);
-    glb.scene.rotation.set(0, Math.PI / 2, 0);
-
-    // 날개 객체를 가져와서 회전 축을 수정
-    const wing1 = glb.scene.getObjectByName("wing1"); // 날개1 객체 이름 (GLB 모델의 객체 이름 확인 필요)
-    const wing2 = glb.scene.getObjectByName("wing2"); // 날개2 객체 이름 (GLB 모델의 객체 이름 확인 필요)
-    if (wing1 && wing2) {
-      // 날개가 본체와 독립적으로 회전하도록 설정
-      wing1.rotation.set(Math.PI / 2, 0, 0); // 날개1 회전 축 설정
-      wing2.rotation.set(Math.PI / 2, 0, 0); // 날개2 회전 축 설정
     }
   }, [glb]);
 
@@ -44,17 +31,32 @@ export default function Drone() {
     updateAnimation();
   }, []);
 
+  // GLB 크기와 회전 설정
+  useEffect(() => {
+    if (glb.scene) {
+      // 크기 설정
+      glb.scene.scale.set(scale, scale, scale);
+
+      // 회전 설정
+      glb.scene.rotation.set(
+        THREE.MathUtils.degToRad(rotation[0]), // X축 회전
+        THREE.MathUtils.degToRad(rotation[1]), // Y축 회전
+        THREE.MathUtils.degToRad(rotation[2]), // Z축 회전
+      );
+    }
+  }, [glb, scale, rotation]);
+
   return (
-    <div style={{ width: "80vw", height: "80vh", top: "10%", left: "10%" }}>
-      <Canvas camera={{ position: [0, 0, -50], fov: 75 }}>
+    <div
+      className="absolute z-30"
+      style={{ width: "80vw", height: "80vh", top: "10%", right: "10%" }}
+    >
+      <Canvas camera={{ position: [0, 50, 100], fov: 75 }}>
         <ambientLight intensity={3} />
         <directionalLight position={[0, 0, 5]} color="white" />
 
         {/* GLB 모델 렌더링 */}
         <primitive object={glb.scene} />
-
-        {/* OrbitControls 추가 */}
-        <OrbitControls />
       </Canvas>
     </div>
   );

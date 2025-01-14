@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Drone from "./Drone";
+import { Header } from "./Header";
 
 export function HeroSection() {
   const [currentText, setCurrentText] = useState("Your Turn to Review");
@@ -21,18 +21,17 @@ export function HeroSection() {
   }, []);
 
   return (
-    <div className="mx-auto">
-      <Drone />
-      <div className="absolute"></div>
+    <div className="relative mx-auto h-[1024px]">
+      <Header />
       <img
-        className="absolute bottom-0 h-[auto] w-full"
+        className="absolute bottom-0 z-20 h-full w-full"
         src="../public/images/cloud.svg"
         alt="cloud 이미지"
       />
       <div className="mx-auto max-w-screen-xl">
         {/* Background Video */}
         <video
-          className="absolute left-0 top-0 -z-10 h-full w-full object-cover"
+          className="absolute left-0 top-0 z-0 my-0 h-[800px] w-full object-cover"
           autoPlay
           muted
           loop
@@ -41,10 +40,10 @@ export function HeroSection() {
         </video>
 
         {/* White Overlay */}
-        <div className="absolute left-0 top-0 z-0 h-full w-full bg-white opacity-75"></div>
+        <div className="absolute left-0 top-0 z-10 h-[1024px] w-full bg-white opacity-75"></div>
 
         {/* Content Section */}
-        <div className="relative z-10 ml-3">
+        <div className="absolute z-20 ml-3">
           <div className="mt-32 text-[4.17vw] font-semibold leading-[5.5vw]">
             <p className="text-[#3D3D43]">Every Path Mapped</p>
             <p className="animate-slotMachine text-[#3027F1]">{currentText}</p>

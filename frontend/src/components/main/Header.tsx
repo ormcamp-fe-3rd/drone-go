@@ -3,10 +3,10 @@ import { SignButton } from "./SignButton";
 
 export function Header() {
   return (
-    <div className="mx-auto max-w-screen-xl">
+    <div className="mx-auto flex max-w-screen-xl">
       {/* Header Section */}
-      <div className="relative z-20 mx-auto mt-[4%] flex items-end justify-between">
-        <div className="ml-3 flex items-end gap-2">
+      <div className="z-20 mx-auto mt-[4%] flex w-full items-end justify-between">
+        <div className="ml-3 flex items-end justify-start gap-2">
           <Link to={"/"} className="flex">
             <img
               className="h-8 w-8"
@@ -18,7 +18,7 @@ export function Header() {
           {/* //TODO: 소개페이지 링크 연결해야함*/}
           <p className="ml-6 text-sm text-[#353740]">Introduce</p>
         </div>
-        <div className="mr-3 flex gap-4">
+        <div className="ml-10 flex gap-4">
           <SignButton text="SIGN UP" bgColor="white" />
           <SignButton text="SIGN IN" bgColor="black" />
         </div>

@@ -1,11 +1,12 @@
-import { Header } from "@/components/main/Header";
 import { HeroSection } from "@/components/main/HeroSection";
 import { DataList } from "@/components/main/DataList";
+import Drone from "@/components/main/Drone";
 
 export function HomePage() {
   return (
-    <div className="h-[2048px]">
-      <Header />
+    <div className="relative">
+      <Drone />
+      {/* Main Content */}
       <HeroSection />
       <DataList />
     </div>
