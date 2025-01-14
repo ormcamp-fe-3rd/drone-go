@@ -31,7 +31,7 @@ export default function Drone({ scale = 110, rotation = [0, -110, 0] }) {
     updateAnimation();
   }, []);
 
-  // GLB 크기와 회전 설정
+  // GLB 크기와 회전 및 머티리얼 속성 설정
   useEffect(() => {
     if (glb.scene) {
       // 크기 설정
@@ -43,6 +43,26 @@ export default function Drone({ scale = 110, rotation = [0, -110, 0] }) {
         THREE.MathUtils.degToRad(rotation[1]), // Y축 회전
         THREE.MathUtils.degToRad(rotation[2]), // Z축 회전
       );
+
+      // 메탈 재질과 거칠기 설정
+      glb.scene.traverse((child) => {
+        if ((child as THREE.Mesh).isMesh) {
+          const mesh = child as THREE.Mesh;
+          if (Array.isArray(mesh.material)) {
+            mesh.material.forEach((material) => {
+              if (material instanceof THREE.MeshStandardMaterial) {
+                material.metalness = 0.4; // 메탈릭 효과 (0 ~ 1)
+                material.roughness = 0.3; // 거칠기 효과 (0 ~ 1)
+                material.needsUpdate = true; // 변경 사항 적용
+              }
+            });
+          } else if (mesh.material instanceof THREE.MeshStandardMaterial) {
+            mesh.material.metalness = 0.4; // 메탈릭 효과
+            mesh.material.roughness = 0.3; // 거칠기 효과
+            mesh.material.needsUpdate = true; // 변경 사항 적용
+          }
+        }
+      });
     }
   }, [glb, scale, rotation]);
 
