@@ -4,7 +4,13 @@ const router = express.Router()
 const Operation = require("../models/operationModel")
 const { getAllOperations, getOperationsByRobotId } = require('../controllers/operationController');
 
-
+/**
+ * 모든 Operation 데이터를 가져옵니다.
+ * @async
+ * @route GET /operations
+ * @returns {Promise<void>} - 성공 시 모든 Operation 데이터를 JSON 형식으로 응답
+ * @throws {Error} - 서버 에러 발생 시 500 상태 코드와 에러 메시지 반환
+ */
 router.get('/', async (req, res) => {
   try {
     const operations = await Operation.find() // 모든 로봇 가져오기
@@ -17,20 +23,29 @@ router.get('/', async (req, res) => {
   }
 })
 
-// // 특정 로봇에 대한 오퍼레이션 가져오기
+/**
+ * 특정 로봇에 대한 Operation 데이터를 필터링하여 가져옵니다.
+ * @async
+ * @route GET /operations/filter
+ * @param {string} robot - 쿼리 파라미터로 전달된 로봇 ID
+ * @returns {Promise<void>} - 필터링된 Operation 데이터를 JSON 형식으로 응답
+ * @throws {Error} - 서버 에러 발생 시 500 상태 코드와 에러 메시지 반환
+ * @throws {Error} - 유효하지 않은 로봇 ID 형식일 경우 400 상태 코드와 오류 메시지 반환
+ */
 router.get('/filter', async (req, res) => {
   try {
     const { robot } = req.query;
 
-    // If robot ID is provided, filter by it
     if (robot) {
+      if (!mongoose.Types.ObjectId.isValid(robot)) {
+        return res.status(400).json({ message: 'Invalid robot ID format' });
+      }
       const filteredOperations = await Operation.find({
-        robot: robot  // Exact match with the robot ID
+        robot: robot
       });
       return res.json(filteredOperations);
     }
 
-    // If no robot ID provided, return all operations
     const allOperations = await Operation.find();
     res.json(allOperations);
 
