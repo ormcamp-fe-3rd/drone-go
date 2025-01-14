@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Link, useLocation } from "react-router-dom";
 import DropdownSection from "./DropdownSection";
 
-const HeaderSection = () => {
+const DetailedDataHeader = () => {
   const location = useLocation();
   // 현재 URL에 따라 버튼 텍스트 및 아이콘 변경
   const isMapPage = location.pathname === "/map"; // 예시 URL: "/map"
@@ -62,4 +62,4 @@ const HeaderSection = () => {
   );
 };
 
-export default HeaderSection;
+export default DetailedDataHeader;

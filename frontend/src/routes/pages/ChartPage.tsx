@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import HeaderSection from "../../components/charts/HeaderSection";
+import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   title,
@@ -23,7 +23,7 @@ const ChartPage: React.FC = () => {
   }, []);
   return (
     <div className="min-h-screen bg-[#F3F2F9]">
-      <HeaderSection />
+      <DetailedDataHeader />
       <div className="grid grid-cols-1 gap-3 mx-10 my-8 lg:grid-cols-2">
         <div className="flex h-[400px] gap-3">
           <div className="flex w-3/5 flex-col rounded-[10px] border border-[#B2B2B7] bg-white">
