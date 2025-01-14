@@ -8,10 +8,7 @@ export function LoginModal({ onClose }: LoginModalProps) {
   const [isOpen, setIsOpen] = useState(true); // 모달 열림/닫힘 상태
 
   useEffect(() => {
-    // 화면 스크롤 막기
-    document.body.style.overflow = "hidden";
-
-    // 모달이 열리면 외부 요소에 대한 tab 접근 방지
+    // 화면 스크롤 막기와 관련된 설정 제거
     const focusableElements = "button, input, select, textarea, a[href]";
     const modal = document.getElementById("modal");
 
@@ -19,7 +16,6 @@ export function LoginModal({ onClose }: LoginModalProps) {
     const trapFocus = (e: KeyboardEvent) => {
       const focusableContent = modal?.querySelectorAll(focusableElements);
       if (focusableContent) {
-        // focusableContent가 null이 아닐 경우에만 진행
         const firstFocusableElement = focusableContent[0] as HTMLElement; // 타입 단언
         const lastFocusableElement = focusableContent[
           focusableContent.length - 1
@@ -49,7 +45,6 @@ export function LoginModal({ onClose }: LoginModalProps) {
     // 컴포넌트가 언마운트될 때 리스너를 제거
     return () => {
       document.removeEventListener("keydown", trapFocus);
-      document.body.style.overflow = "auto";
     };
   }, []);
 
