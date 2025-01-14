@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 const DropdownSection: React.FC = () => (
-  <div className="flex gap-3 mx-3">
+  <div className="mx-3 flex gap-3">
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline">DronType</Button>
@@ -41,15 +41,15 @@ const ChartPage: React.FC = () => {
   return (
     <>
       {/* 상단 */}
-      <div className="flex flex-row items-center gap-4 px-5 py-4 mx-10 my-8 border rounded-lg justify-evenly">
+      <div className="mx-10 my-8 flex flex-row items-center justify-evenly gap-4 rounded-lg border px-5 py-4">
         {/* btn클릭 시 list 페이지로 */}
         <Button className="h-20 w-14 min-w-[56px]" variant="ghost">
           {/*드론 리스트 페이지로 이동*/}
-          <Link to="/HomePage">
+          <Link to="/">
             <img
               src="/icons/ListPage.png"
               alt="Button Icon"
-              className="object-contain h-20 w-14"
+              className="h-20 w-14 object-contain"
             />
           </Link>
         </Button>
@@ -66,28 +66,28 @@ const ChartPage: React.FC = () => {
           <img
             src="/icons/download.png"
             alt="Button Icon"
-            className="object-contain w-16 h-16"
+            className="h-16 w-16 object-contain"
           />
         </Button>
         <Button variant="outline" className="h-16 w-16 min-w-[64px]">
           <img
             src="/icons/maps.png"
             alt="Button Icon"
-            className="object-contain w-16 h-16"
+            className="h-16 w-16 object-contain"
           />
         </Button>
       </div>
       {/* 차트 및 데이터 값들 */}
-      <div className="grid grid-cols-1 gap-3 mx-10 my-8 lg:grid-cols-2">
+      <div className="mx-10 my-8 grid grid-cols-1 gap-3 lg:grid-cols-2">
         <div className="flex h-[400px] gap-3">
-          <div className="flex flex-col w-3/5">
+          <div className="flex w-3/5 flex-col">
             <h2 className="mx-10 my-5 text-2xl font-semibold">
               Name : 드론종류
             </h2>
             <div className="mx-5 h-[300px]">drone img</div>
           </div>
           <div className="flex h-[400px] w-2/5 flex-col gap-3">
-            <div className="flex flex-col justify-around gap-1 h-2/5">
+            <div className="flex h-2/5 flex-col justify-around gap-1">
               <div className="flex items-center">
                 <div className="mx-2 my-2">
                   <img
@@ -102,7 +102,7 @@ const ChartPage: React.FC = () => {
                 {/* 시간 데이터들 보여지는 부분*/}
               </div>
             </div>
-            <div className="flex flex-col justify-around gap-1 h-3/5">
+            <div className="flex h-3/5 flex-col justify-around gap-1">
               <div className="flex items-center">
                 <div className="mx-2 my-2">
                   <img
