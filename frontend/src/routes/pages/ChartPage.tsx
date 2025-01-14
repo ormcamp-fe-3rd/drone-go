@@ -37,7 +37,7 @@ const ChartPage: React.FC = () => {
               <div className="flex items-center">
                 <div className="mx-2 my-2">
                   <img
-                    src="/icons/time.png"
+                    src="/icons/time.svg"
                     alt="Button Icon"
                     className="object-contain"
                   />
@@ -52,7 +52,7 @@ const ChartPage: React.FC = () => {
               <div className="flex items-center">
                 <div className="mx-2 my-2">
                   <img
-                    src="/icons/setting-error.png"
+                    src="/icons/setting-error.svg"
                     alt="Button Icon"
                     className="object-contain"
                   />

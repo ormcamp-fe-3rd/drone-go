@@ -12,7 +12,7 @@ const DetailedDataHeader = () => {
       <Button className="h-20 w-14 min-w-[56px]" variant="ghost">
         <Link to="/">
           <img
-            src="/icons/ListPage.png"
+            src="/icons/Vector.svg"
             alt="Button Icon"
             className="object-contain h-20 w-14"
           />
@@ -31,7 +31,7 @@ const DetailedDataHeader = () => {
       <div className="flex flex-row gap-4">
         <Button className="h-16 w-16 min-w-[64px] rounded-[10px] bg-white">
           <img
-            src="/icons/download.png"
+            src="/icons/download.svg"
             alt="Button Icon"
             className="object-contain w-16 h-16"
           />
@@ -40,7 +40,7 @@ const DetailedDataHeader = () => {
           <Link to="/chart">
             <Button className="h-16 w-16 min-w-[64px] rounded-[10px] bg-white">
               <img
-                src="/icons/charts.png"
+                src="/icons/charts.svg"
                 alt="Charts Icon"
                 className="object-contain w-16 h-16"
               />
@@ -50,7 +50,7 @@ const DetailedDataHeader = () => {
           <Link to="/map">
             <Button className="h-16 w-16 min-w-[64px] rounded-[10px] bg-white">
               <img
-                src="/icons/maps.png"
+                src="/icons/maps.svg"
                 alt="Maps Icon"
                 className="object-contain w-16 h-16"
               />
