@@ -1,13 +1,39 @@
-import React from "react";
+import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import DropdownDroneType from "../../components/charts/DropdownDroneType";
+import { useQuery } from "@tanstack/react-query";
+
+import DropdownComponent from "../../components/charts/DropdownComponent";
+
+// API 호출
+const fetchRobots = async (): Promise<Robot[]> => {
+  const response = await fetch("http://localhost:3000/robots");
+  if (!response.ok) {
+    throw new Error("Failed to fetch robots");
+  }
+  return response.json();
+};
+
+const fetchOperationsByRobot = async (
+  robotId: string,
+): Promise<Operation[]> => {
+  if (!robotId) {
+    throw new Error("robotId is missing");
+  }
+  const url = `http://localhost:3000/operations/filter?robot=${encodeURIComponent(robotId)}`;
+  console.log("Fetching operations with URL:", url); // URL 확인
+
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch operations: ${response.statusText}`);
+    }
+    return response.json();
+  } catch (error) {
+    console.error("Error fetching operations:", error);
+    throw error;
+  }
+};
 
 interface Robot {
   _id: string;
@@ -15,30 +41,79 @@ interface Robot {
   robot_id: string;
 }
 
-const handleSelect = (item: Robot) => {
-  console.log("Selected item:", item); // 선택한 로봇 아이템을 처리하는 로직
-  console.log("Selected Robot:", item);
-};
+interface Operation {
+  _id: string;
+  name: string;
+  robot: string;
+}
 
-const DropdownSection: React.FC = () => (
-  <div className="flex gap-3 mx-3">
-    <DropdownDroneType label="Select Drone" onSelect={handleSelect} />
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button
-          variant="outline"
-          className="border-#BBBBBF rounded-[8px] border"
-        >
-          DATE / version
-        </Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent className="rounded-[8px] bg-white">
-        <DropdownMenuItem>2025.01.01 / vo1</DropdownMenuItem>
-        <DropdownMenuItem>2025.01.01 / vo1</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  </div>
-);
+const DropdownSection: React.FC = () => {
+  const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null); // 선택된 드론 상태 추가
+  const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
+    null,
+  ); // 선택된 operation 상태
+
+  const {
+    data: robots,
+    isLoading: isRobotsLoading,
+    error: robotsError,
+  } = useQuery({
+    queryKey: ["robots"],
+    queryFn: fetchRobots,
+  });
+
+  const {
+    data: operations = [],
+    isLoading: isOperationsLoading,
+    error: operationsError,
+  } = useQuery({
+    queryKey: ["operations", selectedDrone?._id],
+    queryFn: () => fetchOperationsByRobot(selectedDrone?._id || ""),
+    enabled: !!selectedDrone?._id,
+  });
+
+  const handleDroneSelect = (robot: Robot) => {
+    console.log("Selected Drone:", robot);
+    setSelectedDrone(robot);
+    setSelectedOperation(null);
+  };
+
+  const handleOperationSelect = (operation: Operation) => {
+    console.log("Selected operation:", operation);
+    setSelectedOperation(operation);
+  };
+
+  if (isRobotsLoading || isOperationsLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (robotsError instanceof Error) {
+    return <div>Error loading robots: {robotsError.message}</div>;
+  }
+
+  if (operationsError instanceof Error) {
+    return <div>Error loading operations: {operationsError.message}</div>;
+  }
+
+  return (
+    <div className="flex gap-3 mx-3">
+      <DropdownComponent
+        label={selectedDrone ? selectedDrone.name : "Select Drone"}
+        onSelect={handleDroneSelect}
+        data={robots || []}
+      />
+      <DropdownComponent
+        label={
+          selectedOperation
+            ? `Operation ${operations.findIndex((op) => op._id === selectedOperation._id) + 1}`
+            : "Select Operation"
+        }
+        onSelect={handleOperationSelect}
+        data={operations || []}
+      />
+    </div>
+  );
+};
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   title,
