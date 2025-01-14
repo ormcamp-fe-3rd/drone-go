@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -119,21 +119,28 @@ const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   title,
   children,
 }) => (
-  <div className="h-[400px]">
+  <div className="h-[400px] rounded-[10px] border border-[#B2B2B7] bg-white">
     <h2>{title}</h2>
     {children}
   </div>
 );
 
 const ChartPage: React.FC = () => {
+  useEffect(() => {
+    // html에 배경색 추가
+    document.documentElement.style.backgroundColor = "#F3F2F9";
+
+    return () => {
+      // 페이지를 떠날 때 배경색 원복
+      document.documentElement.style.backgroundColor = "";
+    };
+  }, []);
   return (
-    <>
-      {/* 상단 */}
-      <div className="mx-10 my-8 flex flex-row items-center justify-evenly gap-4 rounded-[10px] border px-5 py-4">
-        {/* btn클릭 시 list 페이지로 */}
+    <div className="min-h-screen bg-[#F3F2F9]">
+      <div className="mx-10 my-8 flex flex-row items-center justify-evenly gap-4 rounded-[10px] border bg-white px-5 py-4">
         <Button className="h-20 w-14 min-w-[56px]" variant="ghost">
           {/*드론 리스트 페이지로 이동*/}
-          <Link to="/HomePage">
+          <Link to="/">
             <img
               src="/icons/ListPage.png"
               alt="Button Icon"
@@ -168,14 +175,14 @@ const ChartPage: React.FC = () => {
       {/* 차트 및 데이터 값들 */}
       <div className="grid grid-cols-1 gap-3 mx-10 my-8 lg:grid-cols-2">
         <div className="flex h-[400px] gap-3">
-          <div className="flex flex-col w-3/5">
+          <div className="flex w-3/5 flex-col rounded-[10px] border border-[#B2B2B7] bg-white">
             <h2 className="mx-10 my-5 text-2xl font-semibold">
               Name : 드론종류
             </h2>
             <div className="mx-5 h-[300px]">drone img</div>
           </div>
           <div className="flex h-[400px] w-2/5 flex-col gap-3">
-            <div className="flex flex-col justify-around gap-1 h-2/5">
+            <div className="flex h-2/5 flex-col justify-around gap-1 rounded-[10px] border border-[#B2B2B7] bg-white">
               <div className="flex items-center">
                 <div className="mx-2 my-2">
                   <img
@@ -190,7 +197,7 @@ const ChartPage: React.FC = () => {
                 {/* 시간 데이터들 보여지는 부분*/}
               </div>
             </div>
-            <div className="flex flex-col justify-around gap-1 h-3/5">
+            <div className="flex h-3/5 flex-col justify-around gap-1 rounded-[10px] border border-[#B2B2B7] bg-white">
               <div className="flex items-center">
                 <div className="mx-2 my-2">
                   <img
@@ -215,7 +222,7 @@ const ChartPage: React.FC = () => {
           <div />
         </ChartCard>
       </div>
-    </>
+    </div>
   );
 };
 
