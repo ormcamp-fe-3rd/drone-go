@@ -2,9 +2,9 @@ import { createBrowserRouter } from "react-router-dom";
 
 import App from "@/App";
 
+import AboutPage from "./pages/AboutPage";
 import ChartPage from "./pages/ChartPage";
 import { HomePage } from "./pages/HomePage";
-import IntroducePage from "./pages/IntroducePage";
 
 const router = createBrowserRouter([
   {
@@ -13,7 +13,7 @@ const router = createBrowserRouter([
     children: [
       { path: "chart", element: <ChartPage /> },
       { path: "/", element: <HomePage /> },
-      { path: "/introduce", element: <IntroducePage />},
+      { path: "/about", element: <AboutPage />},
     ],
   },
 ]);

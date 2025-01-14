@@ -16,8 +16,8 @@ export function Header() {
             />
             <p className="text-3xl font-bold text-[#0800A1]">DronGo</p>
           </Link>
-          <Link to="/introduce">
-            <p className="ml-6 text-sm text-[#353740]">Introduce</p>
+          <Link to="/about">
+            <p className="ml-6 text-sm text-[#353740]">About</p>
           </Link>
         </div>
         <div className="mr-3 flex gap-4">
