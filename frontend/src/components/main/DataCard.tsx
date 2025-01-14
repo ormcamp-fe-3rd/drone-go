@@ -7,7 +7,7 @@ interface DataCardProps {
 }
 
 export function DataCard({ day, name, timetotal }: DataCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
+  const [_isHovered, setIsHovered] = useState(false);
 
   return (
     <div

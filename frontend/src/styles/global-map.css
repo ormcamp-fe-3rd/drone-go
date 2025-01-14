@@ -1,0 +1,51 @@
+.tool-layout {
+    @apply grid w-[274px] h-[300px] mx-auto bg-white bg-opacity-50 rounded-[10px];
+}
+
+.tool-layout > * {
+    @apply flex items-center justify-center p-2.5;
+}
+
+.toolbar-attitude, .toolbar-state {
+    @apply grid grid-rows-[33%_1fr] grid-cols-[1fr_1fr];
+}
+
+.attitude-header1, .state-header1 {
+    @apply row-start-1 col-start-1 flex justify-start items-start;
+}
+
+.attitude-header2, .state-header2 {
+    @apply row-start-1 col-start-2 flex justify-end items-start;
+}
+
+.toolbar-variation {
+    @apply w-[274px] h-[52px] p-2.5 bg-white bg-opacity-50 rounded-[10px] text-center leading-6 text-sm font-bold;
+}
+
+.toolbar-speed, .toolbar-altitude {
+    @apply relative grid grid-cols-[1fr_1.5fr];
+}
+
+.speed-panel, .altitude-panel {
+    @apply flex border-r-2 border-solid border-[#B2B2B7];
+}
+
+.speed-value, .altitude-value {
+    @apply justify-self-end;
+}
+
+.state-panel {
+    @apply grid border-b-2 border-solid border-[#B2B2B7] text-[#3F5D7E];
+}
+
+.state-panel:last-child {
+    @apply border-b-0; /* 마지막 패널에는 바를 없애줌 */
+}
+
+.state-phrase {
+    @apply text-xs;
+}
+
+.state-time {
+    @apply text-xs justify-self-end;
+}

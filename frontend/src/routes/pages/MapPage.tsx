@@ -1,92 +1,83 @@
-import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
-
-// API 호출출
-const fetchRobots = async () => {
-  const response = await fetch('http://localhost:3000/api/robots');
-  if (!response.ok) {
-    throw new Error('Failed to fetch robots');
-  }
-  return response.json();
-};
-
-const fetchOperationsByRobot = async (robotId: string) => {
-  const url = `http://localhost:3000/api/operations/filter?robotId=${encodeURIComponent(robotId)}`;
-  console.log(`Fetching operations for robot: ${robotId}`);
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error('Failed to fetch operations');
-  }
-  return response.json();
-};
-
-interface Robot {
-  id: string;
-  name: string;
-}
-
-interface Operation {
-  _id: string;
-  name: string;
-}
+import '../../styles/global-map.css';
 
 const MapPage = () => {
-  const { data: robots, isLoading: isRobotsLoading, error: robotsError } = useQuery({
-    queryKey: ['robots'],
-    queryFn: fetchRobots,
-  });
-
-  const [selectedDrone, setSelectedDrone] = useState<string>('');
-
-  const { data: operations, isLoading: isOperationsLoading, error: operationsError } = useQuery({
-    queryKey: ['operations', selectedDrone],
-    queryFn: () => fetchOperationsByRobot(selectedDrone),
-    enabled: !!selectedDrone,  // selectedDrone이 설정된 경우에만 요청
-  });
-
-  const handleDroneChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const selectedId = e.target.value;
-    console.log('Selected robotId:', selectedId);
-    setSelectedDrone(selectedId);
-  };
-
-  if (isRobotsLoading || isOperationsLoading) {
-    return <div>Loading...</div>;
-  }
-
-  if (robotsError instanceof Error) {
-    return <div>Error loading robots: {robotsError.message}</div>;
-  }
-
-  if (operationsError instanceof Error) {
-    return <div>Error loading operations: {operationsError.message}</div>;
-  }
-
+  
   return (
-    <div className="bg-slate-400 p-4">
-      <h2>드론 및 오퍼레이션 선택</h2>
+    <div className='bg-lime-400 h-full'>
+      <section className="toolbar grid justify-start m-4 gap-4">
+        <div className="toolbar-attitude tool-layout">
+          <div className="attitude-header1">
+            <div className="battery">
+              <img src="/public/images/battery-charging-01.svg" />
+            </div>
+            <div className="battery-percentage text-[14px]">: 90%</div>
+          </div>
+          <div className="attitude-header2">
+            <div className="angle w-[35px] inline-block border-2 border-black rounded-[30px] text-center text-[12px]">90°</div>
+            <div>
+              <img src="/public/images/Frame 69.svg" />
+            </div>
+          </div>
+          <div className="attitude-3d row-start-2 col-span-2">
+            <img className="drone w-[253px]" src="/public/images/image 3.png" />
+          </div>
+        </div>
 
-      {/* 드론 종류 선택 드롭다운 */}
-      <label htmlFor="droneSelect">드론 선택:</label>
-      <select id="droneSelect" onChange={handleDroneChange} value={selectedDrone}>
-        <option value="">드론 선택</option>
-        {robots?.map((robot: Robot) => (
-          <option key={robot.id} value={robot.id}>
-            {robot.name}
-          </option>
-        ))}
-      </select>
+        <div className="toolbar-weather toolbar-variation">weather</div>
 
-      {/* 오퍼레이션 종류 선택 드롭다운 */}
-      <label htmlFor="operationSelect">오퍼레이션 선택:</label>
-      <select id="operationSelect">
-        <option value="">오퍼레이션 선택</option>
-        {operations?.map((operation: Operation) => (
-          <option key={operation._id} value={operation._id}>
-            {`op. ${String(operation._id).slice(-4)}`}
-          </option>
-        ))}
-      </select>
+        <div className="toolbar-speed toolbar-variation">
+          <div className="speed-panel">
+            <img src="/public/images/rocket-01.svg" />Speed
+          </div>
+          <div className="speed-value">40m/s</div>
+        </div>
+
+        <div className="toolbar-altitude toolbar-variation">
+          <div className="altitude-panel">
+            <img src="/public/images/navigator-01.svg" />Altitude
+          </div>
+          <div className="altitude-value">80m</div>
+        </div>
+
+        <div className="toolbar-state tool-layout">
+          <div className="state-header1">
+            <div className="state-icon">
+              <img src="/public/images/setting-error-03.svg" />State
+            </div>
+          </div>
+          <div className="state-header2">
+            <div>
+              <img src="/public/images/Vector 17.svg" />
+            </div>
+          </div>
+          <div className="state-detail state row-start-2 col-span-2 flex flex-col gap-[2em]">
+            <div className="state-panel">
+              <p className="state-phrase">Drone is hovering at 10 meters altitude.</p>
+              <p className="state-time">00:04:12</p>
+            </div>
+            <div className="state-panel">
+              <p className="state-phrase">Drone is hovering at 10 meters altitude.</p>
+              <p className="state-time">00:04:12</p>
+            </div>
+            <div className="state-panel">
+              <p className="state-phrase">Drone is hovering at 10 meters altitude.</p>
+              <p className="state-time">00:04:12</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="video-container w-[80%] max-w-[800px] flex mx-auto">
+        <div className="progress-bar relative w-full h-[8px] mt-[50px] mb-[50px] bg-[#504D4D] rounded-[5px]">
+          <div className="progress absolute w-0 h-full bg-[#D7D7D7] transition-width duration-200 ease-linear"></div>
+          <div className="progress-icon absolute top-[-12px] left-0 transition-left duration-200 ease-linear">
+            <img src="/public/images/Vector.svg" />
+          </div>
+          <div className="play-icon absolute mt-4 left-1/2 transform -translate-x-1/2">
+            <img src="/public/images/play.svg" />
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
