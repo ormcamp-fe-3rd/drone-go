@@ -23,6 +23,7 @@ export function HeroSection() {
   return (
     <div className="relative mx-auto h-[1024px]">
       <Header />
+
       <img
         className="absolute bottom-0 z-20 h-full w-full"
         src="../public/images/cloud.svg"
