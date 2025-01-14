@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import Drone from "./Drone";
 
 export function HeroSection() {
   const [currentText, setCurrentText] = useState("Your Turn to Review");
@@ -21,6 +22,8 @@ export function HeroSection() {
 
   return (
     <div className="mx-auto">
+      <Drone />
+      <div className="absolute"></div>
       <img
         className="absolute bottom-0 h-[auto] w-full"
         src="../public/images/cloud.svg"
