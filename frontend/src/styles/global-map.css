@@ -1,5 +1,13 @@
+* {
+    @apply box-border;
+}
+  
+html, body {
+    @apply w-full h-full m-0 bg-lime-600;
+}
+
 .tool-layout {
-    @apply grid w-[274px] h-[300px] mx-auto bg-white bg-opacity-50 rounded-[10px];
+    @apply grid w-[274px] h-[300px] mx-6 bg-white bg-opacity-50 rounded-[10px];
 }
 
 .tool-layout > * {
@@ -19,7 +27,7 @@
 }
 
 .toolbar-variation {
-    @apply w-[274px] h-[52px] p-2.5 bg-white bg-opacity-50 rounded-[10px] text-center leading-6 text-sm font-bold;
+    @apply w-[274px] h-[52px] mx-6 p-2.5 bg-white bg-opacity-50 rounded-[10px] text-center leading-6 text-sm font-bold;
 }
 
 .toolbar-speed, .toolbar-altitude {

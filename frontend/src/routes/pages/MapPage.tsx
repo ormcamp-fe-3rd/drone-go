@@ -1,9 +1,13 @@
 import '../../styles/global-map.css';
+import DetailedDataHeader from '@/components/charts/DetailedDataHeader';
 
 const MapPage = () => {
   
   return (
-    <div className='bg-lime-400 h-full'>
+    <div>
+
+      <DetailedDataHeader />
+
       <section className="toolbar grid justify-start m-4 gap-4">
         <div className="toolbar-attitude tool-layout">
           <div className="attitude-header1">

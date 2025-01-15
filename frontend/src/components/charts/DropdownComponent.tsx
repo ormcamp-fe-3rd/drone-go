@@ -7,25 +7,33 @@ import {
 import { Button } from "@/components/ui/button";
 import { FaCaretDown } from "react-icons/fa";
 
-// 제네릭 타입을 사용하여 타입을 동적으로 처리합니다.
 interface DropdownDroneTypeProps<T> {
   label: string;
   onSelect: (item: T) => void;
-  data?: T[]; // data는 제네릭 타입으로 처리됩니다.
+  data?: T[];
 }
 
-const DropdownComponent = <T extends { _id: string; name: string }>({
+const DropdownComponent = <T extends { _id: string; name?: string }>({
   label,
   onSelect,
   data = [],
 }: DropdownDroneTypeProps<T>) => {
-  const sortedData = [...data].sort((a, b) => a._id.localeCompare(b._id));
+  // data가 배열이 아닌 경우를 처리
+  const sortedData = Array.isArray(data) ? [...data] : [];
+
+  sortedData.sort((a, b) => {
+    if (typeof a._id === "string" && typeof b._id === "string") {
+      return a._id.localeCompare(b._id);
+    }
+    return 0;
+  });
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="border-#BBBBBF flex w-44 justify-around rounded-[8px] border bg-white"
+          className="border-[#BBBBBB] flex w-44 justify-around rounded-[8px] bg-white"
         >
           {label}
           <FaCaretDown className="ml-2" />
@@ -39,7 +47,7 @@ const DropdownComponent = <T extends { _id: string; name: string }>({
               onClick={() => onSelect(item)}
               className="flex flex-col items-center justify-center w-full border-b border-neutral-40"
             >
-              {"name" in item ? item.name : `Operation ${index + 1}`}
+              {item.name || `Operation ${index + 1}`}
             </DropdownMenuItem>
           ))
         ) : (
@@ -51,3 +59,4 @@ const DropdownComponent = <T extends { _id: string; name: string }>({
 };
 
 export default DropdownComponent;
+

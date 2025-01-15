@@ -1,3 +1,51 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    html {
+        font-family: 'Pretendard';
+    }
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/public/fonts/Pretendard-Black.ttf') format('ttf');
+  font-weight: 100;
+}
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/public/fonts/Pretendard-ExtraLight.ttf') format('ttf');
+  font-weight: 200;
+}
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/public/fonts/Pretendard-Light.ttf') format('ttf');
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/public/fonts/Pretendard-Regular.ttf') format('ttf');
+  font-weight: 400;
+}
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/public/fonts/Pretendard-Medium.ttf') format('ttf');
+  font-weight: 500;
+}
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/public/fonts/Pretendard-SemiBold.ttf') format('ttf');
+  font-weight: 600;
+}
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/public/fonts/Pretendard-Bold.ttf') format('ttf');
+  font-weight: 700;
+}
+@font-face {
+  font-family: 'Pretendard';
+  src: url('/public/fonts/Pretendard-ExtraBold.ttf') format('ttf');
+  font-weight: 800;
+}
