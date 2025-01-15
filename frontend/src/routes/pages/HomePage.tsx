@@ -1,7 +1,7 @@
-import { HeroSection } from "@/components/main/HeroSection";
-import { DataList } from "@/components/main/DataList";
-import Drone from "@/components/main/Drone";
-import { LoginModal } from "@/components/main/LoginModal";
+import { DataList } from "@/components/home/DataList";
+import Drone from "@/components/home/Drone";
+import { HeroSection } from "@/components/home/HeroSection";
+import { LoginModal } from "@/components/home/LoginModal";
 
 export function HomePage() {
   return (

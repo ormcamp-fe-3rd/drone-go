@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { SignButton } from "./SignButton";
 import { LoginModal } from "./LoginModal"; // LoginModal 컴포넌트 임포트
 
-export function Header() {
+export function HomeHeader() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false); // 로그인 모달 상태 관리
 
   const handleSignUpClick = () => {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Header } from "./Header";
+import { HomeHeader } from "./HomeHeader";
 
 export function HeroSection() {
   const [currentText, setCurrentText] = useState("Your Turn to Review");
@@ -22,7 +22,7 @@ export function HeroSection() {
 
   return (
     <div className="relative mx-auto h-[1024px]">
-      <Header />
+      <HomeHeader />
 
       <img
         className="absolute bottom-0 z-20 h-full w-full"
