@@ -1,14 +1,14 @@
 import { Button } from "@/components/ui/button";
-import { Link, useLocation } from "react-router-dom";
+import { Link } from "react-router-dom";
 import DropdownSection from "./DropdownSection";
 
-const DetailedDataHeader = () => {
-  const location = useLocation();
-  // 현재 URL에 따라 버튼 텍스트 및 아이콘 변경
-  const isMapPage = location.pathname === "/map"; // 예시 URL: "/map"
+interface Props {
+  isMapPage: boolean;
+}
 
+const DetailedDataHeader: React.FC<Props> = ({ isMapPage }) => {
   return (
-    <div className="mx-10 my-8 flex flex-row flex-wrap items-center justify-evenly gap-1 rounded-[10px] border bg-white px-5 py-4 sm:justify-between md:flex-nowrap md:justify-evenly md:gap-4 md:px-5">
+    <div className="mx-10 my-8 flex flex-wrap items-center justify-evenly gap-1 rounded-[10px] border bg-white px-5 py-4 sm:justify-between md:flex-nowrap md:justify-evenly md:gap-4 md:px-5">
       <Button className="h-20 w-14 min-w-[56px]" variant="ghost">
         <Link to="/">
           <img
@@ -28,7 +28,7 @@ const DetailedDataHeader = () => {
       <div className="flex justify-center order-last w-full mt-4 md:order-none md:mt-0 md:w-auto">
         <DropdownSection className="flex-1" />
       </div>
-      <div className="flex flex-row gap-4">
+      <div className="flex gap-4">
         <Button className="h-16 w-16 min-w-[64px] rounded-[10px] bg-white">
           <img
             src="/icons/download.svg"

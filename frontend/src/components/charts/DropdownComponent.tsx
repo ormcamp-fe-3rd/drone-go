@@ -9,13 +9,13 @@ import { FaCaretDown } from "react-icons/fa";
 
 // 제네릭 타입을 사용하여 타입을 동적으로 처리합니다.
 interface DropdownDroneTypeProps<T> {
-  label: string;
+  value: string;
   onSelect: (item: T) => void;
   data?: T[]; // data는 제네릭 타입으로 처리됩니다.
 }
 
 const DropdownComponent = <T extends { _id: string; name: string }>({
-  label,
+  value,
   onSelect,
   data = [],
 }: DropdownDroneTypeProps<T>) => {
@@ -25,9 +25,9 @@ const DropdownComponent = <T extends { _id: string; name: string }>({
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="border-#BBBBBF flex w-44 justify-around rounded-[8px] border bg-white"
+          className="flex w-44 justify-around rounded-[8px] border border-[#BBBBBF] bg-white"
         >
-          {label}
+          {value}
           <FaCaretDown className="ml-2" />
         </Button>
       </DropdownMenuTrigger>
@@ -39,7 +39,7 @@ const DropdownComponent = <T extends { _id: string; name: string }>({
               onClick={() => onSelect(item)}
               className="flex flex-col items-center justify-center w-full border-b border-neutral-40"
             >
-              {"name" in item ? item.name : `Operation ${index + 1}`}
+              {item.name || `Operation ${index + 1}`}
             </DropdownMenuItem>
           ))
         ) : (

@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
@@ -12,19 +13,14 @@ const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
 );
 
 const ChartPage: React.FC = () => {
-  useEffect(() => {
-    // html에 배경색 추가
-    document.documentElement.style.backgroundColor = "#F3F2F9";
+  const location = useLocation();
+  // 현재 URL이 "/map"인지 확인
+  const isMapPage = location.pathname === "/map";
 
-    return () => {
-      // 페이지를 떠날 때 배경색 원복
-      document.documentElement.style.backgroundColor = "";
-    };
-  }, []);
   return (
-    <div className="min-h-screen bg-[#F3F2F9]">
-      <DetailedDataHeader />
-      <div className="grid grid-cols-1 gap-3 mx-10 my-8 lg:grid-cols-2">
+    <div className="flex min-h-screen flex-col bg-[#F3F2F9]">
+      <DetailedDataHeader isMapPage={isMapPage} />
+      <div className="grid grid-cols-1 gap-3 mx-10 mb-10 lg:grid-cols-2">
         <div className="flex h-[400px] gap-3">
           <div className="flex w-3/5 flex-col rounded-[10px] border border-[#B2B2B7] bg-white">
             <h2 className="mx-10 my-5 text-2xl font-semibold">
