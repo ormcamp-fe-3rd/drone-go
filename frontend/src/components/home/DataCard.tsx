@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 
 interface DataCardProps {
@@ -8,16 +7,10 @@ interface DataCardProps {
 }
 
 export function DataCard({ day, name, timetotal }: DataCardProps) {
-  const [isHovered, setIsHovered] = useState(false);
-
   return (
     <>
       <Link to={"/chart"}>
-        <div
-          className="group relative mx-auto h-[400px] w-[300px] flex-col items-center justify-center rounded border-2 border-[#B2B7B7] bg-white py-16 hover:bg-click hover:text-white"
-          onMouseEnter={() => setIsHovered(true)}
-          onMouseLeave={() => setIsHovered(false)}
-        >
+        <div className="group relative mx-auto h-[400px] w-[300px] flex-col items-center justify-center rounded border-2 border-[#B2B7B7] bg-white py-16 hover:bg-click hover:text-white">
           <div>
             <img
               className="absolute left-9 top-10 transition-all duration-300 ease-in-out group-hover:left-4 group-hover:top-5 group-active:left-4 group-active:top-5"
