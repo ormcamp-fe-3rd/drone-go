@@ -20,15 +20,18 @@ export default function Drone({ scale = 110, rotation = [0, -110, 0] }) {
   }, [glb]);
 
   useEffect(() => {
+    let rafId = 0;
     const updateAnimation = () => {
       if (mixerRef.current) {
         const delta = clock.getDelta();
         mixerRef.current.update(delta);
       }
-      requestAnimationFrame(updateAnimation);
+      rafId = requestAnimationFrame(updateAnimation);
     };
 
     updateAnimation();
+
+    return () => cancelAnimationFrame(rafId);
   }, []);
 
   // GLB 크기와 회전 및 머티리얼 속성 설정
