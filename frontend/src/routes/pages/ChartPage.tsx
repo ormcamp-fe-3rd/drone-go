@@ -4,7 +4,7 @@ import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
 import { Robot, Operation } from "../../types/selectOptionsTypes";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
-import { ProcessedTelemetryBatteryData } from "../../types/telemetryBatteryDataTypes";
+
 import Chart from "../../components/charts/BatteryChartData";
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
@@ -51,7 +51,7 @@ const ChartPage: React.FC = () => {
         selectedOperation={selectedOperation}
         setSelectedOperation={setSelectedOperation}
       />
-      <div className="grid grid-cols-1 gap-3 mx-10 mb-10 lg:grid-cols-2">
+      <div className="mx-10 mb-10 grid grid-cols-1 gap-3 lg:grid-cols-2">
         <div className="flex h-[400px] gap-3">
           <div className="flex w-3/5 flex-col rounded-[10px] border border-[#B2B2B7] bg-white">
             <h2 className="mx-10 my-5 text-2xl font-semibold">
