@@ -1,4 +1,4 @@
-import { DataCard } from "./DataCard";
+import { FlightDataCard } from "./FlightDataCard";
 
 export function DataList() {
   // DataCard에 전달할 데이터 배열
@@ -19,7 +19,7 @@ export function DataList() {
       <div className="flex h-[37.5rem] w-[75rem] flex-wrap items-center justify-center">
         {/* 데이터 배열을 map()으로 렌더링 */}
         {data.map((item, index) => (
-          <DataCard
+          <FlightDataCard
             key={index} // 각 항목의 고유 키 설정
             day={item.day}
             name={item.name}

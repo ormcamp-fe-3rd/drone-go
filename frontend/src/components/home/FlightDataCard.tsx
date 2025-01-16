@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom";
 
-interface DataCardProps {
+interface FlightDataCardProps {
   day: string;
   name: string;
   timetotal: string;
 }
 
-export function DataCard({ day, name, timetotal }: DataCardProps) {
+export function FlightDataCard({ day, name, timetotal }: FlightDataCardProps) {
   return (
     <>
       <Link to={"/chart"}>
