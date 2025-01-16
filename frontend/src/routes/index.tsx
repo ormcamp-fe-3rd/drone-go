@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 
 import App from "@/App";
+
 import MapPage from "./pages/MapPage";
 import AboutPage from "./pages/AboutPage";
 import ChartPage from "./pages/ChartPage";
