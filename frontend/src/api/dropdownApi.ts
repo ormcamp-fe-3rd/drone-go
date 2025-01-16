@@ -11,8 +11,8 @@ export const fetchOperationsByRobot = async (robotId: string) => {
   if (!robotId) {
     throw new Error("robotId is missing");
   }
-  const url = `http://localhost:3000/operations/filter?robot=${encodeURIComponent(robotId)}`;
-  console.log("Fetching operations with URL:", url); // URL 확인
+  const url = `http://localhost:3000/operations?robot=${encodeURIComponent(robotId)}`;
+  console.log("Fetching operations with URL:", url); // TODO: 배포 이후 제거
 
   try {
     const response = await fetch(url);
