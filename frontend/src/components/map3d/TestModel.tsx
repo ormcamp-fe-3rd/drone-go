@@ -23,19 +23,12 @@ const MyMesh = () => {
 }
 
 export default function TestModel(){
-
-
   return (
     <div className="absolute left-1/2 top-1/2 h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2">
       <Canvas
         style={{ width: "100%", height: "100%" }}
         camera={{ position: [0, 0, 200] }}
       >
-        {/* <mesh position={[0, 0, 0]} rotation={[-Math.PI / 2, -Math.PI / 1, 0]}>
-          <boxGeometry args={[100, 100, 100]} />
-          <meshStandardMaterial color="blue" />
-          <ambientLight intensity={3} />
-        </mesh> */}
         <MyMesh />
       </Canvas>
     </div>
