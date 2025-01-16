@@ -4,8 +4,8 @@ import { HeroSection } from "@/components/home/HeroSection";
 
 export function HomePage() {
   return (
-    <div className="relative">
-      <Drone scale={110} rotation={[0, -110, 0]} />
+    <div>
+      <Drone scale={110} rotation={[0, -110, 0]} yAnimationHeight={5} />
       {/* Main Content */}
       <HeroSection />
       <DataList />
