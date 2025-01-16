@@ -1,6 +1,7 @@
-import React from "react";
+import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
 import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
+import { Robot, Operation } from "../../types/selectOptionsTypes";
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   title,
@@ -17,14 +18,20 @@ const ChartPage: React.FC = () => {
   // 현재 URL이 "/map"인지 확인
   const isMapPage = location.pathname === "/map";
 
+  const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
+
   return (
     <div className="flex min-h-screen flex-col bg-[#F3F2F9]">
-      <DetailedDataHeader isMapPage={isMapPage} />
+      <DetailedDataHeader
+        isMapPage={isMapPage}
+        selectedDrone={selectedDrone}
+        setSelectedDrone={setSelectedDrone}
+      />
       <div className="grid grid-cols-1 gap-3 mx-10 mb-10 lg:grid-cols-2">
         <div className="flex h-[400px] gap-3">
           <div className="flex w-3/5 flex-col rounded-[10px] border border-[#B2B2B7] bg-white">
             <h2 className="mx-10 my-5 text-2xl font-semibold">
-              Name : 드론종류
+              Name : {selectedDrone ? selectedDrone.name : "Drone Name"}
             </h2>
             <div className="mx-5 h-[300px]">drone img</div>
           </div>
