@@ -23,15 +23,10 @@ export function HeroSection() {
   return (
     <div className="relative mx-auto h-[1024px]">
       <HomeHeader />
-      <img
-        className="absolute bottom-0 z-20 h-full w-full"
-        src="../public/images/cloud.svg"
-        alt="cloud 이미지"
-      />
       <div className="mx-auto max-w-screen-xl">
         {/* Background Video */}
         <video
-          className="absolute left-0 top-0 z-0 my-0 h-[800px] w-full object-cover"
+          className="absolute left-0 top-0 my-0 h-[800px] w-full object-cover"
           autoPlay
           muted
           loop
@@ -40,10 +35,10 @@ export function HeroSection() {
         </video>
 
         {/* White Overlay */}
-        <div className="absolute left-0 top-0 z-10 h-[1024px] w-full bg-white opacity-75"></div>
+        <div className="absolute left-0 top-0 h-[1024px] w-full bg-white opacity-75"></div>
 
         {/* Content Section */}
-        <div className="absolute z-20 ml-3">
+        <div className="absolute ml-3">
           <div className="mt-32 text-[4.17vw] font-semibold leading-[5.5vw]">
             <p className="text-[#3D3D43]">Every Path Mapped</p>
             <p className="animate-slotMachine text-[#3027F1]">{currentText}</p>
@@ -55,6 +50,12 @@ export function HeroSection() {
             Share your experiences and explore the perfect drone for your needs!
           </p>
         </div>
+
+        <img
+          className="absolute bottom-20 left-0 h-full w-full object-cover"
+          src="../public/images/cloud.svg"
+          alt="cloud 이미지"
+        />
       </div>
     </div>
   );
