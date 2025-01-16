@@ -1,5 +1,5 @@
 import { Canvas } from "@react-three/fiber";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Mesh } from "three";
 
 const MyMesh = () => {
@@ -21,8 +21,20 @@ const MyMesh = () => {
     </mesh>
   );
 }
-
-export default function TestModel(){
+interface Props{
+  dragPosition: {
+    x: number;
+    y: number;
+  }|null;
+}
+export default function TestModel({dragPosition}:Props){
+  useEffect(() => {
+    if (dragPosition) {
+      console.log("Current Drag Position:", dragPosition);
+      // Perform actions based on drag position
+    }
+  }, [dragPosition]);
+  
   return (
     <div className="absolute left-1/2 top-1/2 h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2">
       <Canvas
