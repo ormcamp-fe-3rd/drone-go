@@ -2,18 +2,22 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import DropdownSection from "./DropdownSection";
-import { Robot } from "../../types/selectOptionsTypes";
+import { Robot, Operation } from "../../types/selectOptionsTypes";
 
 interface Props {
   isMapPage: boolean;
   selectedDrone: Robot | null;
   setSelectedDrone: React.Dispatch<React.SetStateAction<Robot | null>>;
+  selectedOperation: Operation | null;
+  setSelectedOperation: React.Dispatch<React.SetStateAction<Operation | null>>;
 }
 
 const DetailedDataHeader: React.FC<Props> = ({
   isMapPage,
   selectedDrone,
   setSelectedDrone,
+  selectedOperation,
+  setSelectedOperation,
 }) => {
   return (
     <div className="mx-10 my-8 flex flex-wrap items-center justify-evenly gap-1 rounded-[10px] border bg-white px-5 py-4 sm:justify-between md:flex-nowrap md:justify-evenly md:gap-4 md:px-5">
@@ -37,6 +41,8 @@ const DetailedDataHeader: React.FC<Props> = ({
         <DropdownSection
           selectedDrone={selectedDrone} // 상태 전달
           setSelectedDrone={setSelectedDrone} // 상태 전달
+          selectedOperation={selectedOperation} // 상태 전달
+          setSelectedOperation={setSelectedOperation} // 상태 전달
           className="flex-1"
         />
       </div>

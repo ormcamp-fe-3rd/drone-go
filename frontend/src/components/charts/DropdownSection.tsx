@@ -9,18 +9,17 @@ interface DropdownSectionProps {
   className?: string; // className을 받을 수 있도록 추가
   selectedDrone: Robot | null;
   setSelectedDrone: React.Dispatch<React.SetStateAction<Robot | null>>;
+  selectedOperation: Operation | null;
+  setSelectedOperation: React.Dispatch<React.SetStateAction<Operation | null>>;
 }
 
 const DropdownSection: React.FC<DropdownSectionProps> = ({
   className,
   selectedDrone,
   setSelectedDrone,
+  selectedOperation,
+  setSelectedOperation,
 }) => {
-  // const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null); // 선택된 드론 상태 추가
-  const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
-    null,
-  ); // 선택된 operation 상태
-
   const {
     data: robots,
     isLoading: isRobotsLoading,
