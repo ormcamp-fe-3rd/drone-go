@@ -99,10 +99,7 @@ export default function Drone({
   }, [glb, scale, rotation]);
 
   return (
-    <div
-      className="absolute z-30"
-      style={{ width: "80vw", height: "80vh", top: "10%", right: "10%" }}
-    >
+    <div className="absolute right-0 top-56 z-30 h-[80vh] w-[70vw]">
       <Canvas camera={{ position: [0, 50, 100], fov: 75 }}>
         <ambientLight intensity={3} />
         <directionalLight position={[0, 0, 5]} color="white" />
