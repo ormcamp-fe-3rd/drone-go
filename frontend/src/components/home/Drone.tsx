@@ -4,7 +4,12 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 import * as THREE from "three";
 
-export default function Drone({ scale = 110, rotation = [0, -110, 0] }) {
+interface DroneProp {
+  scale: number;
+  rotation: number[];
+}
+
+export default function Drone({ scale, rotation }: DroneProp) {
   const glb = useLoader(GLTFLoader, "../../public/objects/drone.glb");
   const mixerRef = useRef<THREE.AnimationMixer | null>(null);
   const clock = new THREE.Clock();
