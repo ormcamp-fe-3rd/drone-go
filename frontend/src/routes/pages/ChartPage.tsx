@@ -1,97 +1,70 @@
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
+import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
+import { Robot, Operation } from "../../types/selectOptionsTypes";
+import { useQuery } from "@tanstack/react-query";
+import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
 
-const DropdownSection: React.FC = () => (
-  <div className="mx-3 flex gap-3">
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline">DronType</Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuItem>1</DropdownMenuItem>
-        <DropdownMenuItem>2</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <Button variant="outline">DATE / version</Button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent>
-        <DropdownMenuItem>2025.01.01 / vo1</DropdownMenuItem>
-        <DropdownMenuItem>2025.01.01 / vo1</DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  </div>
-);
+import Chart from "../../components/charts/BatteryChartData";
 
-const ChartCard: React.FC<{ title: string }> = ({ title }) => (
-  <div className="h-[400px]">
-    <h2>{title}</h2>
+const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
+  children,
+}) => (
+  <div className="h-[400px] rounded-[10px] border border-[#B2B2B7] bg-white pt-5">
+    {children}
   </div>
 );
 
 const ChartPage: React.FC = () => {
+  const location = useLocation();
+  // 현재 URL이 "/map"인지 확인
+  const isMapPage = location.pathname === "/map";
+
+  const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
+  const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
+    null,
+  );
+  const {
+    data: telemetryData = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["telemetry", selectedDrone?._id, selectedOperation?._id],
+    queryFn: () => {
+      if (!selectedDrone || !selectedOperation) {
+        return Promise.resolve([]);
+      }
+      return fetchTelemetriesByRobotAndOperation(
+        selectedDrone._id,
+        selectedOperation._id,
+      );
+    },
+    enabled: !!selectedDrone && !!selectedOperation, // 선택된 드론과 오퍼레이션 값이 있을 때만 API 호출
+    staleTime: 60000, // 데이터 캐싱 시간 (1분)
+  });
   return (
-    <>
-      {/* 상단 */}
-      <div className="mx-10 my-8 flex flex-row items-center justify-evenly gap-4 rounded-lg border px-5 py-4">
-        {/* btn클릭 시 list 페이지로 */}
-        <Button className="h-20 w-14 min-w-[56px]" variant="ghost">
-          {/*드론 리스트 페이지로 이동*/}
-          <Link to="/">
-            <img
-              src="/icons/ListPage.png"
-              alt="Button Icon"
-              className="h-20 w-14 object-contain"
-            />
-          </Link>
-        </Button>
-        {/* text div*/}
-        <article className="w-2/3 min-w-[226px]">
-          <h1 className="text-3xl font-semibold">Detailed Data</h1>
-          <span className="hidden text-sm sm:block">
-            Visualize drone data with interactive charts and maps. <br />
-            Exploretrends and movement patterns for the selected date.
-          </span>
-        </article>
-        <DropdownSection />
-        <Button variant="outline" className="h-16 w-16 min-w-[64px]">
-          <img
-            src="/icons/download.png"
-            alt="Button Icon"
-            className="h-16 w-16 object-contain"
-          />
-        </Button>
-        <Button variant="outline" className="h-16 w-16 min-w-[64px]">
-          <img
-            src="/icons/maps.png"
-            alt="Button Icon"
-            className="h-16 w-16 object-contain"
-          />
-        </Button>
-      </div>
-      {/* 차트 및 데이터 값들 */}
-      <div className="mx-10 my-8 grid grid-cols-1 gap-3 lg:grid-cols-2">
+    <div className="flex min-h-screen flex-col bg-[#F3F2F9]">
+      <DetailedDataHeader
+        isMapPage={isMapPage}
+        selectedDrone={selectedDrone}
+        setSelectedDrone={setSelectedDrone}
+        selectedOperation={selectedOperation}
+        setSelectedOperation={setSelectedOperation}
+      />
+      <div className="mx-10 mb-10 grid grid-cols-1 gap-3 lg:grid-cols-2">
         <div className="flex h-[400px] gap-3">
-          <div className="flex w-3/5 flex-col">
+          <div className="flex w-3/5 flex-col rounded-[10px] border border-[#B2B2B7] bg-white">
             <h2 className="mx-10 my-5 text-2xl font-semibold">
-              Name : 드론종류
+              Name : {selectedDrone ? selectedDrone.name : "Drone Name"}
             </h2>
             <div className="mx-5 h-[300px]">drone img</div>
           </div>
           <div className="flex h-[400px] w-2/5 flex-col gap-3">
-            <div className="flex h-2/5 flex-col justify-around gap-1">
+            <div className="flex h-2/5 flex-col justify-around gap-1 rounded-[10px] border border-[#B2B2B7] bg-white">
               <div className="flex items-center">
                 <div className="mx-2 my-2">
                   <img
-                    src="/icons/time.png"
+                    src="/icons/time.svg"
                     alt="Button Icon"
                     className="object-contain"
                   />
@@ -102,11 +75,11 @@ const ChartPage: React.FC = () => {
                 {/* 시간 데이터들 보여지는 부분*/}
               </div>
             </div>
-            <div className="flex h-3/5 flex-col justify-around gap-1">
+            <div className="flex h-3/5 flex-col justify-around gap-1 rounded-[10px] border border-[#B2B2B7] bg-white">
               <div className="flex items-center">
                 <div className="mx-2 my-2">
                   <img
-                    src="/icons/setting-error.png"
+                    src="/icons/setting-error.svg"
                     alt="Button Icon"
                     className="object-contain"
                   />
@@ -119,11 +92,25 @@ const ChartPage: React.FC = () => {
             </div>
           </div>
         </div>
-        <ChartCard title="chart1" />
-        <ChartCard title="chart2" />
-        <ChartCard title="chart3" />
+        {isLoading ? (
+          <p>Loading chart data...</p>
+        ) : error instanceof Error ? (
+          <p>Error loading data: {error.message}</p>
+        ) : telemetryData.length > 0 ? (
+          <ChartCard title="">
+            <Chart data={telemetryData} />
+          </ChartCard>
+        ) : (
+          <p>Select a drone and operation to view the chart.</p>
+        )}
+        <ChartCard title="chart2">
+          <div />
+        </ChartCard>
+        <ChartCard title="chart3">
+          <div />
+        </ChartCard>
       </div>
-    </>
+    </div>
   );
 };
 
