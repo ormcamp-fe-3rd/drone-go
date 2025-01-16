@@ -9,15 +9,17 @@ export default function Map3D() {
   const [dragPosition, setDragPosition] = useState<{
     x: number;
     y: number;
-  } | null>(null); // State to store drag position
-  const [isDragging, setIsDragging] = useState(false); // Dragging state
+  } | null>(null); 
+  const [isDragging, setIsDragging] = useState(false); 
 
-  // Handle mouse down to start dragging
-  const handleMouseDown = () => {
-    setIsDragging(true);
+
+  const handleMouseDown = (event: mapboxgl.MapMouseEvent) => {
+    if(event.originalEvent.ctrlKey){
+      setIsDragging(true);
+    }
   };
 
-  // Handle mouse move to update drag position
+
   const handleMouseMove = (event: mapboxgl.MapMouseEvent) => {
     if (!isDragging || !mapRef.current) return;
 
@@ -25,11 +27,11 @@ export default function Map3D() {
     setDragPosition({ x:point.x, y:point.y });
   };
 
-  // Handle mouse up to stop dragging
   const handleMouseUp = () => {
     setIsDragging(false);
-    setDragPosition(null); // Optional: Reset position after drag
+    setDragPosition(null); 
   };
+
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -39,16 +41,11 @@ export default function Map3D() {
       // 지도 스타일이 로드된 후에 추가 작업 수행
       //TODO: 맵 조작
     });
-    map.on("mousedown", handleMouseDown);
-    map.on("mousemove", handleMouseMove);
-    map.on("mouseup", handleMouseUp);
 
     return () => {
-      map.off("mousedown", handleMouseDown);
-      map.off("mousemove", handleMouseMove);
-      map.off("mouseup", handleMouseUp);
+      //
     };
-  }, [isDragging, handleMouseMove]);
+  }, []);
   
   return (
     <div className="fixed inset-0">
@@ -75,7 +72,7 @@ export default function Map3D() {
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
       >
-        <TestModel dragPosition={dragPosition}/>
+        <TestModel dragPosition={dragPosition} mapRef={mapRef}/>
       </Map>
     </div>
   );

@@ -22,7 +22,6 @@ export default function Map3dPage(){
       ) : (
         <div>
           <Map3D />
-          {/* <TestModel /> */}
         </div>
       )}
     </div>
