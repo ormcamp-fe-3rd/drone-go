@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const Operation = require('../models/Operation');
 const Robot = require('../models/Robot');
 

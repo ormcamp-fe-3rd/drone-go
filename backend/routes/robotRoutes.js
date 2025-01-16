@@ -3,7 +3,7 @@ const router = express.Router()
 
 const Robot = require("../models/robotModel")
 
-router.get('/robots', async (req, res) => {
+router.get('/', async (req, res) => {
   try {
     const robots = await Robot.find() // 모든 로봇 가져오기
     if (!robots || robots.length === 0) {

@@ -1,0 +1,27 @@
+[
+    {
+      "icon": "/public/images/sun-03.svg",
+      "title": "Sunny",
+      "dataValues": ["12°C", "100 km/h NW"]
+    },
+    {
+      "icon": "/public/images/rocket-01.svg",
+      "title": "Speed",
+      "dataValues": ["40m/s"]
+    },
+    {
+      "icon": "/public/images/navigator-01.svg",
+      "title": "Altitude",
+      "dataValues": ["80m"]
+    },
+    {
+      "icon": "/public/images/setting-error-03.svg",
+      "title": "State",
+      "stateValues": [
+        { "state": "Drone is hovering at 10 meters altitude.", "time": "00:4:34" },
+        { "state": "Drone is hovering at 10 meters altitude.", "time": "00:23:44" },
+        { "state": "Drone is hovering at 10 meters altitude.", "time": "00:55:67" }
+      ]
+    }
+  ]
+  
