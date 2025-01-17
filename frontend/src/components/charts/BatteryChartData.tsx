@@ -49,6 +49,11 @@ const Chart: React.FC<ChartProps> = ({ data }) => {
         right: 20, // 차트 오른쪽 여백
       },
     },
+    stroke: {
+      show: true,
+      curve: "smooth", // 전체 라인을 부드럽게 표시
+      dashArray: 0,
+    },
     title: {
       text: "Drone Battery Status", // 차트 타이틀 텍스트
       align: "left", // 타이틀의 정렬 (center로 설정)
@@ -102,6 +107,12 @@ const Chart: React.FC<ChartProps> = ({ data }) => {
         tickAmount: 3, // 10개의 눈금을 표시하여 촘촘하게
       },
     ],
+    theme: {
+      palette: "palette2",
+    },
+    markers: {
+      size: 0, // 마커를 제거
+    },
   };
 
   return (
