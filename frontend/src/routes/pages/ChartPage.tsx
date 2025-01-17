@@ -10,7 +10,7 @@ import Chart from "../../components/charts/BatteryChartData";
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   children,
 }) => (
-  <div className="h-[400px] rounded-[10px] border border-[#B2B2B7] bg-white pt-5">
+  <div className="h-[380px] rounded-[10px] border border-[#B2B2B7] bg-white pt-5">
     {children}
   </div>
 );
@@ -51,15 +51,15 @@ const ChartPage: React.FC = () => {
         selectedOperation={selectedOperation}
         setSelectedOperation={setSelectedOperation}
       />
-      <div className="mx-10 mb-10 grid grid-cols-1 gap-3 lg:grid-cols-2">
-        <div className="flex h-[400px] gap-3">
+      <div className="grid grid-cols-1 gap-3 mx-10 mb-6 lg:grid-cols-2">
+        <div className="flex h-[380px] gap-3">
           <div className="flex w-3/5 flex-col rounded-[10px] border border-[#B2B2B7] bg-white">
             <h2 className="mx-10 my-5 text-2xl font-semibold">
               Name : {selectedDrone ? selectedDrone.name : "Drone Name"}
             </h2>
             <div className="mx-5 h-[300px]">drone img</div>
           </div>
-          <div className="flex h-[400px] w-2/5 flex-col gap-3">
+          <div className="flex h-[380px] w-2/5 flex-col gap-3">
             <div className="flex h-2/5 flex-col justify-around gap-1 rounded-[10px] border border-[#B2B2B7] bg-white">
               <div className="flex items-center">
                 <div className="mx-2 my-2">

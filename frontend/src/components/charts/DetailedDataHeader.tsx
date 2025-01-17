@@ -20,7 +20,7 @@ const DetailedDataHeader: React.FC<Props> = ({
   setSelectedOperation,
 }) => {
   return (
-    <div className="mx-10 my-8 flex flex-wrap items-center justify-evenly gap-1 rounded-[10px] border bg-white px-5 py-4 sm:justify-between md:flex-nowrap md:justify-evenly md:gap-4 md:px-5">
+    <div className="mx-10 mb-4 mt-6 flex flex-wrap items-center justify-evenly gap-1 rounded-[10px] border bg-white px-5 py-4 sm:justify-between md:flex-nowrap md:justify-evenly md:gap-4 md:px-5">
       <Button className="h-20 w-14 min-w-[56px]" variant="ghost">
         <Link to="/">
           <img
