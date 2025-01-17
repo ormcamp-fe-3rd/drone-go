@@ -4,8 +4,8 @@ import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
 import { Robot, Operation } from "../../types/selectOptionsTypes";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
-
 import Chart from "../../components/charts/BatteryChartData";
+import FlightTimeDataComponenet from "../../components/charts/FilghtTimeDataComponent";
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   children,
@@ -69,10 +69,12 @@ const ChartPage: React.FC = () => {
                     className="object-contain"
                   />
                 </div>
-                <h2>Flight time</h2>
+                <h2 className="text-[16px] font-bold">Flight time</h2>
               </div>
               <div className="h-[100px]">
-                {/* 시간 데이터들 보여지는 부분*/}
+                {telemetryData.length > 0 && (
+                  <FlightTimeDataComponenet data={telemetryData} />
+                )}
               </div>
             </div>
             <div className="flex h-3/5 flex-col justify-around gap-1 rounded-[10px] border border-[#B2B2B7] bg-white">
@@ -84,7 +86,7 @@ const ChartPage: React.FC = () => {
                     className="object-contain"
                   />
                 </div>
-                <h2>State</h2>
+                <h2 className="text-[16px] font-bold">State</h2>
               </div>
               <div className="h-[170px]">
                 {/* 상태 데이터들 보여지는 부분*/}
