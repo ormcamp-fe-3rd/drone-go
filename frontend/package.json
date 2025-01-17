@@ -35,16 +35,9 @@
     "shadcn-ui": "^0.9.4",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
-<<<<<<< HEAD
-<<<<<<< HEAD
     "@comfortdelgro/react-compass": "^4.7.1",
     "compass": "^0.1.1",
     "react-typescript-flight-indicators": "^1.0.4",
-=======
-<<<<<<< HEAD
->>>>>>> b84e140 (feat: 3d map 생성)
-=======
->>>>>>> 363538e (fix: merge conflict)
     "three": "^0.172.0",
     "xlsx": "^0.18.5"
   },
