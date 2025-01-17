@@ -1,34 +1,61 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
+import { useLocation } from "react-router-dom";
 import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
+import { Robot, Operation } from "../../types/selectOptionsTypes";
+import { useQuery } from "@tanstack/react-query";
+import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
+
+import Chart from "../../components/charts/BatteryChartData";
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
-  title,
   children,
 }) => (
-  <div className="h-[400px] rounded-[10px] border border-[#B2B2B7] bg-white">
-    <h2>{title}</h2>
+  <div className="h-[400px] rounded-[10px] border border-[#B2B2B7] bg-white pt-5">
     {children}
   </div>
 );
 
 const ChartPage: React.FC = () => {
-  useEffect(() => {
-    // html에 배경색 추가
-    document.documentElement.style.backgroundColor = "#F3F2F9";
+  const location = useLocation();
+  // 현재 URL이 "/map"인지 확인
+  const isMapPage = location.pathname === "/map";
 
-    return () => {
-      // 페이지를 떠날 때 배경색 원복
-      document.documentElement.style.backgroundColor = "";
-    };
-  }, []);
+  const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
+  const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
+    null,
+  );
+  const {
+    data: telemetryData = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["telemetry", selectedDrone?._id, selectedOperation?._id],
+    queryFn: () => {
+      if (!selectedDrone || !selectedOperation) {
+        return Promise.resolve([]);
+      }
+      return fetchTelemetriesByRobotAndOperation(
+        selectedDrone._id,
+        selectedOperation._id,
+      );
+    },
+    enabled: !!selectedDrone && !!selectedOperation, // 선택된 드론과 오퍼레이션 값이 있을 때만 API 호출
+    staleTime: 60000, // 데이터 캐싱 시간 (1분)
+  });
   return (
-    <div className="min-h-screen bg-[#F3F2F9]">
-      <DetailedDataHeader />
-      <div className="grid grid-cols-1 gap-3 mx-10 my-8 lg:grid-cols-2">
+    <div className="flex min-h-screen flex-col bg-[#F3F2F9]">
+      <DetailedDataHeader
+        isMapPage={isMapPage}
+        selectedDrone={selectedDrone}
+        setSelectedDrone={setSelectedDrone}
+        selectedOperation={selectedOperation}
+        setSelectedOperation={setSelectedOperation}
+      />
+      <div className="mx-10 mb-10 grid grid-cols-1 gap-3 lg:grid-cols-2">
         <div className="flex h-[400px] gap-3">
           <div className="flex w-3/5 flex-col rounded-[10px] border border-[#B2B2B7] bg-white">
             <h2 className="mx-10 my-5 text-2xl font-semibold">
-              Name : 드론종류
+              Name : {selectedDrone ? selectedDrone.name : "Drone Name"}
             </h2>
             <div className="mx-5 h-[300px]">drone img</div>
           </div>
@@ -65,7 +92,17 @@ const ChartPage: React.FC = () => {
             </div>
           </div>
         </div>
-        <ChartCard title="chart1">{/* <TelemetryChart /> */}</ChartCard>
+        {isLoading ? (
+          <p>Loading chart data...</p>
+        ) : error instanceof Error ? (
+          <p>Error loading data: {error.message}</p>
+        ) : telemetryData.length > 0 ? (
+          <ChartCard title="">
+            <Chart data={telemetryData} />
+          </ChartCard>
+        ) : (
+          <p>Select a drone and operation to view the chart.</p>
+        )}
         <ChartCard title="chart2">
           <div />
         </ChartCard>

@@ -8,13 +8,13 @@ import { Button } from "@/components/ui/button";
 import { FaCaretDown } from "react-icons/fa";
 
 interface DropdownDroneTypeProps<T> {
-  label: string;
+  value: string;
   onSelect: (item: T) => void;
   data?: T[];
 }
 
-const DropdownComponent = <T extends { _id: string; name?: string }>({
-  label,
+const DropdownComponent = <T extends { _id: string; name: string }>({
+  value,
   onSelect,
   data = [],
 }: DropdownDroneTypeProps<T>) => {
@@ -33,9 +33,9 @@ const DropdownComponent = <T extends { _id: string; name?: string }>({
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="border-[#BBBBBB] flex w-44 justify-around rounded-[8px] bg-white"
+          className="flex w-44 justify-around rounded-[8px] border border-[#BBBBBF] bg-white"
         >
-          {label}
+          {value}
           <FaCaretDown className="ml-2" />
         </Button>
       </DropdownMenuTrigger>

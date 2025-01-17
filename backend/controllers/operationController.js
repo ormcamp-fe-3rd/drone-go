@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-
 const Operation = require('../models/operationModel');
 const Robot = require('../models/robotModel');
 
