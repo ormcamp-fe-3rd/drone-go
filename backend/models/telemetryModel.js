@@ -1,4 +1,4 @@
-const { Schema, model } = require('mongoose')
+const { Schema, model } = require('mongoose');
 
 const telemetrySchema = new Schema({
   operation: {
@@ -17,12 +17,13 @@ const telemetrySchema = new Schema({
   },
   payload: {
     type: Object,
-    required: true
+    required: true,
   },
   timestamp: {
     type: Date,
     required: true
   }
-})
+});
 
-module.exports = model('Telemetry', telemetrySchema)
+module.exports = model('Telemetry', telemetrySchema);
+
