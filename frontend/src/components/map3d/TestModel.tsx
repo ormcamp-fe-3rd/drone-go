@@ -13,49 +13,46 @@ interface Props {
 
 const MyMesh = ({dragPosition, mapRef}:Props) => {
   const refMesh = useRef<Mesh>(null);
-  const rotateXRef = useRef<number>(-Math.PI / 4); // 초기값 설정
+  const rotateXRef = useRef<number>(0); 
   const rotateYRef = useRef<number>(0);
 
-  const INITIAL_ROTATE_X = -Math.PI / 4;
-  const ROTATION_MULTIPLIER = Math.PI * 0.25;
-
-
+  const ROTATION_MULTIPLIER = Math.PI * 0.9;
   
-  useFrame((_, delta) => {
+  useFrame(() => {
     if (!dragPosition || !mapRef.current) return;
-    console.log("use Frame: " + dragPosition.x, dragPosition.y);
 
-    const mapContainer = mapRef.current?.getContainer();
-
+    // 화면 좌표를 -1~1로 변환
+    const mapContainer = mapRef.current.getContainer();
     const x = (dragPosition.x / mapContainer.clientWidth) * 2 - 1;
-    const y = (dragPosition.y / mapContainer.clientHeight) * 2 - 1;
+    const y = -(dragPosition.y / mapContainer.clientHeight) * 2 + 1;
 
-    const targetRotateX = INITIAL_ROTATE_X + x * ROTATION_MULTIPLIER; // 회전 범위 증가
-    const targetRotateY = y * ROTATION_MULTIPLIER; // 회전 범위 증가
+    // 회전 범위 증가
+    if(!refMesh.current) return;
+    const targetRotateX = refMesh.current.rotation.x + y * ROTATION_MULTIPLIER;
+    const targetRotateY = refMesh.current.rotation.y + x * ROTATION_MULTIPLIER;
 
-    console.log("x: " + x + " y: " + y);
 
-    const smoothFactor = 0.1 * delta * 60; 
-    rotateXRef.current += (targetRotateX - rotateXRef.current) * smoothFactor; // 부드럽게
-    rotateYRef.current += (targetRotateY - rotateYRef.current) * smoothFactor;
+    // 부드럽게
+    rotateXRef.current += (targetRotateX - rotateXRef.current) * 0.1;
+    rotateYRef.current += (targetRotateY - rotateYRef.current) * 0.1;
 
-    if(refMesh.current){
+
+    if (refMesh.current) {
       refMesh.current.rotation.x = rotateXRef.current;
       refMesh.current.rotation.y = rotateYRef.current;
     }
   });
 
   return (
-    <mesh ref={refMesh} position={[0, 0, 0]}>
+    <mesh ref={refMesh} position={[0, 0, 0]} rotation={[-Math.PI / 4,0,0]}>
       <boxGeometry args={[100, 100, 100]} />
-      <meshStandardMaterial color="blue" />
+      <meshStandardMaterial color="blue" wireframe={true}/>
       <ambientLight intensity={5} />
     </mesh>
   );
 }
 
 export default function TestModel({dragPosition, mapRef}:Props){
-  
   return (
     <div className="absolute left-1/2 top-1/2 h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2">
       <Canvas
