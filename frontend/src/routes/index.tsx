@@ -2,11 +2,11 @@ import { createBrowserRouter } from "react-router-dom";
 
 import App from "@/App";
 
-import MapPage from "./pages/MapPage";
 import AboutPage from "./pages/AboutPage";
 import ChartPage from "./pages/ChartPage";
 import { HomePage } from "./pages/HomePage";
 import Map3dPage from "./pages/Map3dPage";
+import MapPage from "./pages/MapPage";
 
 const router = createBrowserRouter([
   {
