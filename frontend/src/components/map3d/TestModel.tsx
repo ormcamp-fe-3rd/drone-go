@@ -36,7 +36,7 @@ const MyMesh = ({dragPosition, mapRef}:Props) => {
     rotateXRef.current += (targetRotateX - rotateXRef.current) * 0.1;
     rotateYRef.current += (targetRotateY - rotateYRef.current) * 0.1;
 
-
+    // 회전
     if (refMesh.current) {
       refMesh.current.rotation.x = rotateXRef.current;
       refMesh.current.rotation.y = rotateYRef.current;

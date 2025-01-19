@@ -1,3 +1,4 @@
+import { Canvas } from "@react-three/fiber";
 import { useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
@@ -21,7 +22,9 @@ export default function Map3D() {
     if (!isDragging || !mapRef.current) return;
 
     const point = event.point;
-    setDragPosition({ x: point.x, y: point.y });
+    const x = (point.x / mapRef.current.getContainer().clientWidth) * 2 - 1;
+    const y = -(point.y / mapRef.current.getContainer().clientWidth) * 2 + 1;
+    setDragPosition({ x: x, y: y });
   };
 
   const handleMouseUp = () => {
@@ -41,7 +44,7 @@ export default function Map3D() {
     return () => {
       //
     };
-  }, []);
+  }, [mapRef]);
 
   return (
     <div className="fixed inset-0">
@@ -70,7 +73,9 @@ export default function Map3D() {
       >
         {/* <TestModel dragPosition={dragPosition} mapRef={mapRef}/> */}
         <div className="absolute left-1/2 top-1/2 h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2">
-          <DroneInMap scale={100} rotation={[0, 90, 0]} />
+          <Canvas camera={{ position: [0, 0, 100], fov: 75 }}>
+            <DroneInMap dragPosition={dragPosition} />
+          </Canvas>
         </div>
       </Map>
     </div>
