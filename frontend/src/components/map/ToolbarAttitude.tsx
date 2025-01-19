@@ -1,6 +1,6 @@
 const ToolbarAttitude = () => {
     return (
-        <div className="toolbar-attitude w-[274px] h-[300px] grid grid-rows-[33%_1fr] grid-cols-[1fr_1fr] mx-6 bg-white bg-opacity-50 rounded-[10px] ">
+        <div className="toolbar-attitude w-[274px] h-[300px] grid grid-rows-[33%_1fr] grid-cols-[1fr_1fr] mx-6 bg-white bg-opacity-60 rounded-[10px] ">
           <div className="toolbar-header1 row-start-1 col-start-1 flex justify-start items-start p-2.5">
             <div className="battery">
               <img src="/public/images/battery-charging-01.svg" />

@@ -25,7 +25,11 @@ export default function Map3dPage(){
           selectedOperation={selectedOperation}
           setSelectedOperation={setSelectedOperation}
         />
+      </div>
+      <div className="fixed z-10 right-10 top-[178px]">
         <MapSwitchButton />
+      </div>
+      <div className="fixed z-10 top-[178px] left-4">
         <ToolbarAttitude />
       </div>
       <Map3D />
