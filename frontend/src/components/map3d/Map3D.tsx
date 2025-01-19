@@ -1,37 +1,33 @@
-import { useEffect,useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
-import TestModel from "./TestModel";
-
+import DroneInMap from "./DroneInMap";
 
 export default function Map3D() {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
   const [dragPosition, setDragPosition] = useState<{
     x: number;
     y: number;
-  } | null>(null); 
-  const [isDragging, setIsDragging] = useState(false); 
-
+  } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const handleMouseDown = (event: mapboxgl.MapMouseEvent) => {
-    if(event.originalEvent.ctrlKey){
+    if (event.originalEvent.ctrlKey) {
       setIsDragging(true);
     }
   };
-
 
   const handleMouseMove = (event: mapboxgl.MapMouseEvent) => {
     if (!isDragging || !mapRef.current) return;
 
     const point = event.point;
-    setDragPosition({ x:point.x, y:point.y });
+    setDragPosition({ x: point.x, y: point.y });
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
-    setDragPosition(null); 
+    setDragPosition(null);
   };
-
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -46,7 +42,7 @@ export default function Map3D() {
       //
     };
   }, []);
-  
+
   return (
     <div className="fixed inset-0">
       <Map
@@ -72,7 +68,10 @@ export default function Map3D() {
         onMouseUp={handleMouseUp}
         onMouseMove={handleMouseMove}
       >
-        <TestModel dragPosition={dragPosition} mapRef={mapRef}/>
+        {/* <TestModel dragPosition={dragPosition} mapRef={mapRef}/> */}
+        <div className="absolute left-1/2 top-1/2 h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2">
+          <DroneInMap scale={100} rotation={[0, 90, 0]} />
+        </div>
       </Map>
     </div>
   );
