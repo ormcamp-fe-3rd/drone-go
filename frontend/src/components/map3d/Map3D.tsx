@@ -1,6 +1,9 @@
 import { Canvas } from "@react-three/fiber";
+import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
+
+import { fetchPositionDataByOperation } from "@/api/mapApi";
 
 import DroneInMap from "./DroneInMap";
 
@@ -44,7 +47,20 @@ export default function Map3D() {
     return () => {
       //
     };
+    
   }, [mapRef]);
+
+  //Test
+  const operationId = "677730f8e8f8dd840dd35153";
+  const robotId = "67773116e8f8dd840dd35155";
+
+  const { isPending, error, data } = useQuery({
+    queryKey: ['position'],
+    queryFn: () => fetchPositionDataByOperation(robotId, operationId)
+  });
+  if (isPending) return "Loading";
+  if (error) return "An error has occurred: " + error.message;
+  console.log(data)
 
   return (
     <div className="fixed inset-0">
