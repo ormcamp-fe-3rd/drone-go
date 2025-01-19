@@ -51,16 +51,16 @@ export default function Map3D() {
   }, [mapRef]);
 
   //Test
-  const operationId = "677730f8e8f8dd840dd35153";
-  const robotId = "67773116e8f8dd840dd35155";
+  // const operationId = "677730f8e8f8dd840dd35153";
+  // const robotId = "67773116e8f8dd840dd35155";
 
-  const { isPending, error, data } = useQuery({
-    queryKey: ['position'],
-    queryFn: () => fetchPositionDataByOperation(robotId, operationId)
-  });
-  if (isPending) return "Loading";
-  if (error) return "An error has occurred: " + error.message;
-  console.log(data)
+  // const { isPending, error, data } = useQuery({
+  //   queryKey: ['position'],
+  //   queryFn: () => fetchPositionDataByOperation(robotId, operationId)
+  // });
+  // if (isPending) return "Loading";
+  // if (error) return "An error has occurred: " + error.message;
+  // console.log(data)
 
   return (
     <div className="fixed inset-0">
