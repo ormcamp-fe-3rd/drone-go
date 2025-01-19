@@ -9,6 +9,7 @@ import DetailedDataHeader from '@/components/charts/DetailedDataHeader';
 import ToolbarWidget from "@/components/map/ToolbarWidget";
 import ToolbarAttitude from "@/components/map/ToolbarAttitude";
 import ProgressBar from "@/components/map/ProgressBar";
+import MapSwitchButton from "@/components/map3d/MapSwitchButton";
 
 const MapPage: React.FC = () => {
   
@@ -36,7 +37,7 @@ const MapPage: React.FC = () => {
       <section className="toolbar grid justify-start m-4 gap-4">
         
         <ToolbarAttitude />
-
+        <MapSwitchButton />
         <div className="toolbar-variation w-full flex flex-col space-y-4">
         {widgetData.map((widget, index) => (
           <ToolbarWidget 

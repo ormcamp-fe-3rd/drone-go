@@ -1,7 +1,9 @@
 import { useState } from "react";
 
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
+import ToolbarAttitude from "@/components/map/ToolbarAttitude";
 import Map3D from "@/components/map3d/Map3D";
+import MapSwitchButton from "@/components/map3d/MapSwitchButton";
 import { Operation,Robot } from "@/types/selectOptionsTypes";
 
 
@@ -22,6 +24,8 @@ export default function Map3dPage(){
           selectedOperation={selectedOperation}
           setSelectedOperation={setSelectedOperation}
         />
+        <MapSwitchButton />
+        <ToolbarAttitude />
       </div>
       <Map3D />
     </div>
