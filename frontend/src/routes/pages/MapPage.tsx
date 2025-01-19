@@ -28,6 +28,7 @@ const MapPage: React.FC = () => {
     <div className="w-full h-full m-0 bg-lime-600 box-border">
 
       <DetailedDataHeader
+        backgroundOpacity={60}
         isMapPage={isMapPage}
         selectedDrone={selectedDrone}
         setSelectedDrone={setSelectedDrone}

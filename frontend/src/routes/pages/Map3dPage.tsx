@@ -18,6 +18,7 @@ export default function Map3dPage(){
     <div>
       <div className="fixed z-10 w-screen">
         <DetailedDataHeader
+          backgroundOpacity={60}
           isMapPage={true}
           selectedDrone={selectedDrone}
           setSelectedDrone={setSelectedDrone}
