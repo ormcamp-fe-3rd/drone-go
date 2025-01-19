@@ -1,5 +1,5 @@
 import { useFrame, useLoader } from "@react-three/fiber";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
@@ -14,8 +14,8 @@ export default function DroneInMap({dragPosition}:DroneProp) {
   const glb = useLoader(GLTFLoader, "/objects/drone.glb");
   const mixerRef = useRef<THREE.AnimationMixer | null>(null);
   const clock = new THREE.Clock();
-  const initialRotationRef = useRef<THREE.Euler | null>(null);
-  const currentRotationRef = useRef<THREE.Euler | null>(null);
+  const [rotationX, setRotationX] = useState(0);
+  const [rotationY, setRotationY] = useState(0);
 
   useEffect(() => {
     // 애니메이션 설정
@@ -48,15 +48,8 @@ export default function DroneInMap({dragPosition}:DroneProp) {
       // 크기 설정
       glb.scene.scale.set(100, 100, 100);
 
-      // 회전 설정
-      const initialRotation = new THREE.Euler(
-        THREE.MathUtils.degToRad(45), // X축 회전
-        THREE.MathUtils.degToRad(90), // Y축 회전
-        THREE.MathUtils.degToRad(0), // Z축 회전
-      );
-      glb.scene.rotation.copy(initialRotation);
-      initialRotationRef.current = initialRotation.clone();
-      currentRotationRef.current = initialRotation.clone();
+      glb.scene.rotation.set(THREE.MathUtils.degToRad(45), THREE.MathUtils.degToRad(90), 0);
+
 
       // 메탈 재질과 거칠기 설정
       glb.scene.traverse((child) => {
@@ -83,18 +76,19 @@ export default function DroneInMap({dragPosition}:DroneProp) {
   // dragPosition에 따른 회전 처리
   useFrame(() => {
     if(!glb.scene || !dragPosition) return;
-    // 회전 범위
-    if(!currentRotationRef.current)return;
-    const deltaX = (currentRotationRef.current.x + dragPosition.x * Math.PI * 0.2);
-    const deltaY = (currentRotationRef.current.y + dragPosition.y * Math.PI * 0.2);
+
+    //현재 회전값 저장
+    setRotationX(glb.scene.rotation.x);
+    setRotationY(glb.scene.rotation.y);
+
+    //회전 범위
+    const deltaX = rotationX + dragPosition.x * Math.PI * 0.2;
+    const deltaY = rotationY + dragPosition.y * Math.PI * 0.2;
 
     //회전
-    glb.scene.rotation.x += (deltaX - currentRotationRef.current.x)* 0.5;
-    glb.scene.rotation.y += (deltaY - currentRotationRef.current.y) * 0.5;
-    
-    //회전값 저장
-    currentRotationRef.current.x = glb.scene.rotation.x;
-    currentRotationRef.current.y = glb.scene.rotation.y;
+    glb.scene.rotation.x += (deltaX - rotationX) * 0.5;
+    glb.scene.rotation.y += (deltaY - rotationY) * 0.5;
+
   });
 
   return (
