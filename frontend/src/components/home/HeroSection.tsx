@@ -31,6 +31,7 @@ export function HeroSection() {
     <div className="relative mx-auto h-[1024px]">
       <HomeHeader />
       <div className="mx-auto max-w-screen-xl">
+        {/* Background Video */}
         <video
           className="absolute left-0 top-0 my-0 h-[800px] w-full object-cover"
           autoPlay
@@ -40,9 +41,11 @@ export function HeroSection() {
           <source src="/videos/video.mp4" type="video/mp4" />
         </video>
 
+        {/* White Overlay */}
         <div className="absolute left-0 top-0 h-[1024px] w-full bg-white opacity-75"></div>
 
-        <div className="absolute ml-3">
+        {/* Content Section */}
+        <div className="absolute z-20 ml-3">
           <div className="mt-32 text-[4.17vw] font-semibold leading-[5.5vw]">
             <p className="text-[#3D3D43]">Every Path Mapped</p>
             <p className="animate-slotMachine text-[#3027F1]">{currentText}</p>
@@ -54,15 +57,16 @@ export function HeroSection() {
             Share your experiences and explore the perfect drone for your needs!
           </p>
           <button
-            onClick={scrollToDataList} // 버튼 클릭 시 스크롤 이동
-            className="font z-20 mt-5 h-[34px] rounded-[8px] bg-[#2F2929] px-3 text-sm text-white"
+            onClick={scrollToDataList}
+            className="relative z-30 mt-5 h-[34px] rounded-[8px] bg-[#2F2929] px-3 text-sm text-white"
           >
             View Reviews
-          </button>
+          </button>{" "}
+          ㅋㅌ ㄹ6
         </div>
 
         <img
-          className="absolute bottom-20 left-0 z-0 h-full w-full object-cover"
+          className="absolute bottom-20 left-0 z-10 h-full w-full object-cover"
           src="../public/images/cloud.svg"
           alt="cloud 이미지"
         />
