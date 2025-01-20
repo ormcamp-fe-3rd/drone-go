@@ -17,6 +17,13 @@ export default function Map3D() {
   } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
 
+  // 애니메이션 관련 변수
+  const [isPlaying, setIsPlaying] = useState(false);
+  const animationRef = useRef<number>();
+  const elapsedTimeRef = useRef<number>(0); // 총 경과 시간 저장
+  const lastTimeRef = useRef<number>(0); // 마지막 프레임 시간 저장
+
+
   const handleMouseDown = (event: mapboxgl.MapMouseEvent) => {
     if (event.originalEvent.ctrlKey) {
       setIsDragging(true);
@@ -37,72 +44,133 @@ export default function Map3D() {
     setDragPosition(null);
   };
 
-  useEffect(() => {
+
+  const animate = (currentTime: number) => {
     if (!mapRef.current) return;
     const map = mapRef.current.getMap();
-    map.on("style.load", () => {
-      // 지도 스타일이 로드된 후에 추가 작업 수행
-      //TODO: 맵 조작
-    });
-    // const testDistance = calculateDistance(latLonData);
-    // const testPoint = calculatePointAlongRoute(latLonData, testDistance * 0.5);
-    // console.log("Test distance:", testDistance);
-    // console.log("Test point:", testPoint);
-      let animationFrameId:number;
-      const animationDuration = 8000;
-      const cameraAltitude = 600;
-      const routeDistance = calculateDistance(latLonData)
-      console.log(routeDistance);
-      
-      let start: DOMHighResTimeStamp;
-      function frame(time: DOMHighResTimeStamp) {
-        if (!start) start = time;
-        let phase = (time - start) / animationDuration; // 0에서 1 사이의 비율
-        
-        if (phase > 1) {
-          start = time;
-          phase = 0;
-        }
-        
-        const alongPoint = calculatePointAlongRoute(latLonData, routeDistance * phase);
-        const alongRoute = [alongPoint[1], alongPoint[0]];  // 순서 변경
-        const alongCamera = [alongPoint[1], alongPoint[0]];
-        
-        const camera = map.getFreeCameraOptions();
-        
-        // set the position and altitude of the camera
-        camera.position = mapboxgl.MercatorCoordinate.fromLngLat(
-          {
-            lng: alongCamera[0],
-            lat: alongCamera[1],
-          },
-          cameraAltitude,
-        );
-        camera.lookAtPoint({
-          lng: alongRoute[0],
-          lat: alongRoute[1],
-        });
-        
-        map.setFreeCameraOptions(camera);
-        
-        animationFrameId = window.requestAnimationFrame(frame);
-        
-      }
-      animationFrameId = window.requestAnimationFrame(frame);
-      
 
+    // 첫 프레임이거나 재생 시작 시
+    if (!lastTimeRef.current) {
+      lastTimeRef.current = currentTime;
+    }
+
+    // 이전 프레임과의 시간 차이를 계산하여 경과 시간에 추가
+    const deltaTime = currentTime - lastTimeRef.current;
+    elapsedTimeRef.current += deltaTime;
+    lastTimeRef.current = currentTime;
+
+    const animationDuration = 8000;
+    const cameraAltitude = 600;
+
+    //TODO: latLonData를 실제 데이터로 변경
+    const routeDistance = calculateDistance(latLonData);
+
+    const phase = elapsedTimeRef.current / animationDuration;
+
+    if (phase > 1) {
+      // 애니메이션 완료
+      setIsPlaying(false);
+      lastTimeRef.current = 0;
+      elapsedTimeRef.current = 0;
+      return;
+    }
+
+    const alongPoint = calculatePointAlongRoute(
+      latLonData,
+      routeDistance * phase,
+    );
+    const alongRoute = [alongPoint[1], alongPoint[0]];
+    const alongCamera = [alongPoint[1], alongPoint[0]];
+
+    const camera = map.getFreeCameraOptions();
+
+    camera.position = mapboxgl.MercatorCoordinate.fromLngLat(
+      {
+        lng: alongCamera[0],
+        lat: alongCamera[1],
+      },
+      cameraAltitude,
+    );
+
+    camera.lookAtPoint({
+      lng: alongRoute[0],
+      lat: alongRoute[1],
+    });
+
+    map.setFreeCameraOptions(camera);
+
+
+    animationRef.current = window.requestAnimationFrame(animate);
+
+  };
+
+  const handlePlay = () => {
+    lastTimeRef.current = 0; // 새로운 시작 시간을 설정하기 위해 리셋
+    setIsPlaying(true);
+    animationRef.current = window.requestAnimationFrame(animate);
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
+    if (animationRef.current) {
+      window.cancelAnimationFrame(animationRef.current);
+      lastTimeRef.current = 0; // 일시정지 시 마지막 시간 리셋
+    }
+  };
+
+  const handleReset = () => {
+    setIsPlaying(false);
+    if (animationRef.current) {
+      window.cancelAnimationFrame(animationRef.current);
+    }
+    lastTimeRef.current = 0;
+    elapsedTimeRef.current = 0;
+
+    // 카메라 초기 위치로 리셋
+    if (mapRef.current) {
+      const map = mapRef.current.getMap();
+      map.easeTo({
+        center: [126.976944, 37.572398],
+        zoom: 18,
+        pitch: 45,
+        duration: 1000,
+      });
+    }
+  };
+
+  useEffect(() => {
     return () => {
-      //
-      if (animationFrameId) {
-        window.cancelAnimationFrame(animationFrameId);
+      if (animationRef.current) {
+        window.cancelAnimationFrame(animationRef.current);
       }
     };
-    
-  }, [mapRef]);
-
+  }, []);
 
   return (
     <div className="fixed inset-0">
+      <div className="absolute bottom-4 left-4 z-10 flex gap-2">
+        {!isPlaying ? (
+          <button
+            className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
+            onClick={handlePlay}
+          >
+            재생
+          </button>
+        ) : (
+          <button
+            className="rounded-md bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600"
+            onClick={handlePause}
+          >
+            일시정지
+          </button>
+        )}
+        <button
+          className="rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-600"
+          onClick={handleReset}
+        >
+          리셋
+        </button>
+      </div>
       <Map
         ref={mapRef}
         mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
