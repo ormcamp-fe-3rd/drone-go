@@ -12,7 +12,9 @@ export function DataList() {
 
   return (
     <div className="mx-auto flex h-[1024px] flex-col items-center justify-center text-center">
-      <p className="title">Select the data</p>
+      <p className="title" id="DataList">
+        Select the data
+      </p>
       <p className="subtitle">
         Choose the data set you want to analyze or review. Select to proceed
       </p>

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { HomeHeader } from "./HomeHeader";
 
 export function HeroSection() {
@@ -14,17 +14,23 @@ export function HeroSection() {
     let index = 0;
     const intervalId = setInterval(() => {
       setCurrentText(texts[index]);
-      index = (index + 1) % texts.length; // 순차적으로 변경
-    }, 3000); // 3초마다 문구 변경
+      index = (index + 1) % texts.length;
+    }, 3000);
 
-    return () => clearInterval(intervalId); // 컴포넌트가 언마운트될 때 인터벌을 정리
+    return () => clearInterval(intervalId);
   }, []);
+
+  const scrollToDataList = () => {
+    const element = document.getElementById("DataList");
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <div className="relative mx-auto h-[1024px]">
       <HomeHeader />
       <div className="mx-auto max-w-screen-xl">
-        {/* Background Video */}
         <video
           className="absolute left-0 top-0 my-0 h-[800px] w-full object-cover"
           autoPlay
@@ -34,10 +40,8 @@ export function HeroSection() {
           <source src="/videos/video.mp4" type="video/mp4" />
         </video>
 
-        {/* White Overlay */}
         <div className="absolute left-0 top-0 h-[1024px] w-full bg-white opacity-75"></div>
 
-        {/* Content Section */}
         <div className="absolute ml-3">
           <div className="mt-32 text-[4.17vw] font-semibold leading-[5.5vw]">
             <p className="text-[#3D3D43]">Every Path Mapped</p>
@@ -49,10 +53,16 @@ export function HeroSection() {
             reviews, performance comparisons, and tips for every skill level.
             Share your experiences and explore the perfect drone for your needs!
           </p>
+          <button
+            onClick={scrollToDataList} // 버튼 클릭 시 스크롤 이동
+            className="font z-20 mt-5 h-[34px] rounded-[8px] bg-[#2F2929] px-3 text-sm text-white"
+          >
+            View Reviews
+          </button>
         </div>
 
         <img
-          className="absolute bottom-20 left-0 h-full w-full object-cover"
+          className="absolute bottom-20 left-0 z-0 h-full w-full object-cover"
           src="../public/images/cloud.svg"
           alt="cloud 이미지"
         />
