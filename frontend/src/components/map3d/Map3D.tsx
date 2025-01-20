@@ -160,7 +160,7 @@ export default function Map3D() {
           </div>
         </Map>
       </div>
-      <div className="flex h-screen items-end">
+      <div className="fixed bottom-0 w-screen ">
         <Bar.Progress>
           <Bar.ProgressBarBtn isPlaying={isPlaying} 
           onClickPlay={handlePlay} 

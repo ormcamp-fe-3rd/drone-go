@@ -106,7 +106,7 @@ const Progress = ({children}: ProgressProps) => {
   };
 
   return (
-    <div className="video-container mx-auto mt-[400px] flex w-[80%] max-w-[800px]">
+    <div className="video-container mx-auto flex w-[80%] max-w-[800px]">
       <div className="progress-bar relative mb-[50px] h-[8px] w-full rounded-[5px] bg-[#504D4D]">
         <div className="progress transition-width absolute h-full w-0 bg-[#D7D7D7] duration-200 ease-linear"></div>
 
