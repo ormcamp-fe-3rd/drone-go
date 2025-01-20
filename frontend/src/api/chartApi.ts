@@ -1,12 +1,14 @@
-import {
-  RawTelemetryBatteryData,
-  ProcessedTelemetryBatteryData,
-} from "../types/telemetryBatteryDataTypes";
+import { TelemetryData } from "../types/telemetryAllDataTypes";
+import { ProcessedTelemetryBatteryData } from "../types/telemetryBatteryDataTypes";
+import { ProcessedTelemetryTextData } from "../types/telemetryTextData";
 
 export const fetchTelemetriesByRobotAndOperation = async (
   robotId: string,
   operationId: string,
-): Promise<ProcessedTelemetryBatteryData[]> => {
+): Promise<{
+  batteryData: ProcessedTelemetryBatteryData[];
+  textData: ProcessedTelemetryTextData[];
+}> => {
   if (!robotId || !operationId) {
     throw new Error("Both robotId and operationId are required");
   }
@@ -19,10 +21,10 @@ export const fetchTelemetriesByRobotAndOperation = async (
     if (!response.ok) {
       throw new Error(`Failed to fetch telemetries: ${response.statusText}`);
     }
-    const data: RawTelemetryBatteryData[] = await response.json();
+    const data: TelemetryData[] = await response.json();
 
     // msgId가 147인 데이터만 필터링하고 필요한 값만 반환 - 배터리 온도, 전압, 잔량 데이터
-    const filterBatteryData: ProcessedTelemetryBatteryData[] = data
+    const batteryData: ProcessedTelemetryBatteryData[] = data
       .filter((telemetry) => telemetry.msgId === 147)
       .map((telemetry) => ({
         msgId: telemetry.msgId,
@@ -34,7 +36,18 @@ export const fetchTelemetriesByRobotAndOperation = async (
         },
       }));
 
-    return filterBatteryData;
+    // msgId가 253인 데이터만 필터링하고 필요한 값만 반환 - text 상태 데이터
+    const textData: ProcessedTelemetryTextData[] = data
+      .filter((telemetry) => telemetry.msgId === 253)
+      .map((telemetry) => ({
+        msgId: telemetry.msgId,
+        timestamp: new Date(telemetry.timestamp),
+        payload: {
+          text: telemetry.payload.text, // text 속성 추출
+        },
+      }));
+
+    return { batteryData, textData };
   } catch (error) {
     console.error("Error fetching telemetries:", error);
     throw error;
