@@ -6,6 +6,13 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
 import Chart from "../../components/charts/BatteryChartData";
 import FlightTimeDataComponenet from "../../components/charts/FilghtTimeDataComponent";
+import StateDataComponent from "../../components/charts/StateDataComponent";
+
+const DroneImages: { [key: string]: string } = {
+  M1_1호기: "/images/chart/drone1.svg",
+  M1_2호기: "/images/chart/drone2.svg",
+  M1_3호기: "/images/chart/drone1.svg",
+};
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   children,
@@ -25,14 +32,14 @@ const ChartPage: React.FC = () => {
     null,
   );
   const {
-    data: telemetryData = [],
+    data: telemetryData = { batteryData: [], textData: [] },
     isLoading,
     error,
   } = useQuery({
     queryKey: ["telemetry", selectedDrone?._id, selectedOperation?._id],
     queryFn: () => {
       if (!selectedDrone || !selectedOperation) {
-        return Promise.resolve([]);
+        return { batteryData: [], textData: [] };
       }
       return fetchTelemetriesByRobotAndOperation(
         selectedDrone._id,
@@ -42,6 +49,8 @@ const ChartPage: React.FC = () => {
     enabled: !!selectedDrone && !!selectedOperation, // 선택된 드론과 오퍼레이션 값이 있을 때만 API 호출
     staleTime: 60000, // 데이터 캐싱 시간 (1분)
   });
+  const { batteryData, textData } = telemetryData;
+
   return (
     <div className="flex min-h-screen flex-col bg-[#F3F2F9]">
       <DetailedDataHeader
@@ -57,7 +66,17 @@ const ChartPage: React.FC = () => {
             <h2 className="mx-10 my-5 text-2xl font-semibold">
               Name : {selectedDrone ? selectedDrone.name : "Drone Name"}
             </h2>
-            <div className="mx-5 h-[300px]">drone img</div>
+            <div className="mx-5 h-[300px]">
+              {selectedDrone ? (
+                <img
+                  src={DroneImages[selectedDrone.name] || ""}
+                  alt={selectedDrone.name}
+                  className="object-contain w-full h-full"
+                />
+              ) : (
+                <p className="text-xl text-center text-gray-500">드론 이미지</p> // 드론이 선택되지 않았을 때 텍스트 표시
+              )}
+            </div>
           </div>
           <div className="flex h-[380px] w-2/5 flex-col gap-3">
             <div className="flex h-2/5 flex-col justify-around gap-1 rounded-[10px] border border-[#B2B2B7] bg-white">
@@ -72,8 +91,8 @@ const ChartPage: React.FC = () => {
                 <h2 className="text-[16px] font-bold">Flight time</h2>
               </div>
               <div className="h-[100px]">
-                {telemetryData.length > 0 && (
-                  <FlightTimeDataComponenet data={telemetryData} />
+                {batteryData.length > 0 && (
+                  <FlightTimeDataComponenet data={batteryData} />
                 )}
               </div>
             </div>
@@ -88,8 +107,8 @@ const ChartPage: React.FC = () => {
                 </div>
                 <h2 className="text-[16px] font-bold">State</h2>
               </div>
-              <div className="h-[170px]">
-                {/* 상태 데이터들 보여지는 부분*/}
+              <div className="mb-2 ml-3 h-[170px]">
+                <StateDataComponent data={textData} />
               </div>
             </div>
           </div>
@@ -98,9 +117,9 @@ const ChartPage: React.FC = () => {
           <p>Loading chart data...</p>
         ) : error instanceof Error ? (
           <p>Error loading data: {error.message}</p>
-        ) : telemetryData.length > 0 ? (
+        ) : batteryData.length > 0 ? (
           <ChartCard title="">
-            <Chart data={telemetryData} />
+            <Chart data={batteryData} />
           </ChartCard>
         ) : (
           <p>Select a drone and operation to view the chart.</p>
