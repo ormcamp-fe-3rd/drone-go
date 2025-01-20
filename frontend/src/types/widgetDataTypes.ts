@@ -5,7 +5,7 @@ export interface WidgetData {
   stateValues?: StateValue[];
 }
 
-interface StateValue {
+export interface StateValue {
     state: string;
     time: string;
   }

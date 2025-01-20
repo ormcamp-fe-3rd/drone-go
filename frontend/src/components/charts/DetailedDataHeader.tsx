@@ -10,6 +10,7 @@ interface Props {
   setSelectedDrone: React.Dispatch<React.SetStateAction<Robot | null>>;
   selectedOperation: Operation | null;
   setSelectedOperation: React.Dispatch<React.SetStateAction<Operation | null>>;
+  backgroundOpacity: number;
 }
 
 const DetailedDataHeader: React.FC<Props> = ({
@@ -18,9 +19,11 @@ const DetailedDataHeader: React.FC<Props> = ({
   setSelectedDrone,
   selectedOperation,
   setSelectedOperation,
+  backgroundOpacity
 }) => {
   return (
-    <div className="mx-10 mb-4 mt-6 flex flex-wrap items-center justify-evenly gap-1 rounded-[10px] border bg-white px-5 py-4 sm:justify-between md:flex-nowrap md:justify-evenly md:gap-4 md:px-5">
+
+    <div className={`mx-10 my-8 flex flex-wrap items-center justify-evenly gap-1 rounded-[10px] border bg-white px-5 py-4 sm:justify-between md:flex-nowrap md:justify-evenly md:gap-4 md:px-5 bg-opacity-${backgroundOpacity}`}> 
       <Button className="h-20 w-14 min-w-[56px]" variant="ghost">
         <Link to="/">
           <img

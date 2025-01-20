@@ -9,6 +9,7 @@ import DetailedDataHeader from '@/components/charts/DetailedDataHeader';
 import ToolbarWidget from "@/components/map/ToolbarWidget";
 import ToolbarAttitude from "@/components/map/ToolbarAttitude";
 import ProgressBar from "@/components/map/ProgressBar";
+import MapSwitchButton from "@/components/map3d/MapSwitchButton";
 
 const MapPage: React.FC = () => {
   
@@ -24,34 +25,34 @@ const MapPage: React.FC = () => {
   );
   
   return (
-    <div className="w-full h-full m-0 bg-lime-600 box-border">
-
+    <div className="m-0 box-border h-full w-full bg-lime-600">
       <DetailedDataHeader
+        backgroundOpacity={60}
         isMapPage={isMapPage}
         selectedDrone={selectedDrone}
         setSelectedDrone={setSelectedDrone}
         selectedOperation={selectedOperation}
         setSelectedOperation={setSelectedOperation}
       />
-      <section className="toolbar grid justify-start m-4 gap-4">
-        
+      <section className="toolbar m-4 grid justify-start gap-4">
         <ToolbarAttitude />
-
-        <div className="toolbar-variation w-full flex flex-col space-y-4">
-        {widgetData.map((widget, index) => (
-          <ToolbarWidget 
-            key={index}
-            icon={widget.icon}
-            title={widget.title}
-            dataValues={widget.dataValues}
-            stateValues={widget.stateValues}
-          />
-        ))}
+        <div className="toolbar-variation flex w-full flex-col space-y-4">
+          {widgetData.map((widget, index) => (
+            <ToolbarWidget
+              key={index}
+              icon={widget.icon}
+              title={widget.title}
+              dataValues={widget.dataValues}
+              stateValues={widget.stateValues}
+            />
+          ))}
+        </div>
+        <div className="fixed right-10">
+          <MapSwitchButton />
         </div>
       </section>
 
       <ProgressBar />
-
     </div>
   );
 };
