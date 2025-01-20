@@ -6,6 +6,7 @@ import Map, { MapRef } from "react-map-gl";
 import latLonData from "@/data/latLonData.json"
 import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
 
+import  { Bar } from "../map/ProgressBar";
 import DroneInMap from "./DroneInMap";
 
 
@@ -118,26 +119,6 @@ export default function Map3D() {
     }
   };
 
-  const handleReset = () => {
-    setIsPlaying(false);
-    if (animationRef.current) {
-      window.cancelAnimationFrame(animationRef.current);
-    }
-    lastTimeRef.current = 0;
-    elapsedTimeRef.current = 0;
-
-    // 카메라 초기 위치로 리셋
-    if (mapRef.current) {
-      const map = mapRef.current.getMap();
-      map.easeTo({
-        center: [126.976944, 37.572398],
-        zoom: 18,
-        pitch: 45,
-        duration: 1000,
-      });
-    }
-  };
-
   useEffect(() => {
     return () => {
       if (animationRef.current) {
@@ -147,60 +128,47 @@ export default function Map3D() {
   }, []);
 
   return (
-    <div className="fixed inset-0">
-      <div className="absolute bottom-4 left-4 z-10 flex gap-2">
-        {!isPlaying ? (
-          <button
-            className="rounded-md bg-blue-500 px-4 py-2 text-white hover:bg-blue-600"
-            onClick={handlePlay}
-          >
-            재생
-          </button>
-        ) : (
-          <button
-            className="rounded-md bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600"
-            onClick={handlePause}
-          >
-            일시정지
-          </button>
-        )}
-        <button
-          className="rounded-md bg-red-500 px-4 py-2 text-white hover:bg-red-600"
-          onClick={handleReset}
+    <>
+      <div className="fixed inset-0">
+        <Map
+          ref={mapRef}
+          mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
+          initialViewState={{
+            longitude: 126.976944, //경도
+            latitude: 37.572398, //위도
+            zoom: 18,
+            pitch: 45,
+          }}
+          style={{ width: "100%", height: "100%" }}
+          mapStyle="mapbox://styles/mapbox/standard"
+          boxZoom={false}
+          doubleClickZoom={false}
+          dragPan={false}
+          keyboard={false}
+          scrollZoom={false}
+          touchPitch={false}
+          touchZoomRotate={false}
+          dragRotate={true} //드래그로 회전만 가능
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
         >
-          리셋
-        </button>
+          {/* <TestModel dragPosition={dragPosition} mapRef={mapRef}/> */}
+          <div className="absolute left-1/2 top-1/2 h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2">
+            <Canvas camera={{ position: [0, 0, 100], fov: 75 }}>
+              <DroneInMap dragPosition={dragPosition} />
+            </Canvas>
+          </div>
+        </Map>
       </div>
-      <Map
-        ref={mapRef}
-        mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
-        initialViewState={{
-          longitude: 126.976944, //경도
-          latitude: 37.572398, //위도
-          zoom: 18,
-          pitch: 45,
-        }}
-        style={{ width: "100%", height: "100%" }}
-        mapStyle="mapbox://styles/mapbox/standard"
-        boxZoom={false}
-        doubleClickZoom={false}
-        dragPan={false}
-        keyboard={false}
-        scrollZoom={false}
-        touchPitch={false}
-        touchZoomRotate={false}
-        dragRotate={true} //드래그로 회전만 가능
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-      >
-        {/* <TestModel dragPosition={dragPosition} mapRef={mapRef}/> */}
-        <div className="absolute left-1/2 top-1/2 h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2">
-          <Canvas camera={{ position: [0, 0, 100], fov: 75 }}>
-            <DroneInMap dragPosition={dragPosition} />
-          </Canvas>
-        </div>
-      </Map>
-    </div>
+      <div className="flex h-screen items-end">
+        <Bar.Progress>
+          <Bar.ProgressBarBtn isPlaying={isPlaying} 
+          onClickPlay={handlePlay} 
+          onClickPause={handlePause}
+          />
+        </Bar.Progress>
+      </div>
+    </>
   );
 }
