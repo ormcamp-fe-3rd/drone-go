@@ -1,11 +1,11 @@
 import { useState } from "react";
 
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
-import ToolbarAttitude from "@/components/map/ToolbarAttitude";
 import Map3D from "@/components/map3d/Map3D";
 import MapSwitchButton from "@/components/map3d/MapSwitchButton";
+import { Widget } from "@/components/map3d/Widget";
+import toolbarWidgetData from "@/data/toolbarWidgetData.json"
 import { Operation,Robot } from "@/types/selectOptionsTypes";
-
 
 
 export default function Map3dPage(){
@@ -13,7 +13,7 @@ export default function Map3dPage(){
   const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
       null,
   );
-  
+
   return (
     <div>
       <div className="fixed z-10 w-screen">
@@ -26,11 +26,14 @@ export default function Map3dPage(){
           setSelectedOperation={setSelectedOperation}
         />
       </div>
-      <div className="fixed z-10 right-10 top-[178px]">
+      <div className="fixed right-10 top-[178px] z-10">
         <MapSwitchButton />
       </div>
-      <div className="fixed z-10 top-[178px] left-4">
-        <ToolbarAttitude />
+      <div className="fixed left-4 top-[178px] z-10">
+        <Widget.AttitudeWidget />
+        
+        {/* TODO: 추후 목데이터 삭제 */}
+        <Widget.WidgetBasic widgetData={toolbarWidgetData} />
       </div>
       <Map3D />
     </div>
