@@ -1,29 +1,28 @@
 import { FlightDataCard } from "./FlightDataCard";
 
 export function DataList() {
-  // DataCard에 전달할 데이터 배열
+  // 드론 데이터 배열, 이미지 경로를 포함
   const data = [
-    { day: "2024.12.20", name: "M1_1", timetotal: "40:00:00" },
-    { day: "2024.12.21", name: "M1_2", timetotal: "35:00:00" },
-    { day: "2024.12.22", name: "M1_1", timetotal: "30:00:00" },
-    { day: "2024.12.22", name: "M1_2", timetotal: "30:00:00" },
-    // 추가 데이터 항목...
+    { name: "M1_1", img: "/images/drone-01.svg" },
+    { name: "M1_2", img: "/images/drone-02.svg" },
+    { name: "M1_3", img: "/images/drone-01.svg" },
   ];
 
   return (
-    <div className="mx-auto flex h-[1024px] flex-col items-center justify-center text-center">
-      <p className="title">Select the data</p>
+    <div className="mx-auto mb-10 flex h-[1024px] flex-col items-center justify-center text-center">
+      <p className="title" id="DataList">
+        Select the data
+      </p>
       <p className="subtitle">
         Choose the data set you want to analyze or review. Select to proceed
       </p>
-      <div className="flex h-[37.5rem] w-[75rem] flex-wrap items-center justify-center">
+      <div className="mt-10 flex max-h-full min-h-[37.5rem] w-[75rem] flex-wrap items-center justify-center">
         {/* 데이터 배열을 map()으로 렌더링 */}
         {data.map((item, index) => (
           <FlightDataCard
             key={index} // 각 항목의 고유 키 설정
-            day={item.day}
             name={item.name}
-            timetotal={item.timetotal}
+            img={item.img} // 드론 이미지 경로 전달
           />
         ))}
       </div>
