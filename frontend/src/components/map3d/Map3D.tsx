@@ -1,11 +1,13 @@
 import { Canvas } from "@react-three/fiber";
-import { useQuery } from "@tanstack/react-query";
+import mapboxgl from "mapbox-gl";
 import { useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
-import { fetchPositionDataByOperation } from "@/api/mapApi";
+import latLonData from "@/data/latLonData.json"
+import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
 
 import DroneInMap from "./DroneInMap";
+
 
 export default function Map3D() {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
@@ -38,29 +40,66 @@ export default function Map3D() {
   useEffect(() => {
     if (!mapRef.current) return;
     const map = mapRef.current.getMap();
-
     map.on("style.load", () => {
       // 지도 스타일이 로드된 후에 추가 작업 수행
       //TODO: 맵 조작
     });
+    // const testDistance = calculateDistance(latLonData);
+    // const testPoint = calculatePointAlongRoute(latLonData, testDistance * 0.5);
+    // console.log("Test distance:", testDistance);
+    // console.log("Test point:", testPoint);
+      let animationFrameId:number;
+      const animationDuration = 8000;
+      const cameraAltitude = 600;
+      const routeDistance = calculateDistance(latLonData)
+      console.log(routeDistance);
+      
+      let start: DOMHighResTimeStamp;
+      function frame(time: DOMHighResTimeStamp) {
+        if (!start) start = time;
+        let phase = (time - start) / animationDuration; // 0에서 1 사이의 비율
+        
+        if (phase > 1) {
+          start = time;
+          phase = 0;
+        }
+        
+        const alongPoint = calculatePointAlongRoute(latLonData, routeDistance * phase);
+        const alongRoute = [alongPoint[1], alongPoint[0]];  // 순서 변경
+        const alongCamera = [alongPoint[1], alongPoint[0]];
+        
+        const camera = map.getFreeCameraOptions();
+        
+        // set the position and altitude of the camera
+        camera.position = mapboxgl.MercatorCoordinate.fromLngLat(
+          {
+            lng: alongCamera[0],
+            lat: alongCamera[1],
+          },
+          cameraAltitude,
+        );
+        camera.lookAtPoint({
+          lng: alongRoute[0],
+          lat: alongRoute[1],
+        });
+        
+        map.setFreeCameraOptions(camera);
+        
+        animationFrameId = window.requestAnimationFrame(frame);
+        
+      }
+      animationFrameId = window.requestAnimationFrame(frame);
+      
 
     return () => {
       //
+      if (animationFrameId) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
     };
     
   }, [mapRef]);
 
-  //Test
-  // const operationId = "677730f8e8f8dd840dd35153";
-  // const robotId = "67773116e8f8dd840dd35155";
-
-  // const { isPending, error, data } = useQuery({
-  //   queryKey: ['position'],
-  //   queryFn: () => fetchPositionDataByOperation(robotId, operationId)
-  // });
-  // if (isPending) return "Loading";
-  // if (error) return "An error has occurred: " + error.message;
-  // console.log(data)
 
   return (
     <div className="fixed inset-0">
@@ -68,8 +107,8 @@ export default function Map3D() {
         ref={mapRef}
         mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
         initialViewState={{
-          longitude: 126.97, //경도
-          latitude: 37.57, //위도
+          longitude: 126.976944, //경도
+          latitude: 37.572398, //위도
           zoom: 18,
           pitch: 45,
         }}
