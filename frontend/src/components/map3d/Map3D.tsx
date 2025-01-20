@@ -153,7 +153,6 @@ export default function Map3D() {
           onMouseUp={handleMouseUp}
           onMouseMove={handleMouseMove}
         >
-          {/* <TestModel dragPosition={dragPosition} mapRef={mapRef}/> */}
           <div className="absolute left-1/2 top-1/2 h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2">
             <Canvas camera={{ position: [0, 0, 100], fov: 75 }}>
               <DroneInMap dragPosition={dragPosition} />
