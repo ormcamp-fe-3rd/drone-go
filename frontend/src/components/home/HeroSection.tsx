@@ -61,8 +61,7 @@ export function HeroSection() {
             className="relative z-30 mt-5 h-[34px] rounded-[8px] bg-[#2F2929] px-3 text-sm text-white"
           >
             View Reviews
-          </button>{" "}
-          ㅋㅌ ㄹ6
+          </button>
         </div>
 
         <img

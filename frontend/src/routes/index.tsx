@@ -5,22 +5,25 @@ import MapPage from "./pages/MapPage";
 import AboutPage from "./pages/AboutPage";
 import ChartPage from "./pages/ChartPage";
 import { HomePage } from "./pages/HomePage";
+import { ScrollToTop } from "@/hooks/scroollToTop";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <App />,
+    element: (
+      <>
+        {/* ScrollToTop 추가 */}
+        <ScrollToTop />
+        <App />
+      </>
+    ),
     children: [
-      // {path: "/", element: <Home />}
       {
         path: "/map",
         element: <MapPage />,
       },
-
       { path: "chart", element: <ChartPage /> },
-
       { path: "/", element: <HomePage /> },
-
       { path: "/about", element: <AboutPage /> },
     ],
   },
