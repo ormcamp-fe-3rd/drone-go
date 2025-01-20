@@ -1,12 +1,13 @@
 import React, { useState } from "react";
 import { useLocation } from "react-router-dom";
-import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
-import { Robot, Operation } from "../../types/selectOptionsTypes";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
-import Chart from "../../components/charts/BatteryChartData";
+import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
+import { Robot, Operation } from "../../types/selectOptionsTypes";
+import BatteryChart from "../../components/charts/BatteryChart";
 import FlightTimeDataComponenet from "../../components/charts/FilghtTimeDataComponent";
 import StateDataComponent from "../../components/charts/StateDataComponent";
+import SatellitesChart from "../../components/charts/SatellitesChart";
 
 const DroneImages: { [key: string]: string } = {
   M1_1호기: "/images/chart/drone1.svg",
@@ -32,14 +33,14 @@ const ChartPage: React.FC = () => {
     null,
   );
   const {
-    data: telemetryData = { batteryData: [], textData: [] },
+    data: telemetryData = { batteryData: [], textData: [], satellitesData: [] },
     isLoading,
     error,
   } = useQuery({
     queryKey: ["telemetry", selectedDrone?._id, selectedOperation?._id],
     queryFn: () => {
       if (!selectedDrone || !selectedOperation) {
-        return { batteryData: [], textData: [] };
+        return { batteryData: [], textData: [], satellitesData: [] };
       }
       return fetchTelemetriesByRobotAndOperation(
         selectedDrone._id,
@@ -49,7 +50,7 @@ const ChartPage: React.FC = () => {
     enabled: !!selectedDrone && !!selectedOperation, // 선택된 드론과 오퍼레이션 값이 있을 때만 API 호출
     staleTime: 60000, // 데이터 캐싱 시간 (1분)
   });
-  const { batteryData, textData } = telemetryData;
+  const { batteryData, textData, satellitesData } = telemetryData;
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F3F2F9]">
@@ -60,11 +61,11 @@ const ChartPage: React.FC = () => {
         selectedOperation={selectedOperation}
         setSelectedOperation={setSelectedOperation}
       />
-      <div className="grid grid-cols-1 gap-3 mx-10 mb-6 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 mx-10 mb-4 lg:grid-cols-2">
         <div className="flex h-[380px] gap-3">
           <div className="flex w-3/5 flex-col rounded-[10px] border border-[#B2B2B7] bg-white">
             <h2 className="mx-10 my-5 text-2xl font-semibold">
-              Name : {selectedDrone ? selectedDrone.name : "Drone Name"}
+              Name : {selectedDrone ? selectedDrone.name : "selected Drone"}
             </h2>
             <div className="mx-5 h-[300px]">
               {selectedDrone ? (
@@ -74,7 +75,7 @@ const ChartPage: React.FC = () => {
                   className="object-contain w-full h-full"
                 />
               ) : (
-                <p className="text-xl text-center text-gray-500">드론 이미지</p> // 드론이 선택되지 않았을 때 텍스트 표시
+                <p className="text-xl text-gray-500">Select drone</p> // 드론이 선택되지 않았을 때 텍스트 표시
               )}
             </div>
           </div>
@@ -114,19 +115,39 @@ const ChartPage: React.FC = () => {
           </div>
         </div>
         {isLoading ? (
-          <p>Loading chart data...</p>
+          <ChartCard title="">
+            <p className="text-center">Loading chart data...</p>
+          </ChartCard>
         ) : error instanceof Error ? (
-          <p>Error loading data: {error.message}</p>
+          <p className="text-center">Error loading data: {error.message}</p>
         ) : batteryData.length > 0 ? (
           <ChartCard title="">
-            <Chart data={batteryData} />
+            <BatteryChart data={batteryData} />
           </ChartCard>
         ) : (
-          <p>Select a drone and operation to view the chart.</p>
+          <ChartCard title="">
+            <p className="text-center">
+              <strong> Select a drone and operation to view the chart.</strong>
+            </p>
+          </ChartCard>
         )}
-        <ChartCard title="chart2">
-          <div />
-        </ChartCard>
+        {isLoading ? (
+          <ChartCard title="">
+            <p className="text-center">Loading chart data...</p>
+          </ChartCard>
+        ) : error instanceof Error ? (
+          <p className="text-center">Error loading data: {error.message}</p>
+        ) : satellitesData.length > 0 ? (
+          <ChartCard title="">
+            <SatellitesChart data={satellitesData} />
+          </ChartCard>
+        ) : (
+          <ChartCard title="">
+            <p className="text-center">
+              <strong> Select a drone and operation to view the chart.</strong>
+            </p>
+          </ChartCard>
+        )}
         <ChartCard title="chart3">
           <div />
         </ChartCard>

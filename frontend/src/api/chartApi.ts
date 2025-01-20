@@ -1,6 +1,7 @@
 import { TelemetryData } from "../types/telemetryAllDataTypes";
 import { ProcessedTelemetryBatteryData } from "../types/telemetryBatteryDataTypes";
 import { ProcessedTelemetryTextData } from "../types/telemetryTextData";
+import { ProcessedTelemetrySatellitesData } from "../types/telemetrySatellitesDataTypes";
 
 export const fetchTelemetriesByRobotAndOperation = async (
   robotId: string,
@@ -8,6 +9,7 @@ export const fetchTelemetriesByRobotAndOperation = async (
 ): Promise<{
   batteryData: ProcessedTelemetryBatteryData[];
   textData: ProcessedTelemetryTextData[];
+  satellitesData: ProcessedTelemetrySatellitesData[];
 }> => {
   if (!robotId || !operationId) {
     throw new Error("Both robotId and operationId are required");
@@ -47,7 +49,18 @@ export const fetchTelemetriesByRobotAndOperation = async (
         },
       }));
 
-    return { batteryData, textData };
+    // msgId가 24인 데이터만 필터링하고 필요한 값만 반환 - 연결되어있는 위성 수
+    const satellitesData: ProcessedTelemetrySatellitesData[] = data
+      .filter((telemetry) => telemetry.msgId === 24)
+      .map((telemetry) => ({
+        msgId: telemetry.msgId,
+        timestamp: new Date(telemetry.timestamp),
+        payload: {
+          satellitesVisible: telemetry.payload.satellitesVisible, // text 속성 추출
+        },
+      }));
+
+    return { batteryData, textData, satellitesData };
   } catch (error) {
     console.error("Error fetching telemetries:", error);
     throw error;
