@@ -45,6 +45,7 @@ const ChartPage: React.FC = () => {
   return (
     <div className="flex min-h-screen flex-col bg-[#F3F2F9]">
       <DetailedDataHeader
+        backgroundOpacity={100}
         isMapPage={isMapPage}
         selectedDrone={selectedDrone}
         setSelectedDrone={setSelectedDrone}
