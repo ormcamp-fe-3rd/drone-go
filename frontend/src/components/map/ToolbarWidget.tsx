@@ -6,7 +6,7 @@ const ToolbarWidget: React.FC<WidgetData> = ({ icon, title, dataValues = [], sta
   // 'Weather' 위젯 설정
   const isWeatherWidget = title === "Sunny";
 
-  // 'State' 위젯 설정정
+  // 'State' 위젯 설정
   const isStateWidget = title === "State";
   const [isExpanded, setIsExpanded] = useState(false);
 
