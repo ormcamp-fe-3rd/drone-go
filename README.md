@@ -25,9 +25,15 @@
 
 ## 실행 방법
 #### DB 연결
->/backend/.env 파일 생성 및 DB_URI 작성
+>`/backend/.env` 파일 생성 및 DB_URI 작성
 ```
 DB_URI='mongodb+srv://<username>:<password>@cluster-<clustername>.uqzc3.mongodb.net/?retryWrites=true&w=majority&appName=Cluster-<clustername>'
+```
+
+#### 지도 연결
+>`/frontend/.env` 파일 생성 및 token 입력
+```
+VITE_MAPBOX_ACCESS_TOKEN=<token>
 ```
 
 #### backend 실행
