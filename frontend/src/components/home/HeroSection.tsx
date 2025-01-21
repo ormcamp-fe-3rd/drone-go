@@ -23,7 +23,30 @@ export function HeroSection() {
   const scrollToDataList = () => {
     const element = document.getElementById("DataList");
     if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+      // 스크롤을 더 느리게 만들기 위한 코드
+      const targetPosition = element.offsetTop;
+      const startPosition = window.pageYOffset;
+      const distance = targetPosition - startPosition;
+      let startTime: number | null = null;
+
+      const easeInOutQuad = (t: number, b: number, c: number, d: number) => {
+        t /= d / 2;
+        if (t < 1) return (c / 2) * t * t + b;
+        t--;
+        return (-c / 2) * (t * (t - 2) - 1) + b;
+      };
+
+      const animateScroll = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
+        const timeElapsed = timestamp - startTime;
+        const run = easeInOutQuad(timeElapsed, startPosition, distance, 1500); // 1500ms로 느리게 설정
+        window.scrollTo(0, run);
+        if (timeElapsed < 1500) {
+          requestAnimationFrame(animateScroll); // 애니메이션 진행 중 계속 호출
+        }
+      };
+
+      requestAnimationFrame(animateScroll); // 애니메이션 시작
     }
   };
 
