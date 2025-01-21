@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import DropdownSection from "./DropdownSection";
@@ -23,7 +22,7 @@ const DetailedDataHeader: React.FC<Props> = ({
 }) => {
   return (
 
-    <div className={`mx-10 my-8 flex flex-wrap items-center justify-evenly gap-1 rounded-[10px] border bg-white px-5 py-4 sm:justify-between md:flex-nowrap md:justify-evenly md:gap-4 md:px-5 bg-opacity-${backgroundOpacity}`}> 
+    <div className={`mx-10 my-5 flex flex-wrap items-center justify-evenly gap-1 rounded-[10px] border bg-white px-5 py-4 sm:justify-between md:flex-nowrap md:justify-evenly md:gap-4 md:px-5 bg-opacity-${backgroundOpacity}`}> 
       <Button className="h-20 w-14 min-w-[56px]" variant="ghost">
         <Link to="/">
           <img

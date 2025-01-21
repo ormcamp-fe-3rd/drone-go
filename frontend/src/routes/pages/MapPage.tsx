@@ -1,82 +1,100 @@
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
-import { useLocation } from "react-router-dom";
-import { Robot, Operation } from "../../types/selectOptionsTypes";
-import { WidgetData } from "@/types/widgetDataTypes";
-import toolbarWidgetData from "../../data/toolbarWidgetData.json"
 
-/** 컴포넌트 */
-import DetailedDataHeader from '@/components/charts/DetailedDataHeader';
-import ToolbarWidget from "@/components/map/ToolbarWidget";
-import ToolbarAttitude from "@/components/map/ToolbarAttitude";
-import ProgressBar from "@/components/map/ProgressBar";
+import { fetchPositionDataByOperation } from "@/api/mapApi";
+import { fetchAttitudeDataByRobotAndOperation } from "@/api/mapToolbarApi";
+import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
+import Map2D from "@/components/map/Map2D";
 import MapSwitchButton from "@/components/map3d/MapSwitchButton";
+import { Widget } from "@/components/map3d/Widget";
+import toolbarWidgetData from "@/data/toolbarWidgetData.json"
+import { Operation,Robot } from "@/types/selectOptionsTypes";
+import formatPositionData from "@/utils/formatPositionData";
+import { TelemetryAttitudeData } from "@/types/telemetryAttitudeDataTypes";
 
-const MapPage: React.FC = () => {
-  
-  const [widgetData, _setWidgetData] = useState<WidgetData[]>(toolbarWidgetData);
 
-  const location = useLocation();
-  // 현재 URL이 "/map"인지 확인
-  const isMapPage = location.pathname === "/map";
-
+export default function MapPage(){
   const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
   const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
-    null,
+      null,
   );
-  
+
+  // const { isPending, error, data } = useQuery({
+  //   queryKey: ["position", selectedDrone, selectedOperation],
+  //   queryFn: async () => {
+  //     const rawData = await fetchPositionDataByOperation(
+  //       // selectedDrone!._id,
+  //       // selectedOperation!._id,
+  //       "67773116e8f8dd840dd35155",
+  //       "677730f8e8f8dd840dd35153",
+  //     );
+  //     return rawData.map(formatPositionData);
+  //   },
+  //   // enabled: !!selectedDrone && !!selectedOperation,
+  // });
+  // if (isPending) return "Loading...";
+  // if (error) return "An error has occurred: " + error.message;
+  // console.log(data);
+
+  const {
+      data: attitudeData,
+      isLoading,
+      error,
+    } = useQuery({
+      queryKey: ["attitude", selectedDrone?._id, selectedOperation?._id],
+      queryFn: () => {
+        if (!selectedDrone || !selectedOperation) {
+          return [];
+        }
+        return fetchAttitudeDataByRobotAndOperation(
+          selectedDrone._id,
+          selectedOperation._id,
+        );
+      },
+      enabled: !!selectedDrone && !!selectedOperation,
+      staleTime: 60000,
+    });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error instanceof Error) return <div>Error: {error.message}</div>;
+  console.log(attitudeData);
+
   return (
-    <div className="m-0 box-border h-full w-full bg-lime-600">
-      <DetailedDataHeader
-        backgroundOpacity={60}
-        isMapPage={isMapPage}
-        selectedDrone={selectedDrone}
-        setSelectedDrone={setSelectedDrone}
-        selectedOperation={selectedOperation}
-        setSelectedOperation={setSelectedOperation}
-      />
-      <section className="toolbar m-4 grid justify-start gap-4">
-        <ToolbarAttitude />
-        <div className="toolbar-variation flex w-full flex-col space-y-4">
-          {widgetData.map((widget, index) => (
-            <ToolbarWidget
-              key={index}
-              icon={widget.icon}
-              title={widget.title}
-              dataValues={widget.dataValues}
-              stateValues={widget.stateValues}
-            />
-          ))}
-        </div>
-        <div className="fixed right-10">
-          <MapSwitchButton />
-        </div>
-      </section>
+    <>
+      <div className="fixed z-10 w-full">
+        <DetailedDataHeader
+          backgroundOpacity={60}
+          isMapPage={true}
+          selectedDrone={selectedDrone}
+          setSelectedDrone={setSelectedDrone}
+          selectedOperation={selectedOperation}
+          setSelectedOperation={setSelectedOperation}
+        />
+      </div>
+      <div className="fixed right-10 top-[10rem] z-10">
+        <MapSwitchButton />
+      </div>
+      <div className="fixed left-4 top-[10rem] z-10">
+        {/* 선택된 드론과 오퍼레이션을 AttitudeWidget에 전달 */}
+        {selectedDrone && selectedOperation && (
+          <Widget.AttitudeWidget
+            robotId={selectedDrone._id}
+            operationId={selectedOperation._id}
+            attitudeData={attitudeData}
+          />
+        )}
 
-      <ProgressBar />
-    </div>
+        {/* TODO: 추후 목데이터 삭제 */}
+        {selectedDrone && selectedOperation && (
+          <Widget.WidgetBasic
+            widgetData={toolbarWidgetData}
+            robotId={selectedDrone._id}
+            operationId={selectedOperation._id}
+            attitudeData={attitudeData}
+          />
+        )}
+      </div>
+      <Map2D />
+    </>
   );
-};
-
-export default MapPage;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+}

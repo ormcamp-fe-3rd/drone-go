@@ -1,0 +1,167 @@
+import mapboxgl from "mapbox-gl";
+import { useEffect, useRef, useState } from "react";
+import Map, { MapRef } from "react-map-gl";
+
+import latLonData from "@/data/latLonData.json"
+import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
+
+import  { Bar } from "../map/ProgressBar";
+
+
+export default function Map2D() {
+  const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
+  const [_dragPosition, setDragPosition] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // 애니메이션 관련 변수
+  const [isPlaying, setIsPlaying] = useState(false);
+  const animationRef = useRef<number>();
+  const elapsedTimeRef = useRef<number>(0); // 총 경과 시간 저장
+  const lastTimeRef = useRef<number>(0); // 마지막 프레임 시간 저장
+
+
+  const handleMouseDown = (event: mapboxgl.MapMouseEvent) => {
+    if (event.originalEvent.ctrlKey) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleMouseMove = (event: mapboxgl.MapMouseEvent) => {
+    if (!isDragging || !mapRef.current) return;
+
+    const point = event.point;
+    const x = (point.x / mapRef.current.getContainer().clientWidth) * 2 - 1;
+    const y = -(point.y / mapRef.current.getContainer().clientWidth) * 2 + 1;
+    setDragPosition({ x: x, y: y });
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setDragPosition(null);
+  };
+
+
+  const animate = (currentTime: number) => {
+    if (!mapRef.current) return;
+    const map = mapRef.current.getMap();
+
+    // 첫 프레임이거나 재생 시작 시
+    if (!lastTimeRef.current) {
+      lastTimeRef.current = currentTime;
+    }
+
+    // 이전 프레임과의 시간 차이를 계산하여 경과 시간에 추가
+    const deltaTime = currentTime - lastTimeRef.current;
+    elapsedTimeRef.current += deltaTime;
+    lastTimeRef.current = currentTime;
+
+    const animationDuration = 8000;
+    const cameraAltitude = 600;
+
+    //TODO: latLonData를 실제 데이터로 변경
+    const routeDistance = calculateDistance(latLonData);
+
+    const phase = elapsedTimeRef.current / animationDuration;
+
+    if (phase > 1) {
+      // 애니메이션 완료
+      setIsPlaying(false);
+      lastTimeRef.current = 0;
+      elapsedTimeRef.current = 0;
+      return;
+    }
+
+    const alongPoint = calculatePointAlongRoute(
+      latLonData,
+      routeDistance * phase,
+    );
+    const alongRoute = [alongPoint[1], alongPoint[0]];
+    const alongCamera = [alongPoint[1], alongPoint[0]];
+
+    const camera = map.getFreeCameraOptions();
+
+    camera.position = mapboxgl.MercatorCoordinate.fromLngLat(
+      {
+        lng: alongCamera[0],
+        lat: alongCamera[1],
+      },
+      cameraAltitude,
+    );
+
+    camera.lookAtPoint({
+      lng: alongRoute[0],
+      lat: alongRoute[1],
+    });
+
+    map.setFreeCameraOptions(camera);
+
+
+    animationRef.current = window.requestAnimationFrame(animate);
+
+  };
+
+  const handlePlay = () => {
+    lastTimeRef.current = 0; // 새로운 시작 시간을 설정하기 위해 리셋
+    setIsPlaying(true);
+    animationRef.current = window.requestAnimationFrame(animate);
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
+    if (animationRef.current) {
+      window.cancelAnimationFrame(animationRef.current);
+      lastTimeRef.current = 0; // 일시정지 시 마지막 시간 리셋
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (animationRef.current) {
+        window.cancelAnimationFrame(animationRef.current);
+      }
+    };
+  }, []);
+
+  return (
+    <>
+      <div className="fixed inset-0">
+        <Map
+          ref={mapRef}
+          mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
+          initialViewState={{
+            longitude: 126.976944, //경도
+            latitude: 37.572398, //위도
+            zoom: 18,
+            pitch: 0,
+            bearing: 0
+          }}
+          style={{ width: "100%", height: "100%" }}
+          mapStyle="mapbox://styles/mapbox/streets-v11"
+          boxZoom={false}
+          doubleClickZoom={false}
+          dragPan={false}
+          keyboard={false}
+          scrollZoom={false}
+          touchPitch={false}
+          touchZoomRotate={false}
+          dragRotate={false} //드래그로 회전만 가능
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+        >
+        </Map>
+      </div>
+      <div className="fixed bottom-0 w-screen ">
+        <Bar.Progress>
+          <Bar.ProgressBarBtn isPlaying={isPlaying} 
+          onClickPlay={handlePlay} 
+          onClickPause={handlePause}
+          />
+        </Bar.Progress>
+      </div>
+    </>
+  );
+}
