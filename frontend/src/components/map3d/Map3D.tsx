@@ -1,11 +1,14 @@
 import { Canvas } from "@react-three/fiber";
-import { useQuery } from "@tanstack/react-query";
+import mapboxgl from "mapbox-gl";
 import { useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
-import { fetchPositionDataByOperation } from "@/api/mapApi";
+import latLonData from "@/data/latLonData.json"
+import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
 
+import  { Bar } from "../map/ProgressBar";
 import DroneInMap from "./DroneInMap";
+
 
 export default function Map3D() {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
@@ -14,6 +17,13 @@ export default function Map3D() {
     y: number;
   } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  // 애니메이션 관련 변수
+  const [isPlaying, setIsPlaying] = useState(false);
+  const animationRef = useRef<number>();
+  const elapsedTimeRef = useRef<number>(0); // 총 경과 시간 저장
+  const lastTimeRef = useRef<number>(0); // 마지막 프레임 시간 저장
+
 
   const handleMouseDown = (event: mapboxgl.MapMouseEvent) => {
     if (event.originalEvent.ctrlKey) {
@@ -35,65 +45,129 @@ export default function Map3D() {
     setDragPosition(null);
   };
 
-  useEffect(() => {
+
+  const animate = (currentTime: number) => {
     if (!mapRef.current) return;
     const map = mapRef.current.getMap();
 
-    map.on("style.load", () => {
-      // 지도 스타일이 로드된 후에 추가 작업 수행
-      //TODO: 맵 조작
+    // 첫 프레임이거나 재생 시작 시
+    if (!lastTimeRef.current) {
+      lastTimeRef.current = currentTime;
+    }
+
+    // 이전 프레임과의 시간 차이를 계산하여 경과 시간에 추가
+    const deltaTime = currentTime - lastTimeRef.current;
+    elapsedTimeRef.current += deltaTime;
+    lastTimeRef.current = currentTime;
+
+    const animationDuration = 8000;
+    const cameraAltitude = 600;
+
+    //TODO: latLonData를 실제 데이터로 변경
+    const routeDistance = calculateDistance(latLonData);
+
+    const phase = elapsedTimeRef.current / animationDuration;
+
+    if (phase > 1) {
+      // 애니메이션 완료
+      setIsPlaying(false);
+      lastTimeRef.current = 0;
+      elapsedTimeRef.current = 0;
+      return;
+    }
+
+    const alongPoint = calculatePointAlongRoute(
+      latLonData,
+      routeDistance * phase,
+    );
+    const alongRoute = [alongPoint[1], alongPoint[0]];
+    const alongCamera = [alongPoint[1], alongPoint[0]];
+
+    const camera = map.getFreeCameraOptions();
+
+    camera.position = mapboxgl.MercatorCoordinate.fromLngLat(
+      {
+        lng: alongCamera[0],
+        lat: alongCamera[1],
+      },
+      cameraAltitude,
+    );
+
+    camera.lookAtPoint({
+      lng: alongRoute[0],
+      lat: alongRoute[1],
     });
 
+    map.setFreeCameraOptions(camera);
+
+
+    animationRef.current = window.requestAnimationFrame(animate);
+
+  };
+
+  const handlePlay = () => {
+    lastTimeRef.current = 0; // 새로운 시작 시간을 설정하기 위해 리셋
+    setIsPlaying(true);
+    animationRef.current = window.requestAnimationFrame(animate);
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
+    if (animationRef.current) {
+      window.cancelAnimationFrame(animationRef.current);
+      lastTimeRef.current = 0; // 일시정지 시 마지막 시간 리셋
+    }
+  };
+
+  useEffect(() => {
     return () => {
-      //
+      if (animationRef.current) {
+        window.cancelAnimationFrame(animationRef.current);
+      }
     };
-    
-  }, [mapRef]);
-
-  //Test
-  // const operationId = "677730f8e8f8dd840dd35153";
-  // const robotId = "67773116e8f8dd840dd35155";
-
-  // const { isPending, error, data } = useQuery({
-  //   queryKey: ['position'],
-  //   queryFn: () => fetchPositionDataByOperation(robotId, operationId)
-  // });
-  // if (isPending) return "Loading";
-  // if (error) return "An error has occurred: " + error.message;
-  // console.log(data)
+  }, []);
 
   return (
-    <div className="fixed inset-0">
-      <Map
-        ref={mapRef}
-        mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
-        initialViewState={{
-          longitude: 126.97, //경도
-          latitude: 37.57, //위도
-          zoom: 18,
-          pitch: 45,
-        }}
-        style={{ width: "100%", height: "100%" }}
-        mapStyle="mapbox://styles/mapbox/standard"
-        boxZoom={false}
-        doubleClickZoom={false}
-        dragPan={false}
-        keyboard={false}
-        scrollZoom={false}
-        touchPitch={false}
-        touchZoomRotate={false}
-        dragRotate={true} //드래그로 회전만 가능
-        onMouseDown={handleMouseDown}
-        onMouseUp={handleMouseUp}
-        onMouseMove={handleMouseMove}
-      >
-        {/* <TestModel dragPosition={dragPosition} mapRef={mapRef}/> */}
-        <div className="absolute left-1/2 top-1/2 h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2">
-          <Canvas camera={{ position: [0, 0, 100], fov: 75 }}>
-            <DroneInMap dragPosition={dragPosition} />
-          </Canvas>
-        </div>
-      </Map>
-    </div>
+    <>
+      <div className="fixed inset-0">
+        <Map
+          ref={mapRef}
+          mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
+          initialViewState={{
+            longitude: 126.976944, //경도
+            latitude: 37.572398, //위도
+            zoom: 18,
+            pitch: 45,
+          }}
+          style={{ width: "100%", height: "100%" }}
+          mapStyle="mapbox://styles/mapbox/standard"
+          boxZoom={false}
+          doubleClickZoom={false}
+          dragPan={false}
+          keyboard={false}
+          scrollZoom={false}
+          touchPitch={false}
+          touchZoomRotate={false}
+          dragRotate={true} //드래그로 회전만 가능
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+        >
+          <div className="absolute left-1/2 top-1/2 h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2">
+            <Canvas camera={{ position: [0, 0, 100], fov: 75 }}>
+              <DroneInMap dragPosition={dragPosition} />
+            </Canvas>
+          </div>
+        </Map>
+      </div>
+      <div className="fixed bottom-0 w-screen ">
+        <Bar.Progress>
+          <Bar.ProgressBarBtn isPlaying={isPlaying} 
+          onClickPlay={handlePlay} 
+          onClickPause={handlePause}
+          />
+        </Bar.Progress>
+      </div>
+    </>
   );
 }
