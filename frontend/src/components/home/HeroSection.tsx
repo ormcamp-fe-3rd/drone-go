@@ -46,7 +46,7 @@ export function HeroSection() {
         }
       };
 
-      requestAnimationFrame(animateScroll); // 애니메이션 시작
+      requestAnimationFrame(animateScroll);
     }
   };
 
