@@ -11,12 +11,12 @@ export function DataList() {
   return (
     <div className="mx-auto mb-10 flex h-[1024px] flex-col items-center justify-center text-center">
       <p className="title" id="DataList">
-        Select the data
+        Select the Drone
       </p>
-      <p className="subtitle">
-        Choose the data set you want to analyze or review. Select to proceed
+      <p className="subtitle mt-2">
+        Select a drone and view its data visualization.
       </p>
-      <div className="mt-10 flex max-h-full min-h-[37.5rem] w-[75rem] flex-wrap items-center justify-center">
+      <div className="mt-10 flex h-auto min-h-[37.5rem] w-[75rem] flex-wrap items-center justify-center">
         {/* 데이터 배열을 map()으로 렌더링 */}
         {data.map((item, index) => (
           <FlightDataCard

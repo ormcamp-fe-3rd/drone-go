@@ -19,8 +19,8 @@ export function HomePage() {
     if (droneRef.current) {
       // gsap 애니메이션을 droneRef에 적용하고 ScrollTrigger 사용
       gsap.to(droneRef.current, {
-        x: "-150vw", // 왼쪽으로 이동 (현재 위치에서 왼쪽 50% 만큼 이동)
-        y: "90vh", // 아래로 이동 (현재 위치에서 아래로 140% 만큼 이동)
+        x: "-100vw", // 왼쪽으로 이동 (현재 위치에서 왼쪽 50% 만큼 이동)
+        y: "200vh", // 아래로 이동 (현재 위치에서 아래로 140% 만큼 이동)
 
         duration: 10, // 이동 시간 (10초)
         ease: "power2.out", // 이징 효과 (부드러운 애니메이션)
