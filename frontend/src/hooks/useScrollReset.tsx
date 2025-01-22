@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-export function useInitializeScrollOnChangePath() {
+export function useScrollReset() {
   const location = useLocation();
 
   useEffect(() => {
