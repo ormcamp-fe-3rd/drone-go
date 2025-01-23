@@ -71,6 +71,12 @@ export function calculatePointAlongRoute(
     const { lat: lat1, lon: lon1, alt: alt1 } = route[i];
     const { lat: lat2, lon: lon2, alt: alt2 } = route[i + 1];
     const segmentDistance = haversine(lat1, lon1, lat2, lon2);
+    // 라우트 데이터 유효성 검사
+    if (!route || route.length < 2) {
+      console.error("유효하지 않은 라우트 데이터");
+      return route[0];
+    }
+
 
     if (coveredDistance + segmentDistance >= distanceAlong) {
       // distancdAlong 에 도달한 경우

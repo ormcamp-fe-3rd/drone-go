@@ -1,11 +1,14 @@
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
+import { fetchPositionDataByOperation } from "@/api/mapApi";
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
 import Map3D from "@/components/map3d/Map3D";
 import MapSwitchButton from "@/components/map3d/MapSwitchButton";
 import { AttitudeWidget, BatteryState, HeadingState, SpeedAltitudeWidget, StateAlertWidget, WeatherWidget } from "@/components/map3d/Widget";
 import toolbarWidgetData from "@/data/toolbarWidgetData.json"
 import { Operation,Robot } from "@/types/selectOptionsTypes";
+import formatPositionData from "@/utils/formatPositionData";
 
 
 export default function Map3dPage(){
@@ -14,23 +17,22 @@ export default function Map3dPage(){
       null,
   );
 
-  //TODO: 데이터 연결후 재생성
-  // const { isPending, error, data } = useQuery({
-  //   queryKey: ["position", selectedDrone, selectedOperation],
-  //   queryFn: async () => {
-  //     const rawData = await fetchPositionDataByOperation(
-  //       // selectedDrone!._id,
-  //       // selectedOperation!._id,
-  //       "67773116e8f8dd840dd35155",
-  //       "677730f8e8f8dd840dd35153",
-  //     );
-  //     return rawData.map(formatPositionData);
-  //   },
-  //   // enabled: !!selectedDrone && !!selectedOperation,
-  // });
-  // if (isPending) return "Loading...";
-  // if (error) return "An error has occurred: " + error.message;
-  // console.log(data);
+  //TODO: drone id, operation id -> 사용자가 선택한 값으로 변경 
+  const { isPending, error, data } = useQuery({
+    queryKey: ["position", selectedDrone, selectedOperation],
+    queryFn: async () => {
+      const rawData = await fetchPositionDataByOperation(
+        // selectedDrone!._id,
+        // selectedOperation!._id,
+        "67773116e8f8dd840dd35155",
+        "677730f8e8f8dd840dd35153",
+      );
+      return rawData.map(formatPositionData);
+    },
+    // enabled: !!selectedDrone && !!selectedOperation,
+  });
+  if (isPending) return "Loading...";
+  if (error) return "An error has occurred: " + error.message;
 
   return (
     <>
@@ -75,7 +77,7 @@ export default function Map3dPage(){
           values={toolbarWidgetData[3].stateValues!}
         />
       </div>
-      <Map3D />
+      <Map3D latLonAltData={data}/>
     </>
   );
 }

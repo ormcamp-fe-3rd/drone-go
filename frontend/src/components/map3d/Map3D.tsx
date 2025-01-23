@@ -3,15 +3,17 @@ import mapboxgl from "mapbox-gl";
 import { useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
-import latLonDataCamera from "@/data/latLonDataCamera.json";
-import latLonDataTarget from "@/data/latLonDataTarget.json";
+import { LatLonAlt } from "@/types/latLonAlt";
 import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
 
 import  { Bar } from "../map/ProgressBar";
 import DroneInMap from "./DroneInMap";
 
+interface Props{
+  latLonAltData: LatLonAlt[];
+}
 
-export default function Map3D() {
+export default function Map3D({latLonAltData}:Props) {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
   const [dragPosition, setDragPosition] = useState<{
     x: number;
@@ -66,14 +68,14 @@ export default function Map3D() {
 
     //TODO: latLonData를 실제 데이터로 변경
     // 총 이동거리
-    const routeDistance = calculateDistance(latLonDataTarget);
-    const cameraRouteDistance = calculateDistance(latLonDataCamera);
+    const routeDistance = calculateDistance(latLonAltData);
+    const cameraRouteDistance = calculateDistance(latLonAltData);
 
-    const phase = elapsedTimeRef.current / animationDuration;
+    const phase = Math.min(1, elapsedTimeRef.current / animationDuration);
 
-    if (phase > 1) {
+    if (phase >= 1) {
       // 애니메이션 완료
-      setIsPlaying(false);
+      setIsPlaying(false); 
       lastTimeRef.current = 0;
       elapsedTimeRef.current = 0;
       return;
@@ -81,12 +83,12 @@ export default function Map3D() {
 
     // 현재 이동거리에 따른 이동지점
     const alongPoint = calculatePointAlongRoute(
-      latLonDataTarget,
-      routeDistance * phase,
+      latLonAltData,
+      routeDistance * phase || 0.001,
     );
     const alongCamera = calculatePointAlongRoute(
-      latLonDataCamera,
-      cameraRouteDistance * phase,
+      latLonAltData,
+      cameraRouteDistance * phase || 0.001,
     );
 
     const alongRoute = [alongPoint.lon, alongPoint.lat];
@@ -109,9 +111,7 @@ export default function Map3D() {
 
     map.setFreeCameraOptions(camera);
 
-
     animationRef.current = window.requestAnimationFrame(animate);
-
   };
 
   const handlePlay = () => {
