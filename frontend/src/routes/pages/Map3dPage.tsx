@@ -1,14 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 
-import { fetchPositionDataByOperation } from "@/api/mapApi";
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
 import Map3D from "@/components/map3d/Map3D";
 import MapSwitchButton from "@/components/map3d/MapSwitchButton";
 import { Widget } from "@/components/map3d/Widget";
 import toolbarWidgetData from "@/data/toolbarWidgetData.json"
 import { Operation,Robot } from "@/types/selectOptionsTypes";
-import formatPositionData from "@/utils/formatPositionData";
 
 
 export default function Map3dPage(){
@@ -17,6 +14,7 @@ export default function Map3dPage(){
       null,
   );
 
+  //TODO: 데이터 연결후 재생성
   // const { isPending, error, data } = useQuery({
   //   queryKey: ["position", selectedDrone, selectedOperation],
   //   queryFn: async () => {
