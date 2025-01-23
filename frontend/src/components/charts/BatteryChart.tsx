@@ -1,10 +1,11 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
-import { ProcessedTelemetryBatteryData } from "../../types/telemetryBatteryDataTypes"; // 타입 임포트
+import { ProcessedTelemetryBatteryData } from "../../types/telemetryBatteryDataTypes";
+import { format } from "date-fns";
 
 interface ChartProps {
-  data: ProcessedTelemetryBatteryData[]; // 타입 지정
+  data: ProcessedTelemetryBatteryData[];
 }
 
 const BatteryChart: React.FC<ChartProps> = ({ data }) => {
@@ -58,7 +59,7 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
     },
     stroke: {
       show: true,
-      curve: "monotoneCubic", // 전체 라인을 부드럽게 표시
+      curve: "smooth", // 전체 라인을 부드럽게 표시
       //curve: ['straight', 'smooth', 'monotoneCubic', 'stepline']
       dashArray: 0,
     },
@@ -74,8 +75,14 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
     },
     xaxis: {
       type: "datetime",
-      labels: { show: true },
-      categories: data.map((item) => item.timestamp.toISOString()),
+      labels: {
+        show: true,
+        formatter: function (value: string) {
+          return format(new Date(Number(value)), "HH:mm:ss"); // 포맷을 "HH:mm:ss"로 설정
+        },
+      },
+      categories: data.map((item) => item.timestamp.toString()),
+
       floating: true, // 플로팅 설정으로 가로 스크롤 가능
     },
     yaxis: [
@@ -139,15 +146,6 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
     markers: {
       size: 0, // 마커를 제거
     },
-    // fill: {
-    //   type: "gradient",
-    //   gradient: {
-    //     shade: "dark", // 밝기 설정
-    //     gradientToColors: ["#0be881", "#73edd0", "#ddd675"], // 기본색상:"#757de8", "#4fc3f7", "#66bb6a" //각 시리즈의 그라데이션 목표 색상
-    //     type: "horizontal", // 그라데이션 방향
-    //     stops: [0, 100],
-    //   },
-    // },
   };
 
   return (
