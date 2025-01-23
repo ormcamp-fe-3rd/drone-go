@@ -1,59 +1,4 @@
-import { useState } from 'react';
-
-import { WidgetData } from '@/types/widgetDataTypes';
-
-interface Props {
-  widgetData: WidgetData[];
-}
-
-const WidgetBasic = ({ widgetData }: Props) => {
-  return (
-    <div>
-      {widgetData.map((widget, index) => {
-        // Weather Widget
-        if (widget.title === "Sunny" && widget.dataValues?.length === 2) {
-          return (
-            <WeatherWidget
-              key={index}
-              icon={widget.icon}
-              title={widget.title}
-              values={widget.dataValues}
-            />
-          );
-        }
-
-        // Speed and Altitude Widgets
-        if (
-          (widget.title === "Speed" || widget.title === "Altitude") &&
-          widget.dataValues?.length === 1
-        ) {
-          return (
-            <SpeedAltitudeWidget
-              key={index}
-              icon={widget.icon}
-              title={widget.title}
-              value={widget.dataValues[0]}
-            />
-          );
-        }
-
-        // State Alarm Widget
-        if (widget.title === "State" && widget.stateValues) {
-          return (
-            <StateAlertWidget
-              key={index}
-              icon={widget.icon}
-              title={widget.title}
-              values={widget.stateValues}
-            />
-          );
-        }
-
-        return null; // Handle unknown widget types
-      })}
-    </div>
-  );
-};
+import { ReactNode, useState } from 'react';
 
 interface WeatherProps{
   icon: string;
@@ -140,23 +85,16 @@ const StateAlertWidget = ({icon, title, values}:StateProps) => {
   );
 }
 
-const AttitudeWidget = () => {
+interface AttitudeProps{
+  children: ReactNode;
+}
+
+const AttitudeWidget = ({children}: AttitudeProps) => {
   return (
     <div className="toolbar-attitude mx-6 grid h-[300px] w-[274px] grid-cols-[1fr_1fr] grid-rows-[33%_1fr] rounded-[10px] bg-white bg-opacity-60">
-      <div className="toolbar-header1 col-start-1 row-start-1 flex items-start justify-start p-2.5">
-        <div className="battery">
-          <img src="/public/images/battery-charging-01.svg" />
-        </div>
-        <div className="battery-percentage text-[16px]">: 90%</div>
-      </div>
-      <div className="toolbar-header2 col-start-2 row-start-1 flex items-start justify-end p-2.5">
-        <div className="angle inline-block w-[35px] rounded-[30px] border-2 border-black text-center text-[12px]">
-          90°
-        </div>
-        <div>
-          <img src="/public/images/Frame 69.svg" />
-        </div>
-      </div>
+      {children}
+
+      {/* TODO: 자세데이터 반영한 드론3d 오브젝트로 수정 */}
       <div className="attitude-3d col-span-2 row-start-2 flex items-center justify-center p-2.5">
         <img className="drone w-[253px]" src="/public/images/image 3.png" />
       </div>
@@ -164,10 +102,39 @@ const AttitudeWidget = () => {
   );
 };
 
-export const Widget = Object.assign({
-  WeatherWidget,
+
+// TODO: 배터리 데이터로 수정
+const BatteryState = () => {
+  return (
+    <div className="toolbar-header1 col-start-1 row-start-1 flex items-start justify-start p-2.5">
+      <div className="battery">
+        <img src="/public/images/battery-charging-01.svg" />
+      </div>
+      <div className="battery-percentage text-[16px]">: 90%</div>
+    </div>
+  );
+}
+
+// TODO: heading 데이터로 수정
+const HeadingState = () => {
+  return (
+    <div className="toolbar-header2 col-start-2 row-start-1 flex items-start justify-end p-2.5">
+      <div className="angle inline-block w-[35px] rounded-[30px] border-2 border-black text-center text-[12px]">
+        90°
+      </div>
+      <div>
+        <img src="/public/images/Frame 69.svg" />
+      </div>
+    </div>
+  );
+}
+
+
+export {
+  AttitudeWidget,
+  BatteryState,
+  HeadingState,
   SpeedAltitudeWidget,
   StateAlertWidget,
-  AttitudeWidget,
-  WidgetBasic,
-});
+  WeatherWidget,
+};
