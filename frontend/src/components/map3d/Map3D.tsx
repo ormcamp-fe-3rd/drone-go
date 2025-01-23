@@ -3,7 +3,8 @@ import mapboxgl from "mapbox-gl";
 import { useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
-import latLonData from "@/data/latLonData.json"
+import latLonDataCamera from "@/data/latLonDataCamera.json";
+import latLonDataTarget from "@/data/latLonDataTarget.json";
 import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
 
 import  { Bar } from "../map/ProgressBar";
@@ -64,7 +65,9 @@ export default function Map3D() {
     const cameraAltitude = 600;
 
     //TODO: latLonData를 실제 데이터로 변경
-    const routeDistance = calculateDistance(latLonData);
+    // 총 이동거리
+    const routeDistance = calculateDistance(latLonDataTarget);
+    const cameraRouteDistance = calculateDistance(latLonDataCamera);
 
     const phase = elapsedTimeRef.current / animationDuration;
 
@@ -76,19 +79,25 @@ export default function Map3D() {
       return;
     }
 
+    // 현재 이동거리에 따른 이동지점
     const alongPoint = calculatePointAlongRoute(
-      latLonData,
+      latLonDataTarget,
       routeDistance * phase,
     );
+    const alongCamera = calculatePointAlongRoute(
+      latLonDataCamera,
+      cameraRouteDistance * phase,
+    );
+
     const alongRoute = [alongPoint[1], alongPoint[0]];
-    const alongCamera = [alongPoint[1], alongPoint[0]];
+    const alongRouteCamera = [alongCamera[1], alongCamera[0]];
 
     const camera = map.getFreeCameraOptions();
 
     camera.position = mapboxgl.MercatorCoordinate.fromLngLat(
       {
-        lng: alongCamera[0],
-        lat: alongCamera[1],
+        lng: alongRouteCamera[0],
+        lat: alongRouteCamera[1],
       },
       cameraAltitude,
     );
