@@ -1,10 +1,10 @@
-import { RawTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
+import { TelemetryPositionData } from "@/types/telemetryPositionDataTypes";
 
 
 export const fetchPositionDataByOperation = async (
   robotId: string,
   operationId: string,
-): Promise<RawTelemetryPositionData[]> => {
+): Promise<TelemetryPositionData[]> => {
   if (!robotId || !operationId) {
     throw new Error("OperationId are required");
   }
@@ -17,10 +17,10 @@ export const fetchPositionDataByOperation = async (
     if (!response.ok) {
       throw new Error(`Failed to fetch telemetries: ${response.statusText}`);
     }
-    const data: RawTelemetryPositionData[] = await response.json();
+    const data: TelemetryPositionData[] = await response.json();
 
     // msgId가 33인 데이터만 필터링하고 필요한 값만 반환 - 경도, 위도, 고도
-    const filterPositionData: RawTelemetryPositionData[] = data
+    const filterPositionData: TelemetryPositionData[] = data
       .filter((telemetry) => telemetry.msgId === 33)
       .map((telemetry) => ({
         msgId: telemetry.msgId,

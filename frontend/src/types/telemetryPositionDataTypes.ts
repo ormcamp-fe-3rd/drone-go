@@ -1,5 +1,5 @@
 
-export interface RawTelemetryPositionData {
+export interface TelemetryPositionData {
   msgId: number;
   timestamp: Date;
   payload: {
