@@ -9,12 +9,6 @@ interface ChartProps {
 }
 
 const BatteryChart: React.FC<ChartProps> = ({ data }) => {
-  // 데이터에서 timestamp 값을 로그로 출력하여 확인
-  console.log("Received data:", data);
-  console.log(
-    "Timestamps:",
-    data.map((item) => item.timestamp),
-  );
   const chartSeries = [
     {
       name: "Temperature (°C)",
@@ -32,10 +26,6 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
       type: "line",
     },
   ];
-  console.log(
-    ">>   ",
-    data.map((item) => new Date(item.timestamp).getTime()),
-  );
   const chartOptions: ApexOptions = {
     chart: {
       width: "100%",

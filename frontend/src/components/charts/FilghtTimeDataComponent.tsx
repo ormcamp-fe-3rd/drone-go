@@ -1,12 +1,7 @@
 import React from "react";
 import { ProcessedTelemetryBatteryData } from "../../types/telemetryBatteryDataTypes";
 import { formatTime } from "../../utils/formatTime";
-import {
-  differenceInMilliseconds,
-  differenceInSeconds,
-  format,
-  intervalToDuration,
-} from "date-fns";
+import { intervalToDuration } from "date-fns";
 
 interface FlightTimeDataProps {
   data: ProcessedTelemetryBatteryData[];

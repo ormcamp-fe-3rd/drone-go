@@ -40,12 +40,14 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
   });
 
   const handleDroneSelect = (robot: Robot) => {
+    //데이터 확인용 배포 이전 console.log 삭제 예정
     console.log("Selected Drone:", robot);
     setSelectedDrone(robot);
     setSelectedOperation(null);
   };
 
   const handleOperationSelect = (operation: Operation) => {
+    //데이터 확인용 배포 이전 console.log 삭제 예정
     console.log("Selected operation:", operation);
     setSelectedOperation(operation);
   };
