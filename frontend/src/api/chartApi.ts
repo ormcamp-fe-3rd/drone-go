@@ -26,8 +26,9 @@ export const fetchTelemetriesByRobotAndOperation = async (
     const data: TelemetryData[] = await response.json();
 
     // msgId가 147인 데이터만 필터링하고 필요한 값만 반환 - 배터리 온도, 전압, 잔량 데이터
+    const BATTERY_STATUS_MSG_ID = 147;
     const batteryData: ProcessedTelemetryBatteryData[] = data
-      .filter((telemetry) => telemetry.msgId === 147)
+      .filter((telemetry) => telemetry.msgId === BATTERY_STATUS_MSG_ID)
       .map((telemetry) => ({
         msgId: telemetry.msgId,
         timestamp: new Date(telemetry.timestamp),
@@ -39,8 +40,9 @@ export const fetchTelemetriesByRobotAndOperation = async (
       }));
 
     // msgId가 253인 데이터만 필터링하고 필요한 값만 반환 - text 상태 데이터
+    const TEXT_STATUS_MSG_ID = 253;
     const textData: ProcessedTelemetryTextData[] = data
-      .filter((telemetry) => telemetry.msgId === 253)
+      .filter((telemetry) => telemetry.msgId === TEXT_STATUS_MSG_ID)
       .map((telemetry) => ({
         msgId: telemetry.msgId,
         timestamp: new Date(telemetry.timestamp),
@@ -50,8 +52,9 @@ export const fetchTelemetriesByRobotAndOperation = async (
       }));
 
     // msgId가 24인 데이터만 필터링하고 필요한 값만 반환 - 연결되어있는 위성 수
+    const GPS_RAW_INT_MSG_ID = 24;
     const satellitesData: ProcessedTelemetrySatellitesData[] = data
-      .filter((telemetry) => telemetry.msgId === 24)
+      .filter((telemetry) => telemetry.msgId === GPS_RAW_INT_MSG_ID)
       .map((telemetry) => ({
         msgId: telemetry.msgId,
         timestamp: new Date(telemetry.timestamp),

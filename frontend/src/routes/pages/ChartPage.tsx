@@ -9,12 +9,6 @@ import FlightTimeDataComponenet from "../../components/charts/FilghtTimeDataComp
 import StateDataComponent from "../../components/charts/StateDataComponent";
 import SatellitesChart from "../../components/charts/SatellitesChart";
 
-const DroneImages: { [key: string]: string } = {
-  M1_1호기: "/images/chart/drone1.svg",
-  M1_2호기: "/images/chart/drone2.svg",
-  M1_3호기: "/images/chart/drone1.svg",
-};
-
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   children,
 }) => (
@@ -32,6 +26,24 @@ const ChartPage: React.FC = () => {
   const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
     null,
   );
+
+  const droneImages: { [key: string]: string } = {
+    M1_1: "/images/chart/drone1.svg",
+    M1_2: "/images/chart/drone2.svg",
+    M1_3: "/images/chart/drone1.svg",
+  };
+
+  const getDroneImage = (drone: Robot | null) => {
+    if (drone) {
+      const selectedDroneKey = drone.name.replace("호기", "");
+      return droneImages[selectedDroneKey] || null; // 해당하는 이미지 없으면 null 반환
+    }
+    return null;
+  };
+
+  // 선택된 드론에 맞는 이미지를 가져오기
+  const selectedImage = getDroneImage(selectedDrone);
+
   const {
     data: telemetryData = { batteryData: [], textData: [], satellitesData: [] },
     isLoading,
@@ -71,7 +83,7 @@ const ChartPage: React.FC = () => {
             <div className="mx-5 h-[300px]">
               {selectedDrone ? (
                 <img
-                  src={DroneImages[selectedDrone.name] || ""}
+                  src={selectedImage || ""}
                   alt={selectedDrone.name}
                   className="object-contain w-full h-full"
                 />
