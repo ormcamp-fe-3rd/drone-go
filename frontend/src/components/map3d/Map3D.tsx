@@ -3,14 +3,17 @@ import mapboxgl from "mapbox-gl";
 import { useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
-import latLonData from "@/data/latLonData.json"
+import { LatLonAlt } from "@/types/latLonAlt";
 import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
 
 import  { Bar } from "../map/ProgressBar";
 import DroneInMap from "./DroneInMap";
 
+interface Props{
+  latLonAltData: LatLonAlt[];
+}
 
-export default function Map3D() {
+export default function Map3D({latLonAltData}:Props) {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
   const [dragPosition, setDragPosition] = useState<{
     x: number;
@@ -64,31 +67,39 @@ export default function Map3D() {
     const cameraAltitude = 600;
 
     //TODO: latLonData를 실제 데이터로 변경
-    const routeDistance = calculateDistance(latLonData);
+    // 총 이동거리
+    const routeDistance = calculateDistance(latLonAltData);
+    const cameraRouteDistance = calculateDistance(latLonAltData);
 
-    const phase = elapsedTimeRef.current / animationDuration;
+    const phase = Math.min(1, elapsedTimeRef.current / animationDuration);
 
-    if (phase > 1) {
+    if (phase >= 1) {
       // 애니메이션 완료
-      setIsPlaying(false);
+      setIsPlaying(false); 
       lastTimeRef.current = 0;
       elapsedTimeRef.current = 0;
       return;
     }
 
+    // 현재 이동거리에 따른 이동지점
     const alongPoint = calculatePointAlongRoute(
-      latLonData,
-      routeDistance * phase,
+      latLonAltData,
+      routeDistance * phase || 0.001,
     );
-    const alongRoute = [alongPoint[1], alongPoint[0]];
-    const alongCamera = [alongPoint[1], alongPoint[0]];
+    const alongCamera = calculatePointAlongRoute(
+      latLonAltData,
+      cameraRouteDistance * phase || 0.001,
+    );
+
+    const alongRoute = [alongPoint.lon, alongPoint.lat];
+    const alongRouteCamera = [alongCamera.lon, alongCamera.lat];
 
     const camera = map.getFreeCameraOptions();
 
     camera.position = mapboxgl.MercatorCoordinate.fromLngLat(
       {
-        lng: alongCamera[0],
-        lat: alongCamera[1],
+        lng: alongRouteCamera[0],
+        lat: alongRouteCamera[1],
       },
       cameraAltitude,
     );
@@ -100,9 +111,7 @@ export default function Map3D() {
 
     map.setFreeCameraOptions(camera);
 
-
     animationRef.current = window.requestAnimationFrame(animate);
-
   };
 
   const handlePlay = () => {

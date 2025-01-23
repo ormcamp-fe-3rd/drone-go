@@ -5,7 +5,7 @@ import { fetchPositionDataByOperation } from "@/api/mapApi";
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
 import Map3D from "@/components/map3d/Map3D";
 import MapSwitchButton from "@/components/map3d/MapSwitchButton";
-import { Widget } from "@/components/map3d/Widget";
+import { AttitudeWidget, BatteryState, HeadingState, SpeedAltitudeWidget, StateAlertWidget, WeatherWidget } from "@/components/map3d/Widget";
 import toolbarWidgetData from "@/data/toolbarWidgetData.json"
 import { Operation,Robot } from "@/types/selectOptionsTypes";
 import formatPositionData from "@/utils/formatPositionData";
@@ -17,22 +17,22 @@ export default function Map3dPage(){
       null,
   );
 
-  // const { isPending, error, data } = useQuery({
-  //   queryKey: ["position", selectedDrone, selectedOperation],
-  //   queryFn: async () => {
-  //     const rawData = await fetchPositionDataByOperation(
-  //       // selectedDrone!._id,
-  //       // selectedOperation!._id,
-  //       "67773116e8f8dd840dd35155",
-  //       "677730f8e8f8dd840dd35153",
-  //     );
-  //     return rawData.map(formatPositionData);
-  //   },
-  //   // enabled: !!selectedDrone && !!selectedOperation,
-  // });
-  // if (isPending) return "Loading...";
-  // if (error) return "An error has occurred: " + error.message;
-  // console.log(data);
+  //TODO: drone id, operation id -> 사용자가 선택한 값으로 변경 
+  const { isPending, error, data } = useQuery({
+    queryKey: ["position", selectedDrone, selectedOperation],
+    queryFn: async () => {
+      const rawData = await fetchPositionDataByOperation(
+        // selectedDrone!._id,
+        // selectedOperation!._id,
+        "67773116e8f8dd840dd35155",
+        "677730f8e8f8dd840dd35153",
+      );
+      return rawData.map(formatPositionData);
+    },
+    // enabled: !!selectedDrone && !!selectedOperation,
+  });
+  if (isPending) return "Loading...";
+  if (error) return "An error has occurred: " + error.message;
 
   return (
     <>
@@ -52,10 +52,33 @@ export default function Map3dPage(){
       <div className="fixed left-4 top-[10rem] z-10">
         <Widget.AttitudeWidget />
 
-        {/* TODO: 추후 목데이터 삭제 */}
-        <Widget.WidgetBasic widgetData={toolbarWidgetData} />
+        {/* TODO: 위젯 props들 api 데이터로 수정 */}
+        <AttitudeWidget>
+          <BatteryState />
+          <HeadingState />
+        </AttitudeWidget>
+        <WeatherWidget
+          icon={toolbarWidgetData[0].icon}
+          title={toolbarWidgetData[0].title}
+          values={toolbarWidgetData[0].dataValues as string[]}
+        />
+        <SpeedAltitudeWidget
+          icon={toolbarWidgetData[1].icon}
+          title={toolbarWidgetData[1].title}
+          value={toolbarWidgetData[1].dataValues![0]}
+        />
+        <SpeedAltitudeWidget
+          icon={toolbarWidgetData[2].icon}
+          title={toolbarWidgetData[2].title}
+          value={toolbarWidgetData[2].dataValues![0]}
+        />
+        <StateAlertWidget
+          icon={toolbarWidgetData[3].icon}
+          title={toolbarWidgetData[3].title}
+          values={toolbarWidgetData[3].stateValues!}
+        />
       </div>
-      <Map3D />
+      <Map3D latLonAltData={data}/>
     </>
   );
 }
