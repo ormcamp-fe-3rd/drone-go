@@ -3,7 +3,7 @@ import { useState } from "react";
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
 import Map3D from "@/components/map3d/Map3D";
 import MapSwitchButton from "@/components/map3d/MapSwitchButton";
-import { Widget } from "@/components/map3d/Widget";
+import { AttitudeWidget, BatteryState, HeadingState, SpeedAltitudeWidget, StateAlertWidget, WeatherWidget } from "@/components/map3d/Widget";
 import toolbarWidgetData from "@/data/toolbarWidgetData.json"
 import { Operation,Robot } from "@/types/selectOptionsTypes";
 
@@ -48,10 +48,32 @@ export default function Map3dPage(){
         <MapSwitchButton />
       </div>
       <div className="fixed left-4 top-[178px] z-10">
-        <Widget.AttitudeWidget />
 
-        {/* TODO: 추후 목데이터 삭제 */}
-        <Widget.WidgetBasic widgetData={toolbarWidgetData} />
+        {/* TODO: 위젯 props들 api 데이터로 수정 */}
+        <AttitudeWidget>
+          <BatteryState />
+          <HeadingState />
+        </AttitudeWidget>
+        <WeatherWidget
+          icon={toolbarWidgetData[0].icon}
+          title={toolbarWidgetData[0].title}
+          values={toolbarWidgetData[0].dataValues as string[]}
+        />
+        <SpeedAltitudeWidget
+          icon={toolbarWidgetData[1].icon}
+          title={toolbarWidgetData[1].title}
+          value={toolbarWidgetData[1].dataValues![0]}
+        />
+        <SpeedAltitudeWidget
+          icon={toolbarWidgetData[2].icon}
+          title={toolbarWidgetData[2].title}
+          value={toolbarWidgetData[2].dataValues![0]}
+        />
+        <StateAlertWidget
+          icon={toolbarWidgetData[3].icon}
+          title={toolbarWidgetData[3].title}
+          values={toolbarWidgetData[3].stateValues!}
+        />
       </div>
       <Map3D />
     </>
