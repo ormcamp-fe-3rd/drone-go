@@ -89,8 +89,8 @@ export default function Map3D() {
       cameraRouteDistance * phase,
     );
 
-    const alongRoute = [alongPoint[1], alongPoint[0]];
-    const alongRouteCamera = [alongCamera[1], alongCamera[0]];
+    const alongRoute = [alongPoint.lon, alongPoint.lat];
+    const alongRouteCamera = [alongCamera.lon, alongCamera.lat];
 
     const camera = map.getFreeCameraOptions();
 

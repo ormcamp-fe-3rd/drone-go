@@ -9,6 +9,8 @@
  * ];
  */
 
+import { LatLon } from "@/types/latLon";
+
 /**
  * Haversine 공식으로 두 지점 간의 거리를 계산하는 함수
  *
@@ -40,12 +42,12 @@ function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
  * @param route 위도, 경도 쌍의 배열로 이루어진 경로
  * @returns 경로의 총 거리 (단위: 미터)
  */
-export function calculateDistance(route: number[][]) {
+export function calculateDistance(route: LatLon[]) {
   let totalDistance = 0;
 
   for (let i = 0; i < route.length - 1; i++) {
-    const [lat1, lon1] = route[i];
-    const [lat2, lon2] = route[i + 1];
+    const {lat: lat1, lon: lon1} = route[i];
+    const {lat: lat2, lon: lon2} = route[i + 1];
 
     totalDistance += haversine(lat1, lon1, lat2, lon2);
   }
@@ -60,14 +62,14 @@ export function calculateDistance(route: number[][]) {
  * @returns 주어진 거리(distanceAlong)에서의 지점(위도와 경도 배열), 지점을 찾을 수 없는 경우 마지막 경로 반환
  */
 export function calculatePointAlongRoute(
-  route: number[][],
+  route: LatLon[],
   distanceAlong: number,
-): number[] {
+): LatLon {
   let coveredDistance = 0; //현재까지의 누적 거리
 
   for (let i = 0; i < route.length - 1; i++) {
-    const [lat1, lon1] = route[i];
-    const [lat2, lon2] = route[i + 1];
+    const { lat: lat1, lon: lon1 } = route[i];
+    const { lat: lat2, lon: lon2 } = route[i + 1];
     const segmentDistance = haversine(lat1, lon1, lat2, lon2); 
 
     if (coveredDistance + segmentDistance >= distanceAlong) {
@@ -79,7 +81,7 @@ export function calculatePointAlongRoute(
       const lat = lat1 + (lat2 - lat1) * ratio;
       const lon = lon1 + (lon2 - lon1) * ratio;
 
-      return [lat, lon];
+      return {lat, lon};
     }
 
     coveredDistance += segmentDistance;
