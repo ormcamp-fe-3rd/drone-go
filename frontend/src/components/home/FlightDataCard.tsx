@@ -2,7 +2,7 @@ import { Link } from "react-router-dom";
 
 interface FlightDataCardProps {
   name: string;
-  img: string; // img 속성 추가
+  img: string;
 }
 
 export function FlightDataCard({ name, img }: FlightDataCardProps) {
@@ -32,9 +32,8 @@ export function FlightDataCard({ name, img }: FlightDataCardProps) {
           />
         </div>
 
-        {/* img prop을 사용하여 이미지 표시 */}
         <div className="mx-auto flex h-[100px] w-[200px] items-center justify-center">
-          <img src={img} alt={name} /> {/* img prop으로 전달받은 이미지 출력 */}
+          <img src={img} alt={name} />
         </div>
 
         {/* Original Content */}
