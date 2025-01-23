@@ -3,7 +3,7 @@ import { ProcessedTelemetryTextData } from "../../types/telemetryTextData";
 import { formatTime } from "../../utils/formatTime";
 
 interface FlightTextDataProps {
-  data: ProcessedTelemetryTextData[]; // ProcessedTelemetryBatteryData 배열을 props로 받음
+  data: ProcessedTelemetryTextData[];
 }
 
 const StateDataComponent: React.FC<FlightTextDataProps> = ({ data }) => {

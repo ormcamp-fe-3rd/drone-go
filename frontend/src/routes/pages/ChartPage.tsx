@@ -10,9 +10,9 @@ import StateDataComponent from "../../components/charts/StateDataComponent";
 import SatellitesChart from "../../components/charts/SatellitesChart";
 
 const DroneImages: { [key: string]: string } = {
-  M1_1호기: "/images/chart/drone1.svg",
-  M1_2호기: "/images/chart/drone2.svg",
-  M1_3호기: "/images/chart/drone1.svg",
+  M1_1: "/images/chart/drone1.svg",
+  M1_2: "/images/chart/drone2.svg",
+  M1_3: "/images/chart/drone1.svg",
 };
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({

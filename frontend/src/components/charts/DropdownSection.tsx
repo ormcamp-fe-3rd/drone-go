@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { twMerge } from "tailwind-merge";
 import { fetchRobots, fetchOperationsByRobot } from "../../api/dropdownApi";
