@@ -16,7 +16,7 @@ export function FunctionChart() {
           start: "top 0%", // 첫 번째 요소가 화면의 정중앙에 올 때 시작
           end: "bottom 100%", // 화면 중간에서 끝나도록 설정 (스크롤이 다 내려가야 끝남)
           scrub: 1, // 스크롤과 애니메이션을 완전히 동기화
-          markers: true, // 디버깅용 마커 표시
+          markers: false, // 디버깅용 마커 표시
         },
       });
 
