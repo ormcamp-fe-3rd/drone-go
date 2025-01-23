@@ -85,7 +85,7 @@ const Progress = ({children}: ProgressProps) => {
   const [hoverTime, setHoverTime] = useState<number | null>(null);
   const [droneState, setDroneState] = useState<string | null>(null);
 
-  // 임시 데이터
+  // TODO: 임시 데이터, 향후 백엔드 API콜을 통해 실제 데이터 사용.
   const droneStates: DroneState[] = [
     { time: 10, state: "Drone 1: Ready" },
     { time: 20, state: "Drone 2: Flying" },
@@ -156,13 +156,13 @@ interface ProgressBarBtnProps{
 const ProgressBarBtn = ({isPlaying, onClickPlay, onClickPause}:ProgressBarBtnProps) => {
   return (
     <div className="play-icon absolute left-1/2 mt-4 -translate-x-1/2 transform">
-      {!isPlaying?(
-      <button onClick={onClickPlay} className="h-10 w-10">
-        <img src="/images/play.svg" alt="play"/>
-      </button>
-      ):(
+      {isPlaying ? (
         <button onClick={onClickPause} className="h-10 w-10">
           <img src="/images/pause.svg" alt="pause" />
+        </button>
+      ) : (
+        <button onClick={onClickPlay} className="h-10 w-10">
+          <img src="/images/play.svg" alt="play" />
         </button>
       )}
     </div>
