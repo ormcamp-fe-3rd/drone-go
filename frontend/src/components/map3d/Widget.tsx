@@ -1,17 +1,17 @@
 import { useState } from 'react';
 import { WidgetData } from '@/types/widgetDataTypes';
-import { Operation, Robot } from "@/types/selectOptionsTypes";
-import { TelemetryAttitudeData } from "@/types/telemetryAttitudeDataTypes";
-import AttitudeViewer from '../map/AttitudeViewer';
+// import { Operation, Robot } from "@/types/selectOptionsTypes";
+// import { TelemetryAttitudeData } from "@/types/telemetryAttitudeDataTypes";
+// import AttitudeViewer from '../map/AttitudeViewer';
 
 interface Props {
-  selectedDrone: Robot | null;
-  selectedOperation: Operation | null;
+  // selectedDrone: Robot | null;
+  // selectedOperation: Operation | null;
   widgetData: WidgetData[];
-  attitudeData: TelemetryAttitudeData[];
+  // attitudeData: TelemetryAttitudeData[];
 }
 
-const WidgetBasic = ({ selectedDrone, selectedOperation, widgetData, attitudeData }: Props) => {
+const WidgetBasic = ({ widgetData }: Props) => {
   return (
     <div className="grid mt-0">
       {widgetData.map((widget, index) => {
@@ -59,9 +59,6 @@ const WidgetBasic = ({ selectedDrone, selectedOperation, widgetData, attitudeDat
           return (
             <AttitudeWidget
               key={index}
-              robotId={selectedDrone?._id ?? ""}
-              operationId={selectedOperation?._id ?? ""}
-              attitudeData={attitudeData}
             />
           );
         }
@@ -166,7 +163,7 @@ const StateAlertWidget = ({ icon, title, values }: StateProps) => {
 };
 
 // Attitude Widget
-const AttitudeWidget: React.FC<{ robotId: Robot['_id'], operationId: Operation['_id'], attitudeData: TelemetryAttitudeData[] }> = ({ robotId, operationId, attitudeData }) => {
+const AttitudeWidget = () => {
   return (
     <div className="toolbar-attitude mx-6 my-0 grid h-[27vh] w-[20vw] grid-cols-[1fr_1fr] grid-rows-[33%_1fr] rounded-[10px] bg-white bg-opacity-60">
       <div className="toolbar-header1 col-start-1 row-start-1 flex items-start justify-start p-2">
@@ -180,11 +177,7 @@ const AttitudeWidget: React.FC<{ robotId: Robot['_id'], operationId: Operation['
           90°
         </div>
         <div className='w-[80px] h-[80px]'>
-          <AttitudeViewer
-            robotId={robotId}
-            operationId={operationId}
-            attitudeData={attitudeData}
-          />
+          <img src='/public/images/Frame 69.svg' />
         </div>
       </div>
       <div className="attitude-3d col-span-2 row-start-2 flex items-center justify-center p-2">

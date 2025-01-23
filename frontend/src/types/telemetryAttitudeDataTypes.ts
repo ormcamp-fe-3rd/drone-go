@@ -4,6 +4,7 @@ export interface TelemetryAttitudeData {
     payload: {
       roll: number;
       pitch: number;
+      yaw: number;
       timeBootMs?: number;
     };
   }

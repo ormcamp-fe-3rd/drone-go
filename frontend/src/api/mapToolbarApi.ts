@@ -19,7 +19,7 @@ export const fetchAttitudeDataByRobotAndOperation = async (
     }
     const data: TelemetryAttitudeData[] = await response.json();
 
-    // msgId가 30인 데이터만 필터링하고 필요한 값만 반환 - roll, pitch
+    // msgId가 30인 데이터만 필터링하고 필요한 값만 반환 - roll, pitch, yaw
     const filterAttitudeData: TelemetryAttitudeData[] = data
       .filter((telemetry) => telemetry.msgId === 30)
       .map((telemetry) => ({
@@ -28,6 +28,7 @@ export const fetchAttitudeDataByRobotAndOperation = async (
         payload: {
           roll: telemetry.payload.roll,
           pitch: telemetry.payload.pitch,
+          yaw: telemetry.payload.yaw,
         },
       }));
 
