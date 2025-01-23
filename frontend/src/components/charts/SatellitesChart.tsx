@@ -65,7 +65,6 @@ const SatellitesChart: React.FC<ChartProps> = ({ data }) => {
         },
       },
       categories: data.map((item) => item.timestamp.toString()),
-
       floating: true, // 플로팅 설정으로 가로 스크롤 가능
     },
     yaxis: {
@@ -96,6 +95,15 @@ const SatellitesChart: React.FC<ChartProps> = ({ data }) => {
     },
     legend: {
       showForSingleSeries: true,
+    },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      x: {
+        formatter: function (value: number) {
+          return format(new Date(value), "yyyy-MM-dd HH:mm:ss"); // 날짜와 시간 표시
+        },
+      },
     },
   };
 

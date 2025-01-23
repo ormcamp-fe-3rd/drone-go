@@ -146,6 +146,15 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
     markers: {
       size: 0, // 마커를 제거
     },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      x: {
+        formatter: function (value: number) {
+          return format(new Date(value), "yyyy-MM-dd HH:mm:ss"); // 날짜와 시간 표시
+        },
+      },
+    },
   };
 
   return (
