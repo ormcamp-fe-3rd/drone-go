@@ -1,11 +1,10 @@
-import { LatLonAlt } from "@/types/latLonAlt";
 import { TelemetryPositionData } from "@/types/telemetryPositionDataTypes";
 
 
 export const fetchPositionDataByOperation = async (
   robotId: string,
   operationId: string,
-): Promise<LatLonAlt[]> => {
+): Promise<TelemetryPositionData[]> => {
   if (!robotId || !operationId) {
     throw new Error("OperationId are required");
   }
@@ -20,24 +19,18 @@ export const fetchPositionDataByOperation = async (
     }
     const data: TelemetryPositionData[] = await response.json();
 
-    const GLOBAL_POSITION_INT_ID = 33; 
+    const GLOBAL_POSITION_INT_ID = 33;
 
-    // TODO: 위도,경도,고도 데이터만 먼저 연결, 추후 전체 데이터 연결
-    // const filterPositionData: TelemetryPositionData[] = data
-    const filterPositionData: LatLonAlt[] = data
+    const filterPositionData: TelemetryPositionData[] = data
       .filter((telemetry) => telemetry.msgId === GLOBAL_POSITION_INT_ID)
       .map((telemetry) => ({
-        // msgId: telemetry.msgId,
-        // timestamp: new Date(telemetry.timestamp),
-        // payload: {
-        //   lat: telemetry.payload.lat,
-        //   lon: telemetry.payload.lon,
-        //   alt: telemetry.payload.alt,
-        // },
-
-        lat: telemetry.payload.lat,
-        lon: telemetry.payload.lon,
-        alt: telemetry.payload.alt,
+        msgId: telemetry.msgId,
+        timestamp: new Date(telemetry.timestamp),
+        payload: {
+          lat: telemetry.payload.lat,
+          lon: telemetry.payload.lon,
+          alt: telemetry.payload.alt,
+        },
       }));
     return filterPositionData;
   } catch (error) {
