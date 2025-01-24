@@ -85,7 +85,7 @@ export default function Map2D({ latLonAltData }: Props) {
 
     map.flyTo({
       center: markerLngLat,
-      zoom: 12,
+      zoom: 14,
       essential: true,
     });
 
@@ -116,7 +116,7 @@ export default function Map2D({ latLonAltData }: Props) {
       // 초기 맵 위치 설정
       map.jumpTo({
         center: [initialPoint.lon, initialPoint.lat],
-        zoom: 12,
+        zoom: 14,
       });
 
       const pathCoordinates = latLonAltData.map((point) => [point.lon, point.lat]);
@@ -216,7 +216,7 @@ export default function Map2D({ latLonAltData }: Props) {
           initialViewState={{
             longitude: 126.976944, // 경도
             latitude: 37.572398, // 위도
-            zoom: 12,
+            zoom: 14,
             pitch: 0,
             bearing: 0,
           }}
