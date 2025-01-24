@@ -1,4 +1,6 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useContext, useState } from 'react';
+
+import {AltitudeContext} from '@/contexts/AltitudeContext';
 
 interface WeatherProps{
   icon: string;
@@ -33,6 +35,21 @@ const SpeedAltitudeWidget = ({ icon, title, value }: SpeedAltitudeProps) => {
         <p className="pl-2">{title}</p>
       </div>
       <div className="text-right">{value}</div>
+    </div>
+  );
+};
+
+const AltitudeWidget = () => {
+  const { altitude } = useContext(AltitudeContext);
+  const src = "/images/navigator-01.svg";
+
+  return (
+    <div className="relative mx-6 mt-2 grid h-[5vh] w-[20vw] grid-cols-[1fr_1.5fr] items-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold">
+      <div className="flex items-center border-r-2 border-solid border-[#B2B2B7]">
+        <img src={src} alt="Altitude" />
+        <p className="pl-2">Altitude</p>
+      </div>
+      <div className="text-right">{altitude}m</div>
     </div>
   );
 };
@@ -131,6 +148,7 @@ const HeadingState = () => {
 
 
 export {
+  AltitudeWidget,
   AttitudeWidget,
   BatteryState,
   HeadingState,

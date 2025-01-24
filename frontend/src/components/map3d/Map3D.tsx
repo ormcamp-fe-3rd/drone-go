@@ -1,25 +1,30 @@
 import { Canvas } from "@react-three/fiber";
 import mapboxgl from "mapbox-gl";
-import { useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
+import { AltitudeContext } from "@/contexts/AltitudeContext";
 import { LatLonAlt } from "@/types/latLonAlt";
-import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
+import {
+  calculateDistance,
+  calculatePointAlongRoute,
+} from "@/utils/calculateDistance";
 
-import  { Bar } from "../map/ProgressBar";
+import { Bar } from "../map/ProgressBar";
 import DroneInMap from "./DroneInMap";
 
-interface Props{
+interface Props {
   latLonAltData: LatLonAlt[];
 }
 
-export default function Map3D({latLonAltData}:Props) {
+export default function Map3D({ latLonAltData }: Props) {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
   const [dragPosition, setDragPosition] = useState<{
     x: number;
     y: number;
   } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+  const { setAltitude } = useContext(AltitudeContext);
 
   // 애니메이션 관련 변수
   const [isPlaying, setIsPlaying] = useState(false);
@@ -31,7 +36,7 @@ export default function Map3D({latLonAltData}:Props) {
     if (!latLonAltData) return;
     mapRef.current?.setCenter([latLonAltData[0].lon, latLonAltData[0].lat]);
   }, [latLonAltData]);
-  
+
   const handleMouseDown = (event: mapboxgl.MapMouseEvent) => {
     if (event.originalEvent.ctrlKey) {
       setIsDragging(true);
@@ -52,7 +57,6 @@ export default function Map3D({latLonAltData}:Props) {
     setDragPosition(null);
   };
 
-
   const animate = (currentTime: number) => {
     if (!mapRef.current) return;
     const map = mapRef.current.getMap();
@@ -68,7 +72,6 @@ export default function Map3D({latLonAltData}:Props) {
     lastTimeRef.current = currentTime;
 
     const animationDuration = 8000;
-    const cameraAltitude = 600;
 
     //TODO: latLonData를 실제 데이터로 변경
     // 총 이동거리
@@ -79,7 +82,7 @@ export default function Map3D({latLonAltData}:Props) {
 
     if (phase >= 1) {
       // 애니메이션 완료
-      setIsPlaying(false); 
+      setIsPlaying(false);
       lastTimeRef.current = 0;
       elapsedTimeRef.current = 0;
       return;
@@ -95,6 +98,7 @@ export default function Map3D({latLonAltData}:Props) {
       cameraRouteDistance * phase || 0.001,
     );
 
+    const cameraAltitude = alongPoint.alt;
     const alongRoute = [alongPoint.lon, alongPoint.lat];
     const alongRouteCamera = [alongCamera.lon, alongCamera.lat];
 
@@ -115,6 +119,7 @@ export default function Map3D({latLonAltData}:Props) {
 
     map.setFreeCameraOptions(camera);
 
+    setAltitude(Number(alongPoint.alt.toFixed(2)));
     animationRef.current = window.requestAnimationFrame(animate);
   };
 
@@ -173,11 +178,12 @@ export default function Map3D({latLonAltData}:Props) {
           </div>
         </Map>
       </div>
-      <div className="fixed bottom-0 w-screen ">
+      <div className="fixed bottom-0 w-screen">
         <Bar.Progress>
-          <Bar.ProgressBarBtn isPlaying={isPlaying} 
-          onClickPlay={handlePlay} 
-          onClickPause={handlePause}
+          <Bar.ProgressBarBtn
+            isPlaying={isPlaying}
+            onClickPlay={handlePlay}
+            onClickPause={handlePause}
           />
         </Bar.Progress>
       </div>
