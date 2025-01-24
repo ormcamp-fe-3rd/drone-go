@@ -30,3 +30,8 @@ dist-ssr
 test.html
 test.css
 test.js
+
+# env
+.env
+.env.local
+.env.production

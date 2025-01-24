@@ -1,12 +1,16 @@
-import {
-  RawTelemetryBatteryData,
-  ProcessedTelemetryBatteryData,
-} from "../types/telemetryBatteryDataTypes";
+import { TelemetryData } from "../types/telemetryAllDataTypes";
+import { ProcessedTelemetryBatteryData } from "../types/telemetryBatteryDataTypes";
+import { ProcessedTelemetryTextData } from "../types/telemetryTextData";
+import { ProcessedTelemetrySatellitesData } from "../types/telemetrySatellitesDataTypes";
 
 export const fetchTelemetriesByRobotAndOperation = async (
   robotId: string,
   operationId: string,
-): Promise<ProcessedTelemetryBatteryData[]> => {
+): Promise<{
+  batteryData: ProcessedTelemetryBatteryData[];
+  textData: ProcessedTelemetryTextData[];
+  satellitesData: ProcessedTelemetrySatellitesData[];
+}> => {
   if (!robotId || !operationId) {
     throw new Error("Both robotId and operationId are required");
   }
@@ -19,11 +23,12 @@ export const fetchTelemetriesByRobotAndOperation = async (
     if (!response.ok) {
       throw new Error(`Failed to fetch telemetries: ${response.statusText}`);
     }
-    const data: RawTelemetryBatteryData[] = await response.json();
+    const data: TelemetryData[] = await response.json();
 
     // msgId가 147인 데이터만 필터링하고 필요한 값만 반환 - 배터리 온도, 전압, 잔량 데이터
-    const filterBatteryData: ProcessedTelemetryBatteryData[] = data
-      .filter((telemetry) => telemetry.msgId === 147)
+    const BATTERY_STATUS_MSG_ID = 147;
+    const batteryData: ProcessedTelemetryBatteryData[] = data
+      .filter((telemetry) => telemetry.msgId === BATTERY_STATUS_MSG_ID)
       .map((telemetry) => ({
         msgId: telemetry.msgId,
         timestamp: new Date(telemetry.timestamp),
@@ -34,7 +39,31 @@ export const fetchTelemetriesByRobotAndOperation = async (
         },
       }));
 
-    return filterBatteryData;
+    // msgId가 253인 데이터만 필터링하고 필요한 값만 반환 - text 상태 데이터
+    const TEXT_STATUS_MSG_ID = 253;
+    const textData: ProcessedTelemetryTextData[] = data
+      .filter((telemetry) => telemetry.msgId === TEXT_STATUS_MSG_ID)
+      .map((telemetry) => ({
+        msgId: telemetry.msgId,
+        timestamp: new Date(telemetry.timestamp),
+        payload: {
+          text: telemetry.payload.text, // text 속성 추출
+        },
+      }));
+
+    // msgId가 24인 데이터만 필터링하고 필요한 값만 반환 - 연결되어있는 위성 수
+    const GPS_RAW_INT_MSG_ID = 24;
+    const satellitesData: ProcessedTelemetrySatellitesData[] = data
+      .filter((telemetry) => telemetry.msgId === GPS_RAW_INT_MSG_ID)
+      .map((telemetry) => ({
+        msgId: telemetry.msgId,
+        timestamp: new Date(telemetry.timestamp),
+        payload: {
+          satellitesVisible: telemetry.payload.satellitesVisible, // text 속성 추출
+        },
+      }));
+
+    return { batteryData, textData, satellitesData };
   } catch (error) {
     console.error("Error fetching telemetries:", error);
     throw error;

@@ -3,7 +3,7 @@ import { useState } from "react";
 
 import { fetchPositionDataByOperation } from "@/api/mapApi";
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
-import Map2D from "@/components/map/Map2D";
+import Map3D from "@/components/map3d/Map3D";
 import MapSwitchButton from "@/components/map3d/MapSwitchButton";
 import { AttitudeWidget, BatteryState, HeadingState, SpeedAltitudeWidget, StateAlertWidget, WeatherWidget } from "@/components/map3d/Widget";
 import toolbarWidgetData from "@/data/toolbarWidgetData.json"
@@ -11,7 +11,7 @@ import { Operation,Robot } from "@/types/selectOptionsTypes";
 import formatPositionData from "@/utils/formatPositionData";
 
 
-export default function MapPage(){
+export default function Map3dPage(){
   const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
   const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
       null,
@@ -77,7 +77,7 @@ export default function MapPage(){
           values={toolbarWidgetData[3].stateValues!}
         />
       </div>
-      <Map2D latLonAltData={data} />
+      <Map3D latLonAltData={data}/>
     </>
   );
 }
