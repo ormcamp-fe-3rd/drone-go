@@ -19,43 +19,45 @@ interface Props {
 
 export default function Map3D({ latLonAltData }: Props) {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
-  const [dragPosition, setDragPosition] = useState<{
-    x: number;
-    y: number;
-  } | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
   const { setAltitude } = useContext(AltitudeContext);
-
+  
   // 애니메이션 관련 변수
   const [isPlaying, setIsPlaying] = useState(false);
   const animationRef = useRef<number>();
   const elapsedTimeRef = useRef<number>(0); // 총 경과 시간 저장
   const lastTimeRef = useRef<number>(0); // 마지막 프레임 시간 저장
-
+  
   useEffect(() => {
     if (!latLonAltData) return;
     mapRef.current?.setCenter([latLonAltData[0].lon, latLonAltData[0].lat]);
   }, [latLonAltData]);
+  
+  // TODO: 회전기능은 후순위로 작업
+  // const [dragPosition, setDragPosition] = useState<{
+  //   x: number;
+  //   y: number;
+  // } | null>(null);
+  // const [isDragging, setIsDragging] = useState(false);
 
-  const handleMouseDown = (event: mapboxgl.MapMouseEvent) => {
-    if (event.originalEvent.ctrlKey) {
-      setIsDragging(true);
-    }
-  };
+  // const handleMouseDown = (event: mapboxgl.MapMouseEvent) => {
+  //   if (event.originalEvent.ctrlKey) {
+  //     setIsDragging(true);
+  //   }
+  // };
 
-  const handleMouseMove = (event: mapboxgl.MapMouseEvent) => {
-    if (!isDragging || !mapRef.current) return;
+  // const handleMouseMove = (event: mapboxgl.MapMouseEvent) => {
+  //   if (!isDragging || !mapRef.current) return;
 
-    const point = event.point;
-    const x = (point.x / mapRef.current.getContainer().clientWidth) * 2 - 1;
-    const y = -(point.y / mapRef.current.getContainer().clientWidth) * 2 + 1;
-    setDragPosition({ x: x, y: y });
-  };
+  //   const point = event.point;
+  //   const x = (point.x / mapRef.current.getContainer().clientWidth) * 2 - 1;
+  //   const y = -(point.y / mapRef.current.getContainer().clientWidth) * 2 + 1;
+  //   setDragPosition({ x: x, y: y });
+  // };
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    setDragPosition(null);
-  };
+  // const handleMouseUp = () => {
+  //   setIsDragging(false);
+  //   setDragPosition(null);
+  // };
 
   const animate = (currentTime: number) => {
     if (!mapRef.current) return;
@@ -73,7 +75,6 @@ export default function Map3D({ latLonAltData }: Props) {
 
     const animationDuration = 8000;
 
-    //TODO: latLonData를 실제 데이터로 변경
     // 총 이동거리
     const routeDistance = calculateDistance(latLonAltData);
     const cameraRouteDistance = calculateDistance(latLonAltData);
@@ -167,13 +168,14 @@ export default function Map3D({ latLonAltData }: Props) {
           touchPitch={false}
           touchZoomRotate={false}
           dragRotate={true} //드래그로 회전만 가능
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
+          // TODO: 회전기능은 후순위로 작업
+          // onMouseDown={handleMouseDown}
+          // onMouseUp={handleMouseUp}
+          // onMouseMove={handleMouseMove}
         >
           <div className="absolute left-1/2 top-1/2 h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2">
             <Canvas camera={{ position: [0, 0, 100], fov: 75 }}>
-              <DroneInMap dragPosition={dragPosition} />
+              <DroneInMap/>
             </Canvas>
           </div>
         </Map>
