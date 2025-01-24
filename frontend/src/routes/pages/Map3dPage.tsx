@@ -6,6 +6,7 @@ import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
 import Map3D from "@/components/map3d/Map3D";
 import MapSwitchButton from "@/components/map3d/MapSwitchButton";
 import { AttitudeWidget, BatteryState, HeadingState, SpeedAltitudeWidget, StateAlertWidget, WeatherWidget } from "@/components/map3d/Widget";
+import latLonDataTarget from "@/data/latLonDataTarget.json"
 import toolbarWidgetData from "@/data/toolbarWidgetData.json"
 import { Operation,Robot } from "@/types/selectOptionsTypes";
 import formatPositionData from "@/utils/formatPositionData";
@@ -14,24 +15,24 @@ import formatPositionData from "@/utils/formatPositionData";
 export default function Map3dPage(){
   const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
   const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
-      null,
+    null,
   );
 
-  //TODO: drone id, operation id -> 사용자가 선택한 값으로 변경 
-  const { isPending, error, data } = useQuery({
+  //TODO: drone id, operation id -> 사용자가 선택한 값으로 변경
+  const { error, data } = useQuery({
     queryKey: ["position", selectedDrone, selectedOperation],
     queryFn: async () => {
+      if (!selectedDrone) {
+        return latLonDataTarget;
+      }
       const rawData = await fetchPositionDataByOperation(
-        // selectedDrone!._id,
-        // selectedOperation!._id,
-        "67773116e8f8dd840dd35155",
-        "677730f8e8f8dd840dd35153",
+        selectedDrone!._id,
+        selectedOperation!._id,
       );
       return rawData.map(formatPositionData);
     },
-    // enabled: !!selectedDrone && !!selectedOperation,
+    enabled: !!selectedOperation,
   });
-  if (isPending) return "Loading...";
   if (error) return "An error has occurred: " + error.message;
 
   return (
@@ -50,7 +51,6 @@ export default function Map3dPage(){
         <MapSwitchButton />
       </div>
       <div className="fixed left-4 top-[10rem] z-10">
-
         {/* TODO: 위젯 props들 api 데이터로 수정 */}
         <AttitudeWidget>
           <BatteryState />
@@ -77,7 +77,7 @@ export default function Map3dPage(){
           values={toolbarWidgetData[3].stateValues!}
         />
       </div>
-      <Map3D latLonAltData={data}/>
+      <Map3D latLonAltData={data} />
     </>
   );
 }

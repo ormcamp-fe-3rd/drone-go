@@ -27,7 +27,11 @@ export default function Map3D({latLonAltData}:Props) {
   const elapsedTimeRef = useRef<number>(0); // 총 경과 시간 저장
   const lastTimeRef = useRef<number>(0); // 마지막 프레임 시간 저장
 
-
+  useEffect(() => {
+    if (!latLonAltData) return;
+    mapRef.current?.setCenter([latLonAltData[0].lon, latLonAltData[0].lat]);
+  }, [latLonAltData]);
+  
   const handleMouseDown = (event: mapboxgl.MapMouseEvent) => {
     if (event.originalEvent.ctrlKey) {
       setIsDragging(true);
