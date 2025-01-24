@@ -1,218 +1,251 @@
-import { useEffect, useRef, useState } from 'react';
-import mapboxgl, { Map } from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import * as turf from '@turf/turf';
+import { useEffect, useRef, useState } from "react";
+import mapboxgl from "mapbox-gl";
+import Map, { MapRef } from "react-map-gl";
+import { LatLonAlt } from "@/types/latLonAlt";
+import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
 
-// GeoJSON 타입 정의
-interface PointFeature {
-  type: 'Feature';
-  properties: { bearing?: number }; // 회전 각도
-  geometry: {
-    type: 'Point';
-    coordinates: [number, number]; // [경도, 위도]
-  };
+import { Bar } from "../map/ProgressBar";
+
+interface Props {
+  latLonAltData: LatLonAlt[];
 }
 
-interface LineStringFeature {
-  type: 'Feature';
-  properties: { name?: string }; // 예시 속성 추가
-  geometry: {
-    type: 'LineString';
-    coordinates: [number, number][]; // [경도, 위도] 배열
-  };
-}
+export default function Map2D({ latLonAltData }: Props) {
+  const mapRef = useRef<MapRef>(null); // 맵 인스턴스 접근
+  const [isDragging, setIsDragging] = useState(false);
+  const [_dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
 
-interface FeatureCollection<T> {
-  type: 'FeatureCollection';
-  features: T[];
-}
+  // 애니메이션 관련 변수
+  const [isPlaying, setIsPlaying] = useState(false);
+  const animationRef = useRef<number>();
+  const elapsedTimeRef = useRef<number>(0);
+  const lastTimeRef = useRef<number>(0);
 
-const Map2D: React.FC = () => {
-  const mapContainerRef = useRef<HTMLDivElement | null>(null); // 맵 컨테이너
-  const mapRef = useRef<Map | null>(null); // Map 객체
-  const pointRef = useRef<FeatureCollection<PointFeature> | null>(null); // 드론 위치
-  const originRef = useRef<[number, number] | null>(null); // 드론의 시작 위치
-  const routeRef = useRef<FeatureCollection<LineStringFeature> | null>(null); // 경로 데이터
-  const [disabled, setDisabled] = useState<boolean>(true); // 버튼 비활성화 상태
-  const steps = 500; // 애니메이션 단계 수
-  let counter = 0;
+  const markerRef = useRef<mapboxgl.Marker | null>(null);
+  const pathRef = useRef<mapboxgl.GeoJSONSource | null>(null);
+  console.log(pathRef)
 
-  // 클릭 이벤트: 경로를 따라 드론이 이동
-  const handleClick = () => {
-    if (!pointRef.current || !originRef.current || !mapRef.current) return;
-
-    pointRef.current.features[0].geometry.coordinates = originRef.current;
-    const pointSource = mapRef.current.getSource('point') as mapboxgl.GeoJSONSource;
-    pointSource?.setData(pointRef.current);
-    animate(); // 애니메이션 시작
-    setDisabled(true); // 버튼 비활성화
+  // 마우스 이벤트 핸들러들
+  const handleMouseDown = (event: mapboxgl.MapMouseEvent) => {
+    if (event.originalEvent.ctrlKey) {
+      setIsDragging(true);
+    }
   };
 
-  // 애니메이션 함수
-  const animate = () => {
-    if (!routeRef.current || !pointRef.current) return;
+  const handleMouseMove = (event: mapboxgl.MapMouseEvent) => {
+    if (!isDragging || !mapRef.current) return;
 
-    const start =
-      routeRef.current.features[0].geometry.coordinates[
-        counter >= steps ? counter - 1 : counter
-      ];
-    const end =
-      routeRef.current.features[0].geometry.coordinates[
-        counter >= steps ? counter : counter + 1
-      ];
+    const point = event.point;
+    const x = (point.x / mapRef.current.getContainer().clientWidth) * 2 - 1;
+    const y = -(point.y / mapRef.current.getContainer().clientWidth) * 2 + 1;
+    setDragPosition({ x, y });
+  };
 
-    if (!start || !end) {
-      setDisabled(false); // 애니메이션 종료 후 버튼 활성화
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setDragPosition(null);
+  };
+
+  // 애니메이션 실행
+  const animate = (currentTime: number) => {
+    if (!mapRef.current || !mapRef.current.getMap || !markerRef.current) return;
+
+    const map = mapRef.current.getMap();
+
+    if (!lastTimeRef.current) {
+      lastTimeRef.current = currentTime;
+    }
+
+    const deltaTime = currentTime - lastTimeRef.current;
+    elapsedTimeRef.current += deltaTime;
+    lastTimeRef.current = currentTime;
+
+    const animationDuration = 8000;
+    const phase = Math.min(1, elapsedTimeRef.current / animationDuration);
+
+    if (phase >= 1) {
+      setIsPlaying(false);
+      lastTimeRef.current = 0;
+      elapsedTimeRef.current = 0;
+    }
+
+    const totalDistance = calculateDistance(latLonAltData);
+    const alongPoint = calculatePointAlongRoute(latLonAltData, totalDistance * phase);
+
+    if (latLonAltData.length === 0) {
+      console.error("latLonAltData is empty!");
       return;
     }
 
-    pointRef.current.features[0].geometry.coordinates =
-      routeRef.current.features[0].geometry.coordinates[counter];
-    pointRef.current.features[0].properties.bearing = turf.bearing(
-      turf.point(start),
-      turf.point(end)
-    );
+    const markerLngLat: [number, number] = [alongPoint.lon, alongPoint.lat];
 
-    const pointSource = mapRef.current?.getSource('point') as mapboxgl.GeoJSONSource;
-    pointSource?.setData(pointRef.current); // 마커 위치 업데이트
+    if (markerRef.current) {
+      markerRef.current.setLngLat(markerLngLat);
+    }
 
-    if (counter < steps) {
-      counter++; // `counter` 증가
-      requestAnimationFrame(animate); // 계속 애니메이션
-    } else {
-      setDisabled(false); // 애니메이션 종료 후 버튼 활성화
+    map.flyTo({
+      center: markerLngLat,
+      zoom: 12,
+      essential: true,
+    });
+
+    animationRef.current = window.requestAnimationFrame(animate);
+  };
+
+  const handlePlay = () => {
+    lastTimeRef.current = 0;
+    setIsPlaying(true);
+    animationRef.current = window.requestAnimationFrame(animate);
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
+    if (animationRef.current) {
+      window.cancelAnimationFrame(animationRef.current);
+      lastTimeRef.current = 0;
     }
   };
 
+  // 지도 및 마커 초기화
   useEffect(() => {
-    // Mapbox 초기화
-    mapboxgl.accessToken = 'pk.eyJ1IjoianliYW4iLCJhIjoiY201eHN2OTgxMDZ3NjJpcjNobXUxOTgxdCJ9.xVU25Wom44OGgaM3EmScUg'; // Mapbox 액세스 토큰 설정
-    mapRef.current = new mapboxgl.Map({
-      container: mapContainerRef.current!,
-      style: 'mapbox://styles/mapbox/dark-v11', // 지도 스타일
-      center: [-96, 37.8], // 지도 초기 중심
-      zoom: 3, // 초기 줌 레벨
-      pitch: 40, // 초기 기울기
-    });
+    if (mapRef.current) {
+      const map = mapRef.current.getMap();
 
-    // 드론의 초기 위치 설정
-    const origin: [number, number] = [-122.414, 37.776];
-    originRef.current = origin;
+      const initialPoint = latLonAltData.length > 0 ? latLonAltData[0] : { lat: 37.572398, lon: 126.976944 }; // 서울 기본값
 
-    const destination: [number, number] = [-77.032, 38.913];
+      // 초기 맵 위치 설정
+      map.jumpTo({
+        center: [initialPoint.lon, initialPoint.lat],
+        zoom: 12,
+      });
 
-    // 경로 설정 (위도/경도 데이터 사용)
-    const route: FeatureCollection<LineStringFeature> = {
-      type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          properties: { name: 'Sample Route' }, // 예시 속성 추가
-          geometry: {
-            type: 'LineString',
-            coordinates: [origin, destination],
+      const pathCoordinates = latLonAltData.map((point) => [point.lon, point.lat]);
+
+      if (map.getSource("route")) {
+        (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              geometry: {
+                type: "LineString",
+                coordinates: pathCoordinates,
+              },
+              properties: {},
+            },
+          ],
+        });
+      } else {
+        map.addSource("route", {
+          type: "geojson",
+          data: {
+            type: "FeatureCollection",
+            features: [
+              {
+                type: "Feature",
+                geometry: {
+                  type: "LineString",
+                  coordinates: pathCoordinates,
+                },
+                properties: {},
+              },
+            ],
           },
-        },
-      ],
-    };
-    routeRef.current = route;
+        });
 
-    // 드론 초기 위치 설정 (경로의 첫 번째 지점)
-    const point: FeatureCollection<PointFeature> = {
-      type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          properties: {},
-          geometry: {
-            type: 'Point',
-            coordinates: origin,
+        map.addLayer({
+          id: "route-line",
+          type: "line",
+          source: "route",
+          layout: {
+            "line-cap": "round",
+            "line-join": "round",
           },
-        },
-      ],
-    };
-    pointRef.current = point;
+          paint: {
+            "line-width": 4,
+            "line-color": "#007cbf",
+          },
+        });
+      }
 
-    // 경로 길이에 따른 분할
-    const lineDistance = turf.length(route.features[0]);
-    const arc: [number, number][] = [];
+      if (!markerRef.current) {
+        const initialPoint = latLonAltData.length > 0 ? latLonAltData[0] : { lat: 37.572398, lon: 126.976944 };
+        const markerLngLat: [number, number] = [initialPoint.lon, initialPoint.lat];
 
-    for (let i = 0; i < lineDistance; i += lineDistance / steps) {
-      const segment = turf.along(route.features[0], i);
-      arc.push(segment.geometry.coordinates as [number, number]); // 타입 안전하게 지정
+        markerRef.current = new mapboxgl.Marker({
+          element: createMarkerElement('/public/images/group 906.svg'),
+        })
+          .setLngLat(markerLngLat)
+          .addTo(map);
+      }
+
+      // 애니메이션 시작
+      if (isPlaying) {
+        const totalDistance = calculateDistance(latLonAltData);
+        const alongPoint = calculatePointAlongRoute(latLonAltData, 0);
+        if (markerRef.current) {
+          markerRef.current.setLngLat([alongPoint.lon, alongPoint.lat]);
+        }
+        animationRef.current = window.requestAnimationFrame(animate);
+        console.log(totalDistance)
+      }
     }
 
-    route.features[0].geometry.coordinates = arc; // 경로를 분할
-
-    mapRef.current?.on('load', () => {
-      // mapRef.current가 null이 아닐 때만 호출하도록 처리
-      if (mapRef.current) {
-        mapRef.current.addSource('route', {
-          type: 'geojson',
-          data: route,
-        });
-
-        mapRef.current.addSource('point', {
-          type: 'geojson',
-          data: point,
-        });
-
-        // 경로 레이어 추가
-        mapRef.current.addLayer({
-          id: 'route',
-          source: 'route',
-          type: 'line',
-          paint: {
-            'line-width': 2,
-            'line-color': '#007cbf',
-          },
-        });
-
-        // 드론 마커 레이어 추가
-        mapRef.current.addLayer({
-          id: 'point',
-          source: 'point',
-          type: 'symbol',
-          layout: {
-            'icon-image': 'airport', // 사용자 정의 아이콘 사용
-            'icon-size': 1.5,
-            'icon-rotate': ['get', 'bearing'],
-            'icon-rotation-alignment': 'map',
-            'icon-allow-overlap': true,
-            'icon-ignore-placement': true,
-          },
-        });
-
-        animate(); // 애니메이션 시작
+    return () => {
+      if (mapRef.current && animationRef.current) {
+        window.cancelAnimationFrame(animationRef.current);
       }
-    });
+    };
+  }, [latLonAltData, isPlaying]);
 
-    // Cleanup
-    return () => mapRef.current?.remove();
-  }, []);
+  function createMarkerElement(imageUrl: string) {
+    const element = document.createElement("img");
+    element.src = imageUrl;
+    element.style.width = "50px";
+    element.style.height = "50px";
+    element.style.objectFit = "contain";
+    return element;
+  }
 
   return (
-    <div style={{ height: '100%', position: 'relative' }}>
-      <div ref={mapContainerRef} style={{ height: '100%', width: '100%' }} />
-      <div style={{ position: 'absolute', top: '10px', left: '10px' }}>
-        <button
-          disabled={disabled}
-          style={{
-            backgroundColor: disabled ? '#f5f5f5' : '#3386c0',
-            color: disabled ? '#c3c3c3' : '#fff',
-            padding: '10px 20px',
-            border: 'none',
-            cursor: 'pointer',
-            borderRadius: '3px',
+    <>
+      <div className="fixed inset-0">
+        <Map
+          ref={mapRef}
+          mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
+          initialViewState={{
+            longitude: 126.976944, // 경도
+            latitude: 37.572398, // 위도
+            zoom: 12,
+            pitch: 0,
+            bearing: 0,
           }}
-          onClick={handleClick}
-          id="replay"
-        >
-          Replay
-        </button>
+          style={{ width: "100%", height: "100%" }}
+          mapStyle="mapbox://styles/mapbox/streets-v11"
+          boxZoom={false}
+          doubleClickZoom={false}
+          dragPan={false}
+          keyboard={false}
+          scrollZoom={false}
+          touchPitch={false}
+          touchZoomRotate={false}
+          dragRotate={true}
+          onMouseDown={handleMouseDown}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+        />
       </div>
-    </div>
-  );
-};
 
-export default Map2D;
+      <div className="fixed bottom-0 w-screen">
+        <Bar.Progress>
+          <Bar.ProgressBarBtn
+            isPlaying={isPlaying}
+            onClickPlay={handlePlay}
+            onClickPause={handlePause}
+          />
+        </Bar.Progress>
+      </div>
+    </>
+  );
+}
+

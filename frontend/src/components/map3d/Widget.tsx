@@ -1,14 +1,10 @@
 import { ReactNode, useState } from 'react';
 
-export default WidgetBasic;
-
-// Weather Widget
-interface WeatherProps {
+interface WeatherProps{
   icon: string;
   title: string;
   values: string[];
 }
-
 const WeatherWidget = ({ icon, title, values }: WeatherProps) => {
   return (
     <div className="relative mx-6 mt-2 grid h-[5vh] w-[20vw] grid-cols-[1fr_0.5fr_1fr] items-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold">
@@ -24,13 +20,11 @@ const WeatherWidget = ({ icon, title, values }: WeatherProps) => {
   );
 };
 
-// Speed and Altitude Widget
-interface SpeedAltitudeProps {
+interface SpeedAltitudeProps{
   icon: string;
   title: string;
   value: string;
 }
-
 const SpeedAltitudeWidget = ({ icon, title, value }: SpeedAltitudeProps) => {
   return (
     <div className="relative mx-6 mt-2 grid h-[5vh] w-[20vw] grid-cols-[1fr_1.5fr] items-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold">
@@ -43,18 +37,16 @@ const SpeedAltitudeWidget = ({ icon, title, value }: SpeedAltitudeProps) => {
   );
 };
 
-// State Alert Widget
-interface StateProps {
+interface StateProps{
   icon: string;
   title: string;
-  values: { "state": string, "time": string }[];
+  values: {"state": string, "time": string}[];
 }
-
-const StateAlertWidget = ({ icon, title, values }: StateProps) => {
+const StateAlertWidget = ({icon, title, values}:StateProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handleToggle = () => {
-    setIsExpanded((prev) => !prev);
+      setIsExpanded((prev) => !prev);
   };
 
   return (
@@ -99,12 +91,12 @@ interface AttitudeProps{
 
 const AttitudeWidget = ({children}: AttitudeProps) => {
   return (
-    <div className="toolbar-attitude mx-6 grid h-[300px] w-[274px] grid-cols-[1fr_1fr] grid-rows-[33%_1fr] rounded-[10px] bg-white bg-opacity-60">
+    <div className="toolbar-attitude mx-6 my-0 grid h-[27vh] w-[20vw] grid-cols-[1fr_1fr] grid-rows-[33%_1fr] rounded-[10px] bg-white bg-opacity-60">
       {children}
 
       {/* TODO: 자세데이터 반영한 드론3d 오브젝트로 수정 */}
-      <div className="attitude-3d col-span-2 row-start-2 flex items-center justify-center p-2.5">
-        <img className="drone w-[253px]" src="/public/images/image 3.png" />
+      <div className="attitude-3d col-span-2 row-start-2 flex items-center justify-center p-2">
+        <img className="drone w-[70%]" src="/public/images/image 3.png" />
       </div>
     </div>
   );
@@ -114,7 +106,7 @@ const AttitudeWidget = ({children}: AttitudeProps) => {
 // TODO: 배터리 데이터로 수정
 const BatteryState = () => {
   return (
-    <div className="toolbar-header1 col-start-1 row-start-1 flex items-start justify-start p-2.5">
+    <div className="toolbar-header1 col-start-1 row-start-1 flex items-start justify-start p-2">
       <div className="battery">
         <img src="/public/images/battery-charging-01.svg" />
       </div>
@@ -126,7 +118,7 @@ const BatteryState = () => {
 // TODO: heading 데이터로 수정
 const HeadingState = () => {
   return (
-    <div className="toolbar-header2 col-start-2 row-start-1 flex items-start justify-end p-2.5">
+    <div className="toolbar-header2 col-start-2 row-start-1 flex items-start justify-end p-2">
       <div className="angle inline-block w-[35px] rounded-[30px] border-2 border-black text-center text-[12px]">
         90°
       </div>

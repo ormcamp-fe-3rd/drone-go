@@ -50,7 +50,6 @@ export default function Map3dPage(){
         <MapSwitchButton />
       </div>
       <div className="fixed left-4 top-[10rem] z-10">
-        <Widget.AttitudeWidget />
 
         {/* TODO: 위젯 props들 api 데이터로 수정 */}
         <AttitudeWidget>
