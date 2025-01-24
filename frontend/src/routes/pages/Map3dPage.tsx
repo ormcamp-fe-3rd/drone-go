@@ -56,10 +56,10 @@ export default function Map3dPage() {
             setSelectedOperation={setSelectedOperation}
           />
         </div>
-        <div className="fixed right-10 top-[178px] z-10">
+        <div className="fixed right-10 top-[10rem] z-10">
           <MapSwitchButton />
         </div>
-        <div className="fixed left-4 top-[178px] z-10">
+        <div className="fixed left-4 top-[10rem] z-10">
           {/* TODO: 위젯 props들 api 데이터로 수정 */}
           <AttitudeWidget>
             <BatteryState />
