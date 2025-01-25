@@ -23,7 +23,7 @@ interface Props {
 
 export default function Map3D({ positionData }: Props) {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
-  const { altitude, setAltitude } = useContext(AltitudeContext);
+  const { setAltitude } = useContext(AltitudeContext);
   const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>(latLonDataTarget);
   const [totalFlightSeconds, setTotalFlighSeconds] = useState<number>(0);
   const [startEndTime, setStartEndTime] = useState<{
@@ -37,6 +37,7 @@ export default function Map3D({ positionData }: Props) {
   const animationRef = useRef<number>();
   const elapsedTimeRef = useRef<number>(0); // 총 경과 시간 저장
   const lastTimeRef = useRef<number>(0); // 마지막 프레임 시간 저장
+  const [speed, setSpeed] = useState(1);
 
   useEffect(() => {
     if (!mapRef.current || !positionData) return;
@@ -117,7 +118,7 @@ export default function Map3D({ positionData }: Props) {
     elapsedTimeRef.current += deltaTime;
     lastTimeRef.current = currentTime;
 
-    const animationDuration = totalFlightSeconds ; // 단위: 밀리초
+    const animationDuration = totalFlightSeconds / speed; // 단위: 밀리초
 
     // 총 이동거리
     const routeDistance = calculateDistance(latLonAlt);
@@ -182,6 +183,14 @@ export default function Map3D({ positionData }: Props) {
     }
   };
 
+  const handlePlaySpeed = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    e.preventDefault();
+    setSpeed(Number(e.target.value));
+    setIsPlaying(false);
+    lastTimeRef.current = 0;
+    elapsedTimeRef.current = 0;
+  };
+
 
   return (
     <>
@@ -229,6 +238,12 @@ export default function Map3D({ positionData }: Props) {
             onClickPause={handlePause}
           />
         </Bar.Progress>
+        <select className="w-24" onChange={handlePlaySpeed}>
+          <option value="1">1x speed</option>
+          <option value="2">2x speed</option>
+          <option value="5">5x speed</option>
+          <option value="10">10x speed</option>
+        </select>
       </div>
     </>
   );
