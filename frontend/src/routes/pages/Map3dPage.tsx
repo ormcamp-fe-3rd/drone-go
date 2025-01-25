@@ -15,34 +15,28 @@ import {
   WeatherWidget,
 } from "@/components/map3d/Widget";
 import AltitudeContextProvider from "@/contexts/AltitudeContext";
-import latLonDataTarget from "@/data/latLonDataTarget.json";
 import toolbarWidgetData from "@/data/toolbarWidgetData.json";
 import { Operation, Robot } from "@/types/selectOptionsTypes";
-import formatPositionData from "@/utils/formatPositionData";
+import { formatAndSortPositionData } from "@/utils/formatPositionData";
 
 export default function Map3dPage() {
   const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
-  const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
-    null,
-  );
+  const [selectedOperation, setSelectedOperation] = useState<Operation | null>(null);
 
-  //TODO: drone id, operation id -> 사용자가 선택한 값으로 변경
   const { error, data } = useQuery({
     queryKey: ["position", selectedDrone, selectedOperation],
     queryFn: async () => {
-      if (!selectedDrone) {
-        return latLonDataTarget;
-      }
+      if (!selectedDrone || !selectedOperation) return
       const rawData = await fetchPositionDataByOperation(
         selectedDrone!._id,
         selectedOperation!._id,
       );
-      return rawData.map(formatPositionData);
+      return formatAndSortPositionData(rawData);
     },
     enabled: !!selectedOperation,
   });
   if (error) return "An error has occurred: " + error.message;
-
+  
   return (
     <>
       <AltitudeContextProvider>
@@ -82,7 +76,7 @@ export default function Map3dPage() {
             values={toolbarWidgetData[3].stateValues!}
           />
         </div>
-        <Map3D latLonAltData={data} />
+        <Map3D positionData={data}/>
       </AltitudeContextProvider>
     </>
   );
