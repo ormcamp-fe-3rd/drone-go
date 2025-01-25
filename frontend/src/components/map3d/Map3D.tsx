@@ -1,37 +1,81 @@
 import { Canvas } from "@react-three/fiber";
+import { intervalToDuration } from "date-fns";
 import mapboxgl from "mapbox-gl";
 import { useContext, useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
 import { AltitudeContext } from "@/contexts/AltitudeContext";
+import latLonDataTarget from "@/data/latLonDataCamera.json";
 import { LatLonAlt } from "@/types/latLonAlt";
+import { TelemetryPositionData } from "@/types/telemetryPositionDataTypes";
 import {
   calculateDistance,
   calculatePointAlongRoute,
 } from "@/utils/calculateDistance";
+import { formatTime } from "@/utils/formatTime";
 
 import { Bar } from "../map/ProgressBar";
 import DroneInMap from "./DroneInMap";
 
 interface Props {
-  latLonAltData: LatLonAlt[];
+  positionData: TelemetryPositionData[]|null;
 }
 
-export default function Map3D({ latLonAltData }: Props) {
+export default function Map3D({ positionData }: Props) {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
-  const { setAltitude } = useContext(AltitudeContext);
-  
+  const { altitude, setAltitude } = useContext(AltitudeContext);
+  const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>(latLonDataTarget);
+  const [totalFlightSeconds, setTotalFlighSeconds] = useState<number>(0);
+  const [startEndTime, setStartEndTime] = useState<{
+    startTime: string;
+    endTime: string;
+  } | null>(null);
+  // const [phase, setPhase] = useState();
+
   // 애니메이션 관련 변수
   const [isPlaying, setIsPlaying] = useState(false);
   const animationRef = useRef<number>();
   const elapsedTimeRef = useRef<number>(0); // 총 경과 시간 저장
   const lastTimeRef = useRef<number>(0); // 마지막 프레임 시간 저장
-  
+
   useEffect(() => {
-    if (!latLonAltData) return;
-    mapRef.current?.setCenter([latLonAltData[0].lon, latLonAltData[0].lat]);
-  }, [latLonAltData]);
-  
+    if (!mapRef.current || !positionData) return;
+
+    const payloadData: LatLonAlt[] = positionData.map((item) => ({
+      lat: item.payload.lat,
+      lon: item.payload.lon,
+      alt: item.payload.alt,
+    }));
+    setLatLonAlt(payloadData);
+
+    mapRef.current.setCenter([
+      positionData[0].payload.lon,
+      positionData[0].payload.lat,
+    ]);
+
+
+    const flightStartTime = positionData[0].timestamp;
+    const flightEndTime = positionData[positionData.length - 1].timestamp;
+    const formattedStartTime = formatTime(flightStartTime); // Date 타입 -> HH:mm:ss(string 타입)으로 포맷
+    const formattedEndTime = formatTime(flightEndTime);
+    setStartEndTime({
+      startTime: formattedStartTime,
+      endTime: formattedEndTime,
+    });
+
+    // 총 비행 시간 계산 (intervalToDuration 사용)
+    const {
+      hours = 0,
+      minutes = 0,
+      seconds = 0,
+    } = intervalToDuration({
+      start: flightStartTime,
+      end: flightEndTime,
+    });
+
+    setTotalFlighSeconds((hours*3600 + minutes*60 + seconds)*100);
+  }, [positionData]);
+
   // TODO: 회전기능은 후순위로 작업
   // const [dragPosition, setDragPosition] = useState<{
   //   x: number;
@@ -60,7 +104,7 @@ export default function Map3D({ latLonAltData }: Props) {
   // };
 
   const animate = (currentTime: number) => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || !latLonAlt) return;
     const map = mapRef.current.getMap();
 
     // 첫 프레임이거나 재생 시작 시
@@ -73,11 +117,11 @@ export default function Map3D({ latLonAltData }: Props) {
     elapsedTimeRef.current += deltaTime;
     lastTimeRef.current = currentTime;
 
-    const animationDuration = 8000;
+    const animationDuration = totalFlightSeconds ; // 단위: 밀리초
 
     // 총 이동거리
-    const routeDistance = calculateDistance(latLonAltData);
-    const cameraRouteDistance = calculateDistance(latLonAltData);
+    const routeDistance = calculateDistance(latLonAlt);
+    const cameraRouteDistance = routeDistance;
 
     const phase = Math.min(1, elapsedTimeRef.current / animationDuration);
 
@@ -91,11 +135,11 @@ export default function Map3D({ latLonAltData }: Props) {
 
     // 현재 이동거리에 따른 이동지점
     const alongPoint = calculatePointAlongRoute(
-      latLonAltData,
+      latLonAlt,
       routeDistance * phase || 0.001,
     );
     const alongCamera = calculatePointAlongRoute(
-      latLonAltData,
+      latLonAlt,
       cameraRouteDistance * phase || 0.001,
     );
 
@@ -125,8 +169,8 @@ export default function Map3D({ latLonAltData }: Props) {
   };
 
   const handlePlay = () => {
-    lastTimeRef.current = 0; // 새로운 시작 시간을 설정하기 위해 리셋
     setIsPlaying(true);
+    lastTimeRef.current = 0; // 새로운 시작 시간을 설정하기 위해 리셋
     animationRef.current = window.requestAnimationFrame(animate);
   };
 
@@ -138,13 +182,6 @@ export default function Map3D({ latLonAltData }: Props) {
     }
   };
 
-  useEffect(() => {
-    return () => {
-      if (animationRef.current) {
-        window.cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, []);
 
   return (
     <>
@@ -175,13 +212,17 @@ export default function Map3D({ latLonAltData }: Props) {
         >
           <div className="absolute left-1/2 top-1/2 h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2">
             <Canvas camera={{ position: [0, 0, 100], fov: 75 }}>
-              <DroneInMap/>
+              <DroneInMap />
             </Canvas>
           </div>
         </Map>
       </div>
       <div className="fixed bottom-0 w-screen">
-        <Bar.Progress>
+        <Bar.Progress
+          startTime={startEndTime?.startTime}
+          endTime={startEndTime?.endTime}
+        >
+          {/* <Bar.PlayHead onClick={}/> */}
           <Bar.ProgressBarBtn
             isPlaying={isPlaying}
             onClickPlay={handlePlay}

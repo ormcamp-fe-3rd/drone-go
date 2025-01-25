@@ -5,10 +5,12 @@ interface DroneState {
   state: string;
 }
 
-interface ProgressProps{
-  children: ReactNode
+interface ProgressProps {
+  children: ReactNode;
+  startTime: string;
+  endTime: string;
 }
-const Progress = ({children}: ProgressProps) => {
+const Progress = ({ children, startTime, endTime }: ProgressProps) => {
   const [hoverTime, setHoverTime] = useState<number | null>(null);
   const [droneState, setDroneState] = useState<string | null>(null);
 
@@ -64,23 +66,27 @@ const Progress = ({children}: ProgressProps) => {
         </div>
 
         <div className="time-left absolute bottom-[-30px] left-0 -translate-x-1/2 transform text-[14px] text-black">
-          00:00:00
+          {startTime}
         </div>
 
         <div className="time-right absolute bottom-[-30px] right-0 translate-x-1/2 transform text-[14px] text-black">
-          05:00:00
+          {endTime}
         </div>
       </div>
     </div>
   );
 };
 
-interface ProgressBarBtnProps{
+interface ProgressBarBtnProps {
   isPlaying: boolean;
   onClickPlay: () => void;
   onClickPause: () => void;
 }
-const ProgressBarBtn = ({isPlaying, onClickPlay, onClickPause}:ProgressBarBtnProps) => {
+const ProgressBarBtn = ({
+  isPlaying,
+  onClickPlay,
+  onClickPause,
+}: ProgressBarBtnProps) => {
   return (
     <div className="play-icon absolute left-1/2 mt-4 -translate-x-1/2 transform">
       {isPlaying ? (
@@ -94,9 +100,9 @@ const ProgressBarBtn = ({isPlaying, onClickPlay, onClickPause}:ProgressBarBtnPro
       )}
     </div>
   );
-}
+};
 
 export const Bar = Object.assign({
   Progress,
   ProgressBarBtn,
-})
+});
