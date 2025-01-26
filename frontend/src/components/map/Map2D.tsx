@@ -1,19 +1,16 @@
 import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
 import Map, { MapRef } from "react-map-gl";
-import { LatLonAlt } from "@/types/latLonAlt";
+import { TelemetryPositionData } from "@/types/telemetryPositionDataTypes";
 import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
-
 import { Bar } from "../map/ProgressBar";
 
 interface Props {
-  latLonAltData: LatLonAlt[];
+  telemetryPositionData: TelemetryPositionData[];
 }
 
-export default function Map2D({ latLonAltData }: Props) {
+export default function Map2D({ telemetryPositionData }: Props) {
   const mapRef = useRef<MapRef>(null); // 맵 인스턴스 접근
-  const [isDragging, setIsDragging] = useState(false);
-  const [_dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
 
   // 애니메이션 관련 변수
   const [isPlaying, setIsPlaying] = useState(false);
@@ -22,33 +19,13 @@ export default function Map2D({ latLonAltData }: Props) {
   const lastTimeRef = useRef<number>(0);
 
   const markerRef = useRef<mapboxgl.Marker | null>(null);
-  const pathRef = useRef<mapboxgl.GeoJSONSource | null>(null);
-  console.log(pathRef)
-
-  // 마우스 이벤트 핸들러들
-  const handleMouseDown = (event: mapboxgl.MapMouseEvent) => {
-    if (event.originalEvent.ctrlKey) {
-      setIsDragging(true);
-    }
-  };
-
-  const handleMouseMove = (event: mapboxgl.MapMouseEvent) => {
-    if (!isDragging || !mapRef.current) return;
-
-    const point = event.point;
-    const x = (point.x / mapRef.current.getContainer().clientWidth) * 2 - 1;
-    const y = -(point.y / mapRef.current.getContainer().clientWidth) * 2 + 1;
-    setDragPosition({ x, y });
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    setDragPosition(null);
-  };
 
   // 애니메이션 실행
   const animate = (currentTime: number) => {
-    if (!mapRef.current || !mapRef.current.getMap || !markerRef.current) return;
+    if (!mapRef.current || !mapRef.current.getMap || !markerRef.current || telemetryPositionData.length === 0) {
+      console.error("telemetryPositionData is empty or invalid!");
+      return;
+    }
 
     const map = mapRef.current.getMap();
 
@@ -69,13 +46,20 @@ export default function Map2D({ latLonAltData }: Props) {
       elapsedTimeRef.current = 0;
     }
 
-    const totalDistance = calculateDistance(latLonAltData);
-    const alongPoint = calculatePointAlongRoute(latLonAltData, totalDistance * phase);
+    // 전체 경로 길이 계산
+    const totalDistance = calculateDistance(telemetryPositionData);
+    console.log("Total distance:", totalDistance);
 
-    if (latLonAltData.length === 0) {
-      console.error("latLonAltData is empty!");
-      return;
+    const alongPoint = calculatePointAlongRoute(telemetryPositionData, totalDistance * phase);
+
+    if (isNaN(alongPoint.lat) || isNaN(alongPoint.lon)) {
+      console.error(`Invalid coordinates: {lat: ${alongPoint.lat}, lon: ${alongPoint.lon}}`);
+
+      alongPoint.lat = 37.572398;
+      alongPoint.lon = 126.976944;
     }
+
+    console.log(`Animating to: {lat: ${alongPoint.lat}, lon: ${alongPoint.lon}}`);
 
     const markerLngLat: [number, number] = [alongPoint.lon, alongPoint.lat];
 
@@ -111,15 +95,17 @@ export default function Map2D({ latLonAltData }: Props) {
     if (mapRef.current) {
       const map = mapRef.current.getMap();
 
-      const initialPoint = latLonAltData.length > 0 ? latLonAltData[0] : { lat: 37.572398, lon: 126.976944 }; // 서울 기본값
+      const initialPoint = telemetryPositionData.length > 0
+        ? telemetryPositionData[0].payload
+        : { lat: 37.572398, lon: 126.976944 };
 
-      // 초기 맵 위치 설정
+  
       map.jumpTo({
         center: [initialPoint.lon, initialPoint.lat],
         zoom: 14,
       });
 
-      const pathCoordinates = latLonAltData.map((point) => [point.lon, point.lat]);
+      const pathCoordinates = telemetryPositionData.map((point) => [point.payload.lon, point.payload.lat]);
 
       if (map.getSource("route")) {
         (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
@@ -169,7 +155,10 @@ export default function Map2D({ latLonAltData }: Props) {
       }
 
       if (!markerRef.current) {
-        const initialPoint = latLonAltData.length > 0 ? latLonAltData[0] : { lat: 37.572398, lon: 126.976944 };
+        const initialPoint = telemetryPositionData.length > 0
+          ? telemetryPositionData[0].payload
+          : { lat: 37.572398, lon: 126.976944 };
+
         const markerLngLat: [number, number] = [initialPoint.lon, initialPoint.lat];
 
         markerRef.current = new mapboxgl.Marker({
@@ -181,13 +170,13 @@ export default function Map2D({ latLonAltData }: Props) {
 
       // 애니메이션 시작
       if (isPlaying) {
-        const totalDistance = calculateDistance(latLonAltData);
-        const alongPoint = calculatePointAlongRoute(latLonAltData, 0);
+        const totalDistance = calculateDistance(telemetryPositionData);
+        const alongPoint = calculatePointAlongRoute(telemetryPositionData, 0);
         if (markerRef.current) {
           markerRef.current.setLngLat([alongPoint.lon, alongPoint.lat]);
         }
         animationRef.current = window.requestAnimationFrame(animate);
-        console.log(totalDistance)
+        console.log(totalDistance);
       }
     }
 
@@ -196,7 +185,7 @@ export default function Map2D({ latLonAltData }: Props) {
         window.cancelAnimationFrame(animationRef.current);
       }
     };
-  }, [latLonAltData, isPlaying]);
+  }, [telemetryPositionData, isPlaying]);
 
   function createMarkerElement(imageUrl: string) {
     const element = document.createElement("img");
@@ -230,9 +219,6 @@ export default function Map2D({ latLonAltData }: Props) {
           touchPitch={false}
           touchZoomRotate={false}
           dragRotate={true}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
         />
       </div>
 
@@ -248,4 +234,3 @@ export default function Map2D({ latLonAltData }: Props) {
     </>
   );
 }
-

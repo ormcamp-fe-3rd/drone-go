@@ -3,17 +3,17 @@ import mapboxgl from "mapbox-gl";
 import { useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
-import { LatLonAlt } from "@/types/latLonAlt";
+import { TelemetryPositionData } from "@/types/telemetryPositionDataTypes";
 import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
 
 import  { Bar } from "../map/ProgressBar";
 import DroneInMap from "./DroneInMap";
 
 interface Props{
-  latLonAltData: LatLonAlt[];
+  telemetryPositionData: TelemetryPositionData[];
 }
 
-export default function Map3D({latLonAltData}:Props) {
+export default function Map3D({telemetryPositionData}:Props) {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
   const [dragPosition, setDragPosition] = useState<{
     x: number;
@@ -68,8 +68,8 @@ export default function Map3D({latLonAltData}:Props) {
 
     //TODO: latLonData를 실제 데이터로 변경
     // 총 이동거리
-    const routeDistance = calculateDistance(latLonAltData);
-    const cameraRouteDistance = calculateDistance(latLonAltData);
+    const routeDistance = calculateDistance(telemetryPositionData);
+    const cameraRouteDistance = calculateDistance(telemetryPositionData);
 
     const phase = Math.min(1, elapsedTimeRef.current / animationDuration);
 
@@ -83,11 +83,11 @@ export default function Map3D({latLonAltData}:Props) {
 
     // 현재 이동거리에 따른 이동지점
     const alongPoint = calculatePointAlongRoute(
-      latLonAltData,
+      telemetryPositionData,
       routeDistance * phase || 0.001,
     );
     const alongCamera = calculatePointAlongRoute(
-      latLonAltData,
+      telemetryPositionData,
       cameraRouteDistance * phase || 0.001,
     );
 

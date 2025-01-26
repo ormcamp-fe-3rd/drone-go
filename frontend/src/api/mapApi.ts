@@ -1,11 +1,9 @@
-import { LatLonAlt } from "@/types/latLonAlt";
 import { TelemetryPositionData } from "@/types/telemetryPositionDataTypes";
-
 
 export const fetchPositionDataByOperation = async (
   robotId: string,
   operationId: string,
-): Promise<LatLonAlt[]> => {
+): Promise<TelemetryPositionData[]> => {
   if (!robotId || !operationId) {
     throw new Error("OperationId are required");
   }
@@ -23,21 +21,16 @@ export const fetchPositionDataByOperation = async (
     // msgId가 33인 데이터만 필터링하고 필요한 값만 반환 - 경도, 위도, 고도
 
     // TODO: 위도,경도,고도 데이터만 먼저 연결, 추후 전체 데이터 연결
-    // const filterPositionData: TelemetryPositionData[] = data
-    const filterPositionData: LatLonAlt[] = data
+    const filterPositionData: TelemetryPositionData[] = data
       .filter((telemetry) => telemetry.msgId === 33)
       .map((telemetry) => ({
-        // msgId: telemetry.msgId,
-        // timestamp: new Date(telemetry.timestamp),
-        // payload: {
-        //   lat: telemetry.payload.lat,
-        //   lon: telemetry.payload.lon,
-        //   alt: telemetry.payload.alt,
-        // },
-
-        lat: telemetry.payload.lat,
-        lon: telemetry.payload.lon,
-        alt: telemetry.payload.alt,
+        msgId: telemetry.msgId,
+        timestamp: new Date(telemetry.timestamp),
+        payload: {
+          lat: telemetry.payload.lat,
+          lon: telemetry.payload.lon,
+          alt: telemetry.payload.alt,
+        },
       }));
     return filterPositionData;
   } catch (error) {
