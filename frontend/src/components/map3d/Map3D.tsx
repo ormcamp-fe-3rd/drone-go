@@ -1,12 +1,11 @@
 import { Canvas } from "@react-three/fiber";
 import { intervalToDuration } from "date-fns";
 import mapboxgl from "mapbox-gl";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
 import { AltitudeContext } from "@/contexts/AltitudeContext";
 import { PhaseContext } from "@/contexts/PhaseContext";
-import latLonDataTarget from "@/data/latLonDataCamera.json";
 import { LatLonAlt } from "@/types/latLonAlt";
 import { TelemetryPositionData } from "@/types/telemetryPositionDataTypes";
 import {
@@ -19,19 +18,19 @@ import { Bar } from "../map/ProgressBar";
 import DroneInMap from "./DroneInMap";
 
 interface Props {
-  positionData: TelemetryPositionData[]|null;
+  positionData: TelemetryPositionData[] | null;
 }
 
 export default function Map3D({ positionData }: Props) {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
   const { setAltitude } = useContext(AltitudeContext);
-  const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>(latLonDataTarget);
+  const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>();
   const [totalDuration, setTotalDuration] = useState<number>(0);
   const [startEndTime, setStartEndTime] = useState<{
     startTime: string;
     endTime: string;
   } | null>(null);
-  const {phase, setPhase} = useContext(PhaseContext);
+  const { phase, setPhase } = useContext(PhaseContext);
 
   // 애니메이션 관련 변수
   const [isPlaying, setIsPlaying] = useState(false);
@@ -42,6 +41,7 @@ export default function Map3D({ positionData }: Props) {
 
   useEffect(() => {
     if (!mapRef.current || !positionData) return;
+    setPhase(0);
 
     const payloadData: LatLonAlt[] = positionData.map((item) => ({
       lat: item.payload.lat,
@@ -54,7 +54,6 @@ export default function Map3D({ positionData }: Props) {
       positionData[0].payload.lon,
       positionData[0].payload.lat,
     ]);
-
 
     const flightStartTime = positionData[0].timestamp;
     const flightEndTime = positionData[positionData.length - 1].timestamp;
@@ -75,8 +74,44 @@ export default function Map3D({ positionData }: Props) {
       end: flightEndTime,
     });
 
-    setTotalDuration((hours*3600 + minutes*60 + seconds)/speed);
-  }, [positionData, speed]);
+    setTotalDuration((hours * 3600 + minutes * 60 + seconds) / speed);
+  }, [positionData, speed, setPhase]);
+
+
+  const updateCamera = useCallback(() => {
+    if (!totalDuration || !latLonAlt || !mapRef.current) return;
+    const map = mapRef.current!.getMap();
+    const routeDistance = calculateDistance(latLonAlt);
+
+    // 현재 phase에 따른 위치 계산
+    const alongPoint = calculatePointAlongRoute(
+      latLonAlt,
+      routeDistance * phase || 0.001,
+    );
+
+    const cameraAltitude = alongPoint.alt;
+
+    const camera = map.getFreeCameraOptions();
+    camera.position = mapboxgl.MercatorCoordinate.fromLngLat(
+      {
+        lng: alongPoint.lon,
+        lat: alongPoint.lat,
+      },
+      cameraAltitude,
+    );
+    camera.lookAtPoint({
+      lng: alongPoint.lon,
+      lat: alongPoint.lat,
+    });
+
+    map.setFreeCameraOptions(camera);
+    setAltitude(Number(alongPoint.alt.toFixed(2)));
+  }, [totalDuration, latLonAlt, mapRef, phase, setAltitude]);
+  
+  useEffect(() => {
+    elapsedTimeRef.current = phase * totalDuration * 1000;
+    updateCamera(); // phase 변경 시 카메라 위치 업데이트
+  }, [phase, totalDuration, elapsedTimeRef, updateCamera]);
 
   // TODO: 회전기능은 후순위로 작업
   // const [dragPosition, setDragPosition] = useState<{
@@ -107,7 +142,6 @@ export default function Map3D({ positionData }: Props) {
 
   const animate = (currentTime: number) => {
     if (!mapRef.current || !latLonAlt || !positionData) return;
-    const map = mapRef.current.getMap();
 
     // 첫 프레임이거나 재생 시작 시
     if (!lastTimeRef.current) {
@@ -121,10 +155,6 @@ export default function Map3D({ positionData }: Props) {
 
     const animationDuration = totalDuration * 1000; // 단위: 밀리초
 
-    // 총 이동거리
-    const routeDistance = calculateDistance(latLonAlt);
-    const cameraRouteDistance = routeDistance;
-
     const phase = Math.min(1, elapsedTimeRef.current / animationDuration);
     setPhase(phase);
 
@@ -136,39 +166,7 @@ export default function Map3D({ positionData }: Props) {
       elapsedTimeRef.current = 0;
       return;
     }
-
-    // 현재 이동거리에 따른 이동지점
-    const alongPoint = calculatePointAlongRoute(
-      latLonAlt,
-      routeDistance * phase || 0.001,
-    );
-    const alongCamera = calculatePointAlongRoute(
-      latLonAlt,
-      cameraRouteDistance * phase || 0.001,
-    );
-
-    const cameraAltitude = alongPoint.alt;
-    const alongRoute = [alongPoint.lon, alongPoint.lat];
-    const alongRouteCamera = [alongCamera.lon, alongCamera.lat];
-
-    const camera = map.getFreeCameraOptions();
-
-    camera.position = mapboxgl.MercatorCoordinate.fromLngLat(
-      {
-        lng: alongRouteCamera[0],
-        lat: alongRouteCamera[1],
-      },
-      cameraAltitude,
-    );
-
-    camera.lookAtPoint({
-      lng: alongRoute[0],
-      lat: alongRoute[1],
-    });
-
-    map.setFreeCameraOptions(camera);
-
-    setAltitude(Number(alongPoint.alt.toFixed(2)));
+    updateCamera();
     animationRef.current = window.requestAnimationFrame(animate);
   };
 
@@ -193,7 +191,6 @@ export default function Map3D({ positionData }: Props) {
     lastTimeRef.current = 0;
     elapsedTimeRef.current = 0;
   };
-
 
   return (
     <>
@@ -234,8 +231,11 @@ export default function Map3D({ positionData }: Props) {
           startTime={startEndTime?.startTime}
           endTime={startEndTime?.endTime}
         >
-          <Bar.PlayHead >
-            <Bar.TimeStamp duration={totalDuration} startTime={startEndTime?.startTime}/>
+          <Bar.PlayHead>
+            <Bar.TimeStamp
+              duration={totalDuration}
+              startTime={startEndTime?.startTime}
+            />
           </Bar.PlayHead>
           <Bar.ProgressBarBtn
             isPlaying={isPlaying}
