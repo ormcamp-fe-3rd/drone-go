@@ -55,15 +55,7 @@ const Progress = ({ children, startTime, endTime }: ProgressProps) => {
           </div>
         ))}
 
-        <div className="progress-icon transition-left absolute left-0 top-[-12px] duration-200 ease-linear">
-          <img src="/public/images/Vector.svg" />
-        </div>
-
         {children}
-
-        <div className="current-time absolute bottom-[30px] left-5 h-[33px] w-[100px] -translate-x-1/2 transform rounded-[10px] bg-white bg-opacity-50 text-center text-[14px] leading-[33px] text-[#28282C]">
-          00:01:30
-        </div>
 
         <div className="time-left absolute bottom-[-30px] left-0 -translate-x-1/2 transform text-[14px] text-black">
           {startTime}
@@ -102,7 +94,33 @@ const ProgressBarBtn = ({
   );
 };
 
+interface playHeadProps {
+  value?: number;
+  onClick?: () => void;
+}
+
+const PlayHead = ({ value, onClick }: playHeadProps) => {
+
+
+  return (
+    <div className="h-full w-full">
+      <div className="" style={{ transform: "translateX(0%)" }}>
+        <div className="absolute bottom-[20px] h-[33px] w-[100px] -translate-x-1/2 transform rounded-[10px] bg-white bg-opacity-50 text-center text-[14px] leading-[33px] text-[#28282C]">
+          {}
+        </div>
+        <img
+          src="/icons/playHead.svg"
+          className="absolute -translate-x-1/2 -translate-y-[12px] w-8 h-8 hover:scale-110"
+        />
+      </div>
+    </div>
+  );
+};
+
+
+
 export const Bar = Object.assign({
   Progress,
   ProgressBarBtn,
+  PlayHead,
 });

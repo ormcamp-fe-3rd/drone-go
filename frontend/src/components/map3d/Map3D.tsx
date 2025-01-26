@@ -231,7 +231,7 @@ export default function Map3D({ positionData }: Props) {
           startTime={startEndTime?.startTime}
           endTime={startEndTime?.endTime}
         >
-          {/* <Bar.PlayHead onClick={}/> */}
+          <Bar.PlayHead />
           <Bar.ProgressBarBtn
             isPlaying={isPlaying}
             onClickPlay={handlePlay}
