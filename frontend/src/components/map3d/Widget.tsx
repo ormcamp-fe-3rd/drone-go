@@ -13,10 +13,10 @@ interface WeatherProps{
 }
 const WeatherWidget = ({ icon, title, values }: WeatherProps) => {
   return (
-    <div className="relative mx-6 mt-2 grid h-[5vh] w-[20vw] grid-cols-[1fr_0.5fr_1fr] items-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold">
-      <div className="flex justify-center items-center border-r-2 border-solid border-[#B2B2B7]">
+    <div className="relative mx-6 mt-2 sm:grid hidden h-[5vh] w-[30vw] max-w-[17rem] grid-cols-[0.5fr_0.5fr_1.5fr] md:grid-cols-[1fr_0.5fr_1fr] items-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold">
+      <div className="flex justify-start items-center border-r-2 border-none md:border-solid border-[#B2B2B7]">
         <img src={icon} alt={title} className="w-6 h-6 mr-2" />
-        <p className="pl-2 h-6">{title}</p>
+        <p className="pl-2 h-6 hidden md:flex">{title}</p>
       </div>
       <div className="h-6 border-r-2 border-solid border-[#B2B2B7]">
         {values[0]}
@@ -32,9 +32,9 @@ interface SpeedAltitudeProps{
   title: string;
   value: string;
 }
-const SpeedAltitudeWidget = ({ icon, title, value }: SpeedAltitudeProps) => {
+const SpeedWidget = ({ icon, title, value }: SpeedAltitudeProps) => {
   return (
-    <div className="relative mx-6 mt-2 grid h-[5vh] w-[20vw] grid-cols-[1fr_1.5fr] items-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold">
+    <div className="w-[30vw] max-w-[17rem] relative mx-6 mt-2 hidden h-[5vh] grid-cols-2 md:grid-cols-[1fr_1.5fr] items-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold sm:grid">
       <div className="flex items-center border-r-2 border-solid border-[#B2B2B7]">
         <img src={icon} alt={title} />
         <p className="pl-2">{title}</p>
@@ -56,7 +56,7 @@ const AltitudeWidget = ({positionData}:AltitudeWidgetProp) => {
     : 0; // phase 값에 따라 positionData의 고도 선택
     
   return (
-    <div className="relative mx-6 mt-2 grid h-[5vh] w-[20vw] grid-cols-[1fr_1.5fr] items-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold">
+    <div className="max-w-[17rem] grid-cols-2 md:grid-cols-[1fr_1.5fr] relative mx-6 mt-2 hidden h-[5vh] w-[30vw] items-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold sm:grid">
       <div className="flex items-center border-r-2 border-solid border-[#B2B2B7]">
         <img src={src} alt="Altitude" />
         <p className="pl-2">Altitude</p>
@@ -80,7 +80,9 @@ const StateAlertWidget = ({icon, title, values}:StateProps) => {
   };
 
   return (
-    <div className={`relative mx-6 mt-2 grid h-[5vh] w-[20vw] grid-cols-[1fr_1.5fr] items-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold hover:bg-opacity-80 ${isExpanded ? "rounded-b-none" : ""}`}>
+    <div
+      className={`relative mx-6 mt-2 hidden h-[5vh] w-[30vw] max-w-[17rem] grid-cols-[1fr_1.5fr] items-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold hover:bg-opacity-80 sm:grid ${isExpanded ? "rounded-b-none" : ""}`}
+    >
       <div className="flex items-center">
         <img src={icon} alt={title} />
         <p className="pl-2">{title}</p>
@@ -90,23 +92,28 @@ const StateAlertWidget = ({icon, title, values}:StateProps) => {
           onClick={handleToggle}
           className="flex w-full items-center justify-end"
         >
-          <img src={isExpanded
-            ? "/public/images/togglebtn.svg"
-            : "/public/images/Vector 17.svg"}
+          <img
+            src={
+              isExpanded
+                ? "/public/images/togglebtn.svg"
+                : "/public/images/Vector 17.svg"
+            }
             alt={isExpanded ? "접기" : "펼치기"}
             className="h-4 w-4"
           />
         </button>
       </div>
       {isExpanded && (
-        <div className="absolute top-full left-0 w-full bg-white bg-opacity-60 rounded-b-[10px] px-2 mt-0 z-10 overflow-y-hidden">
+        <div className="absolute left-0 top-full z-10 mt-0 w-full overflow-y-hidden rounded-b-[10px] bg-white bg-opacity-60 px-2">
           {values.map((item, index) => (
             <div key={index}>
-              <div className="flex flex-col py-1 gap-1 text-[#3F5D7E]">
+              <div className="flex flex-col gap-1 py-1 text-[#3F5D7E]">
                 <div>{item.state}</div>
                 <div className="ml-auto text-[10px]">{item.time}</div>
               </div>
-              {index !== values.length - 1 && <div className="border-b-2 border-solid border-[#B2B2B7] mt-1"></div>}
+              {index !== values.length - 1 && (
+                <div className="mt-1 border-b-2 border-solid border-[#B2B2B7]"></div>
+              )}
             </div>
           ))}
         </div>
@@ -121,7 +128,7 @@ interface AttitudeProps{
 }
 const AttitudeWidget = ({children}: AttitudeProps) => {
   return (
-    <div className="toolbar-attitude mx-6 my-0 grid h-[27vh] w-[20vw] grid-cols-[1fr_1fr] grid-rows-[33%_1fr] rounded-[10px] bg-white bg-opacity-60">
+    <div className="toolbar-attitude mx-6 my-0 hidden h-[27vh] w-[30vw] max-w-[17rem] grid-cols-[1fr_1fr] grid-rows-[33%_1fr] rounded-[10px] bg-white bg-opacity-60 sm:grid">
       {children}
 
       <div className="attitude-3d col-span-2 row-start-2 flex items-center justify-center p-2">
@@ -163,8 +170,8 @@ interface MiniMapWidgetProp{
 }
 const MiniMapWidget = ({positionData}:MiniMapWidgetProp) => {
   return (
-    <div className="toolbar-attitude mx-6 my-0 grid h-[27vh] w-[20vw] rounded-[10px] bg-white bg-opacity-60">
-      <MiniMap positionData={positionData}/>
+    <div className="mx-6 my-0 hidden h-[27vh] w-[30vw] max-w-[17rem] rounded-[10px] bg-white bg-opacity-60 sm:grid">
+      <MiniMap positionData={positionData} />
     </div>
   );
 }
@@ -176,7 +183,7 @@ export {
   BatteryState,
   HeadingState,
   MiniMapWidget,
-  SpeedAltitudeWidget,
+  SpeedWidget,
   StateAlertWidget,
   WeatherWidget,
 };

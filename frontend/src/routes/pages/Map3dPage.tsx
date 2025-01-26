@@ -8,7 +8,7 @@ import MapSwitchButton from "@/components/map3d/MapSwitchButton";
 import {
   AltitudeWidget,
   MiniMapWidget,
-  SpeedAltitudeWidget,
+  SpeedWidget,
   StateAlertWidget,
   WeatherWidget,
 } from "@/components/map3d/Widget";
@@ -48,17 +48,17 @@ export default function Map3dPage() {
             setSelectedOperation={setSelectedOperation}
           />
         </div>
-        <div className="fixed right-10 top-[10rem] z-10">
+        <div className="fixed bottom-[9rem] right-10 z-10 lg:top-[10rem]">
           <MapSwitchButton />
         </div>
-        <div className="fixed left-4 top-[10rem] z-10">
-          <MiniMapWidget positionData={data ?? null}/>
+        <div className="fixed left-4 top-[12rem] z-10 lg:top-[10rem]">
+          <MiniMapWidget positionData={data ?? null} />
           <WeatherWidget
             icon={toolbarWidgetData[0].icon}
             title={toolbarWidgetData[0].title}
             values={toolbarWidgetData[0].dataValues as string[]}
           />
-          <SpeedAltitudeWidget
+          <SpeedWidget
             icon={toolbarWidgetData[1].icon}
             title={toolbarWidgetData[1].title}
             value={toolbarWidgetData[1].dataValues![0]}
