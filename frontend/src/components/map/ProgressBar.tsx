@@ -96,8 +96,10 @@ const ProgressBarBtn = ({
   );
 };
 
-
-const PlayHead = () => {
+interface PlayHeadProp{
+  children: ReactNode;
+}
+const PlayHead = ({children}: PlayHeadProp) => {
   const [isDragging, setIsDragging] = useState(false);
   const progressBarRef = useRef<HTMLDivElement|null>(null);
   const [width, setWidth] = useState(0);
@@ -110,16 +112,15 @@ const PlayHead = () => {
     }
     const handleMouseUp = () => {
       setIsDragging(false);
-      console.log("MouseUP")
     };
     const handleMouseMove = (e: MouseEvent) => {
       if (!isDragging || !progressBarRef.current) return;
       let movedX =
         e.clientX - progressBarRef.current.getBoundingClientRect().left;
       movedX = Math.max(0, Math.min(movedX, width));
+
       const newX = movedX / width;
-      console.log("movedX: ", movedX, "newX: ", newX);
-      setPhase(newX);
+      setPhase(Math.min(1, Math.max(0, newX)));
     };
 
     document.addEventListener("mouseup", handleMouseUp);
@@ -135,15 +136,12 @@ const PlayHead = () => {
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
     e.preventDefault();
-    console.log("MouseDown");
   };
 
   return (
     <div className="h-full w-full" ref={progressBarRef}>
       <div className="" style={{ transform: `translateX(${phase * 100}%)` }}>
-        <div className="absolute bottom-[20px] h-[33px] w-[100px] -translate-x-1/2 transform rounded-[10px] bg-white bg-opacity-50 text-center text-[14px] leading-[33px] text-[#28282C]">
-          {}
-        </div>
+          {children}
         <div
           className="absolute h-8 w-8 -translate-x-1/2 -translate-y-[12px] hover:scale-110"
           onMouseDown={handleMouseDown}
@@ -155,10 +153,50 @@ const PlayHead = () => {
   );
 };
 
+interface TimeStampProp{
+  startTime: string;
+  duration: number;
+}
+
+const TimeStamp = ({startTime="00:00:00", duration}: TimeStampProp) => {
+  const { phase } = useContext(PhaseContext);
+
+  const timestamp = Math.floor(phase * duration);
+
+  const startTimeToSeconds = (time: string) => {
+    const [hours, minutes, seconds] = time.split(":").map(Number);
+    return hours * 3600 + minutes * 60 + seconds;
+  }
+  const startSeconds = startTimeToSeconds(startTime);
+  const totalTimeStamp = timestamp + startSeconds;
+
+  // HH:MM:SS 형식으로 변환
+  const formatTimestamp = (time: number) => {
+    const hours = Math.floor(time / 3600);
+    const minutes = Math.floor((time % 3600) / 60);
+    const seconds = time % 60;
+
+    return [
+      hours > 0 ? String(hours).padStart(2, "0") : null, // 2자리 형식
+      String(minutes).padStart(2, "0"),
+      String(seconds).padStart(2, "0"),
+    ]
+      .filter(Boolean) // null 제거
+      .join(":");
+  };
+
+  return (
+    <div className="absolute bottom-[20px] h-[33px] w-[100px] -translate-x-1/2 transform rounded-[10px] bg-white bg-opacity-50 text-center text-[14px] leading-[33px] text-[#28282C]">
+      {formatTimestamp(totalTimeStamp)}
+      </div>
+  );
+}
+
 
 
 export const Bar = Object.assign({
   Progress,
   ProgressBarBtn,
   PlayHead,
+  TimeStamp,
 });

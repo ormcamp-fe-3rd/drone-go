@@ -20,12 +20,12 @@ export function formatAndSortPositionData(dataArray: TelemetryPositionData[]) {
   return dataArray
     .map((data) => ({
       msgId: data.msgId,
-      timestamp: data.timestamp,
+      timestamp: new Date(data.timestamp).getTime(),
       payload: {
         lat: data.payload.lat / LAT_LON_DIVISOR,
         lon: data.payload.lon / LAT_LON_DIVISOR,
         alt: data.payload.alt / ALT_DIVISOR,
       },
     }))
-    .sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+    .sort((a, b) => a.timestamp - b.timestamp);
 }

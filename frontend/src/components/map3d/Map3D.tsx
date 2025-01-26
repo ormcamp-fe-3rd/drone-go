@@ -26,7 +26,7 @@ export default function Map3D({ positionData }: Props) {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
   const { setAltitude } = useContext(AltitudeContext);
   const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>(latLonDataTarget);
-  const [totalFlightSeconds, setTotalFlighSeconds] = useState<number>(0);
+  const [totalDuration, setTotalDuration] = useState<number>(0);
   const [startEndTime, setStartEndTime] = useState<{
     startTime: string;
     endTime: string;
@@ -75,8 +75,8 @@ export default function Map3D({ positionData }: Props) {
       end: flightEndTime,
     });
 
-    setTotalFlighSeconds((hours*3600 + minutes*60 + seconds)*100);
-  }, [positionData]);
+    setTotalDuration((hours*3600 + minutes*60 + seconds)/speed);
+  }, [positionData, speed]);
 
   // TODO: 회전기능은 후순위로 작업
   // const [dragPosition, setDragPosition] = useState<{
@@ -119,7 +119,7 @@ export default function Map3D({ positionData }: Props) {
     elapsedTimeRef.current += deltaTime;
     lastTimeRef.current = currentTime;
 
-    const animationDuration = totalFlightSeconds / speed; // 단위: 밀리초
+    const animationDuration = totalDuration * 1000; // 단위: 밀리초
 
     // 총 이동거리
     const routeDistance = calculateDistance(latLonAlt);
@@ -234,7 +234,9 @@ export default function Map3D({ positionData }: Props) {
           startTime={startEndTime?.startTime}
           endTime={startEndTime?.endTime}
         >
-          <Bar.PlayHead />
+          <Bar.PlayHead >
+            <Bar.TimeStamp duration={totalDuration} startTime={startEndTime?.startTime}/>
+          </Bar.PlayHead>
           <Bar.ProgressBarBtn
             isPlaying={isPlaying}
             onClickPlay={handlePlay}
