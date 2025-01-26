@@ -27,8 +27,6 @@ export default function Map2D({ telemetryPositionData }: Props) {
       return;
     }
 
-    const map = mapRef.current.getMap();
-
     if (!lastTimeRef.current) {
       lastTimeRef.current = currentTime;
     }
@@ -42,11 +40,10 @@ export default function Map2D({ telemetryPositionData }: Props) {
 
     if (phase >= 1) {
       setIsPlaying(false);
-      lastTimeRef.current = 0;
       elapsedTimeRef.current = 0;
+      lastTimeRef.current = 0;
     }
 
-    // 전체 경로 길이 계산
     const totalDistance = calculateDistance(telemetryPositionData);
     console.log("Total distance:", totalDistance);
 
@@ -54,7 +51,6 @@ export default function Map2D({ telemetryPositionData }: Props) {
 
     if (isNaN(alongPoint.lat) || isNaN(alongPoint.lon)) {
       console.error(`Invalid coordinates: {lat: ${alongPoint.lat}, lon: ${alongPoint.lon}}`);
-
       alongPoint.lat = 37.572398;
       alongPoint.lon = 126.976944;
     }
@@ -67,13 +63,18 @@ export default function Map2D({ telemetryPositionData }: Props) {
       markerRef.current.setLngLat(markerLngLat);
     }
 
-    map.flyTo({
-      center: markerLngLat,
-      zoom: 14,
-      essential: true,
-    });
+    if (phase >= 1 && mapRef.current) {
+      const map = mapRef.current.getMap();
+      map.flyTo({
+        center: markerLngLat,
+        zoom: 12,
+        essential: true,
+      });
+    }
 
-    animationRef.current = window.requestAnimationFrame(animate);
+    if (phase < 1) {
+      animationRef.current = window.requestAnimationFrame(animate);
+    }
   };
 
   const handlePlay = () => {
@@ -99,10 +100,9 @@ export default function Map2D({ telemetryPositionData }: Props) {
         ? telemetryPositionData[0].payload
         : { lat: 37.572398, lon: 126.976944 };
 
-  
       map.jumpTo({
         center: [initialPoint.lon, initialPoint.lat],
-        zoom: 14,
+        zoom: 12,
       });
 
       const pathCoordinates = telemetryPositionData.map((point) => [point.payload.lon, point.payload.lat]);
