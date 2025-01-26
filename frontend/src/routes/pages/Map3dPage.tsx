@@ -14,7 +14,6 @@ import {
   StateAlertWidget,
   WeatherWidget,
 } from "@/components/map3d/Widget";
-import AltitudeContextProvider from "@/contexts/AltitudeContext";
 import PhaseContextProvider from "@/contexts/PhaseContext";
 import toolbarWidgetData from "@/data/toolbarWidgetData.json";
 import { Operation, Robot } from "@/types/selectOptionsTypes";
@@ -27,7 +26,7 @@ export default function Map3dPage() {
   const { error, data } = useQuery({
     queryKey: ["position", selectedDrone, selectedOperation],
     queryFn: async () => {
-      if (!selectedDrone || !selectedOperation) return
+      if (!selectedDrone || !selectedOperation) return;
       const rawData = await fetchPositionDataByOperation(
         selectedDrone!._id,
         selectedOperation!._id,
@@ -41,7 +40,6 @@ export default function Map3dPage() {
   return (
     <>
       <PhaseContextProvider>
-        <AltitudeContextProvider>
           <div className="fixed z-10 w-full">
             <DetailedDataHeader
               backgroundOpacity={60}
@@ -56,7 +54,6 @@ export default function Map3dPage() {
             <MapSwitchButton />
           </div>
           <div className="fixed left-4 top-[10rem] z-10">
-            {/* TODO: 위젯 props들 api 데이터로 수정 */}
             <AttitudeWidget>
               <BatteryState />
               <HeadingState />
@@ -71,15 +68,14 @@ export default function Map3dPage() {
               title={toolbarWidgetData[1].title}
               value={toolbarWidgetData[1].dataValues![0]}
             />
-            <AltitudeWidget />
+            <AltitudeWidget positionData={data ?? null}/>
             <StateAlertWidget
               icon={toolbarWidgetData[3].icon}
               title={toolbarWidgetData[3].title}
               values={toolbarWidgetData[3].stateValues!}
             />
           </div>
-          <Map3D positionData={data} />
-        </AltitudeContextProvider>
+          <Map3D positionData={data ?? null} />
       </PhaseContextProvider>
     </>
   );

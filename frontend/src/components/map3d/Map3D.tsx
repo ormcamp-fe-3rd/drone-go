@@ -4,26 +4,24 @@ import mapboxgl from "mapbox-gl";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
-import { AltitudeContext } from "@/contexts/AltitudeContext";
 import { PhaseContext } from "@/contexts/PhaseContext";
 import { LatLonAlt } from "@/types/latLonAlt";
-import { TelemetryPositionData } from "@/types/telemetryPositionDataTypes";
+import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
 import {
   calculateDistance,
   calculatePointAlongRoute,
 } from "@/utils/calculateDistance";
-import { formatTime } from "@/utils/formatTime";
+import { formatNumberTime } from "@/utils/formatNumberTime";
 
 import { Bar } from "../map/ProgressBar";
 import DroneInMap from "./DroneInMap";
 
 interface Props {
-  positionData: TelemetryPositionData[] | null;
+  positionData: FormattedTelemetryPositionData[] | null;
 }
 
 export default function Map3D({ positionData }: Props) {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
-  const { setAltitude } = useContext(AltitudeContext);
   const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>();
   const [totalDuration, setTotalDuration] = useState<number>(0);
   const [startEndTime, setStartEndTime] = useState<{
@@ -55,10 +53,10 @@ export default function Map3D({ positionData }: Props) {
       positionData[0].payload.lat,
     ]);
 
-    const flightStartTime = positionData[0].timestamp;
+    const flightStartTime = positionData[0].timestamp; // Unix 타임스탬프
     const flightEndTime = positionData[positionData.length - 1].timestamp;
-    const formattedStartTime = formatTime(flightStartTime); // Date 타입 -> HH:mm:ss(string 타입)으로 포맷
-    const formattedEndTime = formatTime(flightEndTime);
+    const formattedStartTime = formatNumberTime(flightStartTime); // HH:mm:ss(string 타입)으로 포맷
+    const formattedEndTime = formatNumberTime(flightEndTime);
     setStartEndTime({
       startTime: formattedStartTime,
       endTime: formattedEndTime,
@@ -105,8 +103,8 @@ export default function Map3D({ positionData }: Props) {
     });
 
     map.setFreeCameraOptions(camera);
-    setAltitude(Number(alongPoint.alt.toFixed(2)));
-  }, [totalDuration, latLonAlt, mapRef, phase, setAltitude]);
+    // setAltitude(Number(alongPoint.alt.toFixed(2)));
+  }, [totalDuration, latLonAlt, mapRef, phase]);
   
   useEffect(() => {
     elapsedTimeRef.current = phase * totalDuration * 1000;

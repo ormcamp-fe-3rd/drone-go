@@ -1,7 +1,9 @@
 import { ReactNode, useContext, useState } from 'react';
 
-import {AltitudeContext} from '@/contexts/AltitudeContext';
+import { PhaseContext } from '@/contexts/PhaseContext';
+import { FormattedTelemetryPositionData } from '@/types/telemetryPositionDataTypes';
 
+// TODO: 날씨 연동
 interface WeatherProps{
   icon: string;
   title: string;
@@ -22,6 +24,7 @@ const WeatherWidget = ({ icon, title, values }: WeatherProps) => {
   );
 };
 
+//TODO: api 데이터로 수정
 interface SpeedAltitudeProps{
   icon: string;
   title: string;
@@ -39,10 +42,17 @@ const SpeedAltitudeWidget = ({ icon, title, value }: SpeedAltitudeProps) => {
   );
 };
 
-const AltitudeWidget = () => {
-  const { altitude } = useContext(AltitudeContext);
+interface AltitudeWidgetProp{
+  positionData: FormattedTelemetryPositionData[] | null;
+}
+const AltitudeWidget = ({positionData}:AltitudeWidgetProp) => {
+  const { phase } = useContext(PhaseContext);
   const src = "/images/navigator-01.svg";
 
+  const altitude = positionData
+    ? positionData[Math.floor(phase * (positionData.length - 1))].payload.alt
+    : 0; // phase 값에 따라 positionData의 고도 선택
+    
   return (
     <div className="relative mx-6 mt-2 grid h-[5vh] w-[20vw] grid-cols-[1fr_1.5fr] items-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold">
       <div className="flex items-center border-r-2 border-solid border-[#B2B2B7]">
@@ -54,6 +64,7 @@ const AltitudeWidget = () => {
   );
 };
 
+// TODO: api 데이터로 수정
 interface StateProps{
   icon: string;
   title: string;
@@ -102,16 +113,15 @@ const StateAlertWidget = ({icon, title, values}:StateProps) => {
   );
 };
 
+// TODO: 자세데이터 반영한 드론3d 오브젝트로 수정, api 데이터로 수정
 interface AttitudeProps{
   children: ReactNode;
 }
-
 const AttitudeWidget = ({children}: AttitudeProps) => {
   return (
     <div className="toolbar-attitude mx-6 my-0 grid h-[27vh] w-[20vw] grid-cols-[1fr_1fr] grid-rows-[33%_1fr] rounded-[10px] bg-white bg-opacity-60">
       {children}
 
-      {/* TODO: 자세데이터 반영한 드론3d 오브젝트로 수정 */}
       <div className="attitude-3d col-span-2 row-start-2 flex items-center justify-center p-2">
         <img className="drone w-[70%]" src="/public/images/image 3.png" />
       </div>
@@ -120,7 +130,7 @@ const AttitudeWidget = ({children}: AttitudeProps) => {
 };
 
 
-// TODO: 배터리 데이터로 수정
+// TODO: api 데이터로 수정
 const BatteryState = () => {
   return (
     <div className="toolbar-header1 col-start-1 row-start-1 flex items-start justify-start p-2">
@@ -132,7 +142,7 @@ const BatteryState = () => {
   );
 }
 
-// TODO: heading 데이터로 수정
+// TODO: api 데이터로 수정
 const HeadingState = () => {
   return (
     <div className="toolbar-header2 col-start-2 row-start-1 flex items-start justify-end p-2">
