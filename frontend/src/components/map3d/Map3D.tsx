@@ -5,6 +5,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
 import { AltitudeContext } from "@/contexts/AltitudeContext";
+import { PhaseContext } from "@/contexts/PhaseContext";
 import latLonDataTarget from "@/data/latLonDataCamera.json";
 import { LatLonAlt } from "@/types/latLonAlt";
 import { TelemetryPositionData } from "@/types/telemetryPositionDataTypes";
@@ -30,7 +31,7 @@ export default function Map3D({ positionData }: Props) {
     startTime: string;
     endTime: string;
   } | null>(null);
-  // const [phase, setPhase] = useState();
+  const {phase, setPhase} = useContext(PhaseContext);
 
   // 애니메이션 관련 변수
   const [isPlaying, setIsPlaying] = useState(false);
@@ -105,7 +106,7 @@ export default function Map3D({ positionData }: Props) {
   // };
 
   const animate = (currentTime: number) => {
-    if (!mapRef.current || !latLonAlt) return;
+    if (!mapRef.current || !latLonAlt || !positionData) return;
     const map = mapRef.current.getMap();
 
     // 첫 프레임이거나 재생 시작 시
@@ -125,10 +126,12 @@ export default function Map3D({ positionData }: Props) {
     const cameraRouteDistance = routeDistance;
 
     const phase = Math.min(1, elapsedTimeRef.current / animationDuration);
+    setPhase(phase);
 
     if (phase >= 1) {
       // 애니메이션 완료
       setIsPlaying(false);
+      setPhase(0);
       lastTimeRef.current = 0;
       elapsedTimeRef.current = 0;
       return;

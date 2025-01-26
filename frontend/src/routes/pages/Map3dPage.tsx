@@ -15,6 +15,7 @@ import {
   WeatherWidget,
 } from "@/components/map3d/Widget";
 import AltitudeContextProvider from "@/contexts/AltitudeContext";
+import PhaseContextProvider from "@/contexts/PhaseContext";
 import toolbarWidgetData from "@/data/toolbarWidgetData.json";
 import { Operation, Robot } from "@/types/selectOptionsTypes";
 import { formatAndSortPositionData } from "@/utils/formatPositionData";
@@ -36,48 +37,50 @@ export default function Map3dPage() {
     enabled: !!selectedOperation,
   });
   if (error) return "An error has occurred: " + error.message;
-  
+
   return (
     <>
-      <AltitudeContextProvider>
-        <div className="fixed z-10 w-full">
-          <DetailedDataHeader
-            backgroundOpacity={60}
-            isMapPage={true}
-            selectedDrone={selectedDrone}
-            setSelectedDrone={setSelectedDrone}
-            selectedOperation={selectedOperation}
-            setSelectedOperation={setSelectedOperation}
-          />
-        </div>
-        <div className="fixed right-10 top-[10rem] z-10">
-          <MapSwitchButton />
-        </div>
-        <div className="fixed left-4 top-[10rem] z-10">
-          {/* TODO: 위젯 props들 api 데이터로 수정 */}
-          <AttitudeWidget>
-            <BatteryState />
-            <HeadingState />
-          </AttitudeWidget>
-          <WeatherWidget
-            icon={toolbarWidgetData[0].icon}
-            title={toolbarWidgetData[0].title}
-            values={toolbarWidgetData[0].dataValues as string[]}
-          />
-          <SpeedAltitudeWidget
-            icon={toolbarWidgetData[1].icon}
-            title={toolbarWidgetData[1].title}
-            value={toolbarWidgetData[1].dataValues![0]}
-          />
-          <AltitudeWidget />
-          <StateAlertWidget
-            icon={toolbarWidgetData[3].icon}
-            title={toolbarWidgetData[3].title}
-            values={toolbarWidgetData[3].stateValues!}
-          />
-        </div>
-        <Map3D positionData={data}/>
-      </AltitudeContextProvider>
+      <PhaseContextProvider>
+        <AltitudeContextProvider>
+          <div className="fixed z-10 w-full">
+            <DetailedDataHeader
+              backgroundOpacity={60}
+              isMapPage={true}
+              selectedDrone={selectedDrone}
+              setSelectedDrone={setSelectedDrone}
+              selectedOperation={selectedOperation}
+              setSelectedOperation={setSelectedOperation}
+            />
+          </div>
+          <div className="fixed right-10 top-[10rem] z-10">
+            <MapSwitchButton />
+          </div>
+          <div className="fixed left-4 top-[10rem] z-10">
+            {/* TODO: 위젯 props들 api 데이터로 수정 */}
+            <AttitudeWidget>
+              <BatteryState />
+              <HeadingState />
+            </AttitudeWidget>
+            <WeatherWidget
+              icon={toolbarWidgetData[0].icon}
+              title={toolbarWidgetData[0].title}
+              values={toolbarWidgetData[0].dataValues as string[]}
+            />
+            <SpeedAltitudeWidget
+              icon={toolbarWidgetData[1].icon}
+              title={toolbarWidgetData[1].title}
+              value={toolbarWidgetData[1].dataValues![0]}
+            />
+            <AltitudeWidget />
+            <StateAlertWidget
+              icon={toolbarWidgetData[3].icon}
+              title={toolbarWidgetData[3].title}
+              values={toolbarWidgetData[3].stateValues!}
+            />
+          </div>
+          <Map3D positionData={data} />
+        </AltitudeContextProvider>
+      </PhaseContextProvider>
     </>
   );
 }

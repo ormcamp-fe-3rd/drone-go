@@ -1,4 +1,6 @@
-import { ReactNode, useState } from "react";
+import { ReactNode, useContext, useEffect, useRef, useState } from "react";
+
+import { PhaseContext } from "@/contexts/PhaseContext";
 
 interface DroneState {
   time: number;
@@ -94,24 +96,60 @@ const ProgressBarBtn = ({
   );
 };
 
-interface playHeadProps {
-  value?: number;
-  onClick?: () => void;
-}
 
-const PlayHead = ({ value, onClick }: playHeadProps) => {
+const PlayHead = () => {
+  const [isDragging, setIsDragging] = useState(false);
+  const progressBarRef = useRef<HTMLDivElement|null>(null);
+  const [width, setWidth] = useState(0);
+  const {phase, setPhase} = useContext(PhaseContext);
 
+  useEffect(() => {
+    // playBar의 width를 가져와 상태에 저장
+    if (progressBarRef.current) {
+      setWidth(progressBarRef.current.getBoundingClientRect().width);
+    }
+    const handleMouseUp = () => {
+      setIsDragging(false);
+      console.log("MouseUP")
+    };
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging || !progressBarRef.current) return;
+      let movedX =
+        e.clientX - progressBarRef.current.getBoundingClientRect().left;
+      movedX = Math.max(0, Math.min(movedX, width));
+      const newX = movedX / width;
+      console.log("movedX: ", movedX, "newX: ", newX);
+      setPhase(newX);
+    };
+
+    document.addEventListener("mouseup", handleMouseUp);
+    document.addEventListener("mousemove", handleMouseMove);
+
+    return () => {
+      document.removeEventListener("mouseup", handleMouseUp);
+      document.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, [isDragging, width, setPhase]);
+
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    e.preventDefault();
+    console.log("MouseDown");
+  };
 
   return (
-    <div className="h-full w-full">
-      <div className="" style={{ transform: "translateX(0%)" }}>
+    <div className="h-full w-full" ref={progressBarRef}>
+      <div className="" style={{ transform: `translateX(${phase * 100}%)` }}>
         <div className="absolute bottom-[20px] h-[33px] w-[100px] -translate-x-1/2 transform rounded-[10px] bg-white bg-opacity-50 text-center text-[14px] leading-[33px] text-[#28282C]">
           {}
         </div>
-        <img
-          src="/icons/playHead.svg"
-          className="absolute -translate-x-1/2 -translate-y-[12px] w-8 h-8 hover:scale-110"
-        />
+        <div
+          className="absolute h-8 w-8 -translate-x-1/2 -translate-y-[12px] hover:scale-110"
+          onMouseDown={handleMouseDown}
+        >
+          <img src="/icons/playHead.svg" className="h-full w-full" />
+        </div>
       </div>
     </div>
   );
