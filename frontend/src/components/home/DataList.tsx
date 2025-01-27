@@ -24,9 +24,19 @@ const DroneList = () => {
         Select a drone and view its data visualization.
       </p>
       <div className="mt-10 flex h-auto min-h-[37.5rem] w-[75rem] flex-wrap items-center justify-center">
-        {drones.map((drone: { name: string; img: string }, index: number) => (
-          <FlightDataCard key={index} name={drone.name} img={drone.img} />
-        ))}
+        {drones.map(
+          (
+            drone: { robot_id: number; name: string; img: string },
+            index: number,
+          ) => (
+            <FlightDataCard
+              key={index}
+              name={drone.name}
+              img={drone.img}
+              robot_id={drone.robot_id}
+            />
+          ),
+        )}
       </div>
     </div>
   );

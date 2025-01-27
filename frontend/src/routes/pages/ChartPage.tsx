@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
 import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
@@ -19,6 +19,10 @@ const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
 
 const ChartPage: React.FC = () => {
   const location = useLocation();
+  let robot = location.state?.robot_id;
+
+  console.log("Received robot_id:", robot);
+
   // 현재 URL이 "/map"인지 확인
   const isMapPage = location.pathname === "/map";
 
@@ -74,7 +78,7 @@ const ChartPage: React.FC = () => {
         selectedOperation={selectedOperation}
         setSelectedOperation={setSelectedOperation}
       />
-      <div className="grid grid-cols-1 gap-3 mx-10 mb-4 lg:grid-cols-2">
+      <div className="mx-10 mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
         <div className="flex h-[380px] gap-3">
           <div className="flex w-3/5 flex-col rounded-[10px] border border-[#B2B2B7] bg-white">
             <h2 className="mx-10 my-5 text-2xl font-semibold">
@@ -85,7 +89,7 @@ const ChartPage: React.FC = () => {
                 <img
                   src={selectedImage || ""}
                   alt={selectedDrone.name}
-                  className="object-contain w-full h-full"
+                  className="h-full w-full object-contain"
                 />
               ) : (
                 <p className="text-xl text-gray-500">Select drone</p> // 드론이 선택되지 않았을 때 텍스트 표시
