@@ -87,7 +87,8 @@ export default function MiniMap({ positionData }: Props) {
 
       const pathCoordinates = latLonAlt.map((point) => [point.lon, point.lat]);
 
-      if (map.getSource("route")) {
+      const addRouteSourceAndLayer = () => {
+        if (map.getSource("route")) {
         (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
           type: "FeatureCollection",
           features: [
@@ -132,6 +133,13 @@ export default function MiniMap({ positionData }: Props) {
             "line-color": "#007cbf",
           },
         });
+      }}
+
+      // 스타일 로드 완료 후 source와 layer 추가
+      if (map.isStyleLoaded()) {
+        addRouteSourceAndLayer();
+      } else {
+        map.once("styledata", addRouteSourceAndLayer);
       }
 
       if (!markerRef.current) {

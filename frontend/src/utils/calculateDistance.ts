@@ -74,7 +74,7 @@ export function calculatePointAlongRoute(
 
     // 유효성 검사 추가
     if (isNaN(lat1) || isNaN(lon1) || isNaN(alt1) || isNaN(lat2) || isNaN(lon2) || isNaN(alt2)) {
-      console.error(`Invalid coordinates at index ${i}:`, { lat1, lon1, alt1, lat2, lon2, alt2 });
+      console.log(`Invalid coordinates at index ${i}:`, { lat1, lon1, alt1, lat2, lon2, alt2 });
       continue; // 유효하지 않은 데이터를 건너뜁니다
     }
 
@@ -89,7 +89,7 @@ export function calculatePointAlongRoute(
       const alt = alt1 + (alt2 - alt1) * ratio;
 
       if (isNaN(lat) || isNaN(lon) || isNaN(alt)) {
-        console.error("Calculated point has invalid coordinates", { lat, lon, alt });
+        console.log("Calculated point has invalid coordinates", { lat, lon, alt });
         return route[route.length - 1]; // 잘못된 점은 경로의 마지막 점을 반환
       }
 
