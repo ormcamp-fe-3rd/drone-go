@@ -1,0 +1,295 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Drone Telemetry API",
+      "version": "1.0.0",
+      "description": "API Documentation for Drone Telemetry Visualization"
+    },
+    "externalDocs": {
+      "description": "API json",
+      "url": "http://localhost:3000/swagger.json"
+    },
+    "paths": {
+      "/robots": {
+        "get": {
+          "summary": "Fetch available robots",
+          "description": "Fetch a list of all available robots",
+          "responses": {
+            "200": {
+              "description": "List of robots",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input"
+            }
+          }
+        }
+      },
+      "/operations": {
+        "get": {
+          "summary": "Fetch available operations for a robot",
+          "description": "Fetch a list of all operations for a specific robot",
+          "parameters": [
+            {
+              "name": "robotId",
+              "in": "query",
+              "description": "The robot ID",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "List of operations for the robot",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input"
+            }
+          }
+        }
+      },
+      "/telemetries": {
+        "get": {
+          "summary": "Fetch telemetry data for a robot and operation",
+          "description": "Fetch telemetry data based on robotId and operationId, and allow filtering by telemetry fields",
+          "parameters": [
+            {
+              "name": "robotId",
+              "in": "query",
+              "description": "The robot ID",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "operationId",
+              "in": "query",
+              "description": "The operation ID",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "msgId",
+              "in": "query",
+              "description": "Filter telemetry by message ID (optional)",
+              "required": false,
+              "schema": {
+                "type": "integer"
+              }
+            },
+            {
+              "name": "fields",
+              "in": "query",
+              "description": "Comma-separated list of fields to filter (e.g., lat, lon, alt)",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Filtered telemetry data",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object"
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Invalid input"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "Operation": {
+          "type": "object",
+          "properties": {
+            "_id": {
+              "type": "string",
+              "description": "Unique identifier for the operation"
+            },
+            "robot": {
+              "type": "string",
+              "description": "Reference to the Robot model"
+            }
+          }
+        },
+        "Robot": {
+          "type": "object",
+          "properties": {
+            "_id": {
+              "type": "string",
+              "description": "Unique identifier for the robot"
+            },
+            "name": {
+              "type": "string",
+              "description": "Name of the robot"
+            },
+            "robot_id": {
+              "type": "string",
+              "description": "A unique robot identifier (e.g., serial number)"
+            }
+          }
+        },
+        "Telemetry": {
+          "type": "object",
+          "properties": {
+            "_id": {
+              "type": "string",
+              "description": "Unique identifier for the telemetry data"
+            },
+            "operation": {
+              "type": "string",
+              "description": "Reference to the Operation model"
+            },
+            "robot": {
+              "type": "string",
+              "description": "Reference to the Robot model"
+            },
+            "__v": {
+              "type": "integer",
+              "description": "Version key for Mongoose documents"
+            },
+            "msgId": {
+              "type": "integer",
+              "description": "Message ID"
+            },
+            "timestamp": {
+              "type": "string",
+              "format": "date-time",
+              "description": "Timestamp when the telemetry was recorded"
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "airspeed": {
+                  "type": "number",
+                  "description": "Airspeed of the robot"
+                },
+                "groundspeed": {
+                  "type": "number",
+                  "description": "Groundspeed of the robot"
+                },
+                "alt": {
+                  "type": "number",
+                  "description": "Altitude"
+                },
+                "pitch": {
+                  "type": "number",
+                  "description": "Pitch angle"
+                },
+                "pitchspeed": {
+                  "type": "number",
+                  "description": "Pitch speed"
+                },
+                "roll": {
+                  "type": "number",
+                  "description": "Roll angle"
+                },
+                "rollspeed": {
+                  "type": "number",
+                  "description": "Roll speed"
+                },
+                "yaw": {
+                  "type": "number",
+                  "description": "Yaw angle"
+                },
+                "yawspeed": {
+                  "type": "number",
+                  "description": "Yaw speed"
+                },
+                "climb": {
+                  "type": "number",
+                  "description": "Climb rate"
+                },
+                "altEllipsoid": {
+                  "type": "number",
+                  "description": "Ellipsoid altitude"
+                },
+                "batteryFunction": {
+                  "type": "number",
+                  "description": "Battery function status"
+                },
+                "batteryRemaining": {
+                  "type": "number",
+                  "description": "Remaining battery percentage"
+                },
+                "chargeState": {
+                  "type": "number",
+                  "description": "Charge state of the battery"
+                },
+                "currentBattery": {
+                  "type": "number",
+                  "description": "Current battery level"
+                },
+                "fixType": {
+                  "type": "number",
+                  "description": "GPS fix type"
+                },
+                "hdg": {
+                  "type": "number",
+                  "description": "Heading"
+                },
+                "lat": {
+                  "type": "number",
+                  "description": "Latitude of the telemetry data"
+                },
+                "lon": {
+                  "type": "number",
+                  "description": "Longitude of the telemetry data"
+                },
+                "voltages": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "description": "Battery voltage readings"
+                },
+                "voltagesExt": {
+                  "type": "array",
+                  "items": {
+                    "type": "number"
+                  },
+                  "description": "Extended battery voltage readings"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  
