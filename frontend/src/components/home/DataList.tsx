@@ -26,7 +26,8 @@ const DroneList = () => {
       <div className="mt-10 flex h-auto min-h-[37.5rem] w-[75rem] flex-wrap items-center justify-center">
         {drones.map(
           (
-            drone: { robot_id: number; name: string; img: string },
+            drone: { robot_id: string; name: string; img: string; _id: string },
+            op: { robot: string },
             index: number,
           ) => (
             <FlightDataCard
@@ -34,6 +35,8 @@ const DroneList = () => {
               name={drone.name}
               img={drone.img}
               robot_id={drone.robot_id}
+              _id={drone._id}
+              robot={op.robot}
             />
           ),
         )}
