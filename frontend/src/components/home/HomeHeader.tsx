@@ -32,7 +32,6 @@ export function HomeHeader() {
             <p className="text-3xl font-bold text-[#0800A1]">DronGo</p>
           </Link>
           <Link to={"/about"} className="ml-6 text-sm text-[#353740]">
-            {/* //TODO: 소개페이지 링크 연결해야함*/}
             about
           </Link>
         </div>
@@ -43,6 +42,7 @@ export function HomeHeader() {
             onClick={handleSignUpClick}
           />
           {/* 클릭 시 알럿 */}
+          {/* TODO: 로그인 상태에 따라 SIGN OUT 으로 수정 */}
           <SignButton
             text="SIGN IN"
             bgColor="black"
