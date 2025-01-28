@@ -25,7 +25,7 @@ export const fetchPositionDataByOperation = async (
       .filter((telemetry) => telemetry.msgId === GLOBAL_POSITION_INT_ID)
       .map((telemetry) => ({
         msgId: telemetry.msgId,
-        timestamp: new Date(telemetry.timestamp),
+        timestamp: telemetry.timestamp,
         payload: {
           lat: telemetry.payload.lat,
           lon: telemetry.payload.lon,

@@ -1,5 +1,4 @@
 import { Canvas } from "@react-three/fiber";
-import { intervalToDuration } from "date-fns";
 import mapboxgl from "mapbox-gl";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
@@ -11,9 +10,11 @@ import {
   calculateDistance,
   calculatePointAlongRoute,
 } from "@/utils/calculateDistance";
-import { formatNumberTime } from "@/utils/formatNumberTime";
+import { formatTime } from "@/utils/formatTime";
 
-import { Bar } from "../map/ProgressBar";
+import PlayHead from "../map/PlayHead";
+import ProgressBar from "../map/ProgressBar";
+import ProgressBarBtn from "../map/ProgressBarBtn";
 import DroneInMap from "./DroneInMap";
 
 interface Props {
@@ -27,7 +28,8 @@ export default function Map3D({ positionData }: Props) {
   const [startEndTime, setStartEndTime] = useState<{
     startTime: string;
     endTime: string;
-  } | null>(null);
+  }>({startTime: "", endTime: ""});
+  const [flightStartTime, setFlightStartTime] = useState(0);
   const { phase, setPhase } = useContext(PhaseContext);
 
   // 애니메이션 관련 변수
@@ -55,24 +57,17 @@ export default function Map3D({ positionData }: Props) {
 
     const flightStartTime = positionData[0].timestamp; // Unix 타임스탬프
     const flightEndTime = positionData[positionData.length - 1].timestamp;
-    const formattedStartTime = formatNumberTime(flightStartTime); // HH:mm:ss(string 타입)으로 포맷
-    const formattedEndTime = formatNumberTime(flightEndTime);
+    const formattedStartTime = formatTime(new Date(flightStartTime)); // HH:mm:ss(string 타입)으로 포맷
+    const formattedEndTime = formatTime(new Date(flightEndTime));
     setStartEndTime({
       startTime: formattedStartTime,
       endTime: formattedEndTime,
     });
+    setFlightStartTime(flightStartTime);
+    const totalFlightTime = (flightEndTime - flightStartTime)/1000;
 
-    // 총 비행 시간 계산 (intervalToDuration 사용)
-    const {
-      hours = 0,
-      minutes = 0,
-      seconds = 0,
-    } = intervalToDuration({
-      start: flightStartTime,
-      end: flightEndTime,
-    });
-
-    setTotalDuration((hours * 3600 + minutes * 60 + seconds) / speed);
+    
+    setTotalDuration(totalFlightTime/speed);
   }, [positionData, speed, setPhase]);
 
 
@@ -225,22 +220,20 @@ export default function Map3D({ positionData }: Props) {
         </Map>
       </div>
       <div className="fixed bottom-0 w-screen">
-        <Bar.Progress
-          startTime={startEndTime?.startTime}
-          endTime={startEndTime?.endTime}
+        <ProgressBar
+          startTime={startEndTime.startTime}
+          endTime={startEndTime.endTime}
         >
-          <Bar.PlayHead>
-            <Bar.TimeStamp
-              duration={totalDuration}
-              startTime={startEndTime?.startTime}
-            />
-          </Bar.PlayHead>
-          <Bar.ProgressBarBtn
+          <PlayHead
+            duration={totalDuration}
+            flightStartTime={flightStartTime}
+          />
+          <ProgressBarBtn
             isPlaying={isPlaying}
             onClickPlay={handlePlay}
             onClickPause={handlePause}
           />
-        </Bar.Progress>
+        </ProgressBar>
         <select className="w-24" onChange={handlePlaySpeed}>
           <option value="1">1x speed</option>
           <option value="2">2x speed</option>
