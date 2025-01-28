@@ -1,9 +1,11 @@
-import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { useContext, useEffect, useRef, useState } from "react";
+
 import { DataList } from "@/components/home/DataList";
 import Drone from "@/components/home/Drone";
 import { HeroSection } from "@/components/home/HeroSection";
+import { AuthContext } from "@/contexts/AuthContext";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -13,6 +15,8 @@ export function HomePage() {
   const [rotation, setRotation] = useState<[number, number, number]>([
     0, -110, 0,
   ]);
+  const {isAuth} = useContext(AuthContext);
+
 
   useEffect(() => {
     if (droneRef.current) {
@@ -56,6 +60,8 @@ export function HomePage() {
       <div ref={dataListRef}>
         <DataList />
       </div>
+      {/* TODO: 로그인 안했을 경우의 화면 */}
+      {!isAuth && (<div></div>)}
     </div>
   );
 }

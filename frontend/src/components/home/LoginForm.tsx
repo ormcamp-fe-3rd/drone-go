@@ -1,8 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
+import { useContext } from "react";
 import { SubmitHandler,useForm } from "react-hook-form"
 import { useNavigate } from "react-router-dom";
 
 import { userLogin } from "@/api/userApi";
+import { AuthContext } from "@/contexts/AuthContext";
 
 interface LoginInput{
   id: string;
@@ -11,6 +13,7 @@ interface LoginInput{
 
 export const LoginForm = ({onSuccess}: { onSuccess: () => void;}) => {
     const { register, handleSubmit, formState: {errors} } = useForm<LoginInput>()
+    const { setIsAuth } = useContext(AuthContext);
     const navigate = useNavigate();
     
     const loginMutation = useMutation({
@@ -18,6 +21,7 @@ export const LoginForm = ({onSuccess}: { onSuccess: () => void;}) => {
         return await userLogin(id, password);
       },
       onSuccess: (data) => {
+        setIsAuth(true);
         localStorage.setItem("token", data);
         alert("Welcome aboard!");
         navigate("/");

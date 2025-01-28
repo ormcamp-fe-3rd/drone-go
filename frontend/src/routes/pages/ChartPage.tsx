@@ -1,13 +1,16 @@
-import React, { useState } from "react";
-import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import React, { useContext, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import {AuthContext} from "@/contexts/AuthContext";
+
 import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
-import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
-import { Robot, Operation } from "../../types/selectOptionsTypes";
 import BatteryChart from "../../components/charts/BatteryChart";
+import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
 import FlightTimeDataComponenet from "../../components/charts/FilghtTimeDataComponent";
-import StateDataComponent from "../../components/charts/StateDataComponent";
 import SatellitesChart from "../../components/charts/SatellitesChart";
+import StateDataComponent from "../../components/charts/StateDataComponent";
+import { Operation,Robot } from "../../types/selectOptionsTypes";
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   children,
@@ -26,7 +29,16 @@ const ChartPage: React.FC = () => {
   const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
     null,
   );
-
+  const { isAuth }  = useContext(AuthContext);
+  const navigate = useNavigate();
+  
+  useEffect(()=>{
+    if(!isAuth){
+      alert("Signing in is required");
+      navigate("/");
+    }
+  },[isAuth, navigate])
+  
   const droneImages: { [key: string]: string } = {
     M1_1: "/images/chart/drone1.svg",
     M1_2: "/images/chart/drone2.svg",
