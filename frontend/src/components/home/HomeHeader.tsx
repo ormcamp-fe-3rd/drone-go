@@ -1,17 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { SignButton } from "./SignButton";
+
 import { LoginModal } from "./LoginModal"; // LoginModal 컴포넌트 임포트
+import { SignButton } from "./SignButton";
 
 export function HomeHeader() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false); // 로그인 모달 상태 관리
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>()
+
+  useEffect(()=>{
+    const token = localStorage.getItem("token");
+    setIsLoggedIn(!!token);
+  },[isLoginModalOpen])
 
   const handleSignUpClick = () => {
     alert("The SIGN UP feature is not available yet.🔧");
   };
 
   const handleSignInClick = () => {
-    setIsLoginModalOpen(true); // SIGN IN 클릭 시 모달을 열기
+    if(isLoggedIn){
+      setIsLoggedIn(false);
+      localStorage.removeItem("token");
+      alert("Successfully Signed Out")
+    }else{
+      setIsLoginModalOpen(true); // SIGN IN 클릭 시 모달을 열기
+    }
   };
 
   const handleCloseLoginModal = () => {
@@ -44,7 +57,7 @@ export function HomeHeader() {
           {/* 클릭 시 알럿 */}
           {/* TODO: 로그인 상태에 따라 SIGN OUT 으로 수정 */}
           <SignButton
-            text="SIGN IN"
+            text={isLoggedIn ? "SIGN OUT" : "SIGN IN" }
             bgColor="black"
             onClick={handleSignInClick} // SIGN IN 클릭 시 모달을 열기
           />
