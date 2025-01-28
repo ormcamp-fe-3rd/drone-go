@@ -5,7 +5,7 @@ import { TelemetryPositionData, calculateDistance, calculatePointAlongRoute } fr
 import { Bar } from "../map/ProgressBar";
 
 interface Props {
-  formatPositionData: TelemetryPositionData[]; // TelemetryPositionData 타입 사용
+  formatPositionData: TelemetryPositionData[];
 }
 
 export default function Map2D({ formatPositionData }: Props) {
@@ -44,7 +44,6 @@ export default function Map2D({ formatPositionData }: Props) {
     const totalDistance = calculateDistance(formatPositionData);
     console.log("Total distance:", totalDistance);
 
-    // calculatePointAlongRoute 함수 호출 전에 payload를 안전하게 처리
     const validData = formatPositionData.filter((point) => point.payload?.lat && point.payload?.lon);
 
     if (validData.length === 0) {
@@ -98,7 +97,6 @@ export default function Map2D({ formatPositionData }: Props) {
     if (mapRef.current) {
       const map = mapRef.current.getMap();
 
-      // 첫 번째 지점의 lat, lon 값 확인 및 기본값 제공
       const initialPoint = formatPositionData.length > 0 && formatPositionData[0].payload
         ? formatPositionData[0].payload
         : { lat: 37.572398, lon: 126.976944 };
@@ -109,8 +107,8 @@ export default function Map2D({ formatPositionData }: Props) {
       });
 
       const pathCoordinates = formatPositionData.map((point) => [
-        point.payload?.lon ?? 0,  // 경도가 없으면 기본값 0 사용
-        point.payload?.lat ?? 0,  // 위도가 없으면 기본값 0 사용
+        point.payload?.lon ?? 0,
+        point.payload?.lat ?? 0,
       ]);
 
       if (map.getSource("route")) {
@@ -176,7 +174,7 @@ export default function Map2D({ formatPositionData }: Props) {
 
       if (isPlaying) {
         const totalDistance = calculateDistance(formatPositionData);
-        // payload가 유효한 데이터만 필터링하여 사용
+        
         const validData = formatPositionData.filter((point) => point.payload?.lat && point.payload?.lon);
         if (validData.length === 0) {
           console.error("No valid data available to start animation.");
