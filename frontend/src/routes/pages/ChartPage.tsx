@@ -21,6 +21,7 @@ const ChartPage: React.FC = () => {
   const name = location.state?.name;
   const _id = location.state?._id;
 
+  //TODO:operation 값 최신 데이터 선택해야함
   // robot_id를 기반으로 selectedDrone 설정
   useEffect(() => {
     if (robotId) {
