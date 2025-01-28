@@ -21,8 +21,6 @@ const ChartPage: React.FC = () => {
   const name = location.state?.name;
   const _id = location.state?._id;
 
-  const robot = location.state?.robot;
-
   // robot_id를 기반으로 selectedDrone 설정
   useEffect(() => {
     if (robotId) {
@@ -32,18 +30,12 @@ const ChartPage: React.FC = () => {
         name: name,
         robot_id: robotId,
       };
-
-      const op: Operation = {
-        robot: robot,
-        _id: "",
-        name: "",
-      };
       setSelectedDrone(drone);
-      console.log("로봇 뭔데" + robot);
 
-      /*console.log("Selected Drone:", drone);*/
+      //data 확인용용
+      /*console.log("Selected Drone:", drone);
       console.log("선택된 드론:", drone);
-      console.log("Selected Operation:", selectedOperation);
+      console.log("Selected Operation:", selectedOperation);*/
     }
   }, [robotId, name, _id, robot]);
 
