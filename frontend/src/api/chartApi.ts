@@ -1,7 +1,7 @@
 import { TelemetryData } from "../types/telemetryAllDataTypes";
 import { ProcessedTelemetryBatteryData } from "../types/telemetryBatteryDataTypes";
-import { ProcessedTelemetryTextData } from "../types/telemetryTextData";
 import { ProcessedTelemetrySatellitesData } from "../types/telemetrySatellitesDataTypes";
+import { ProcessedTelemetryTextData } from "../types/telemetryTextData";
 
 export const fetchTelemetriesByRobotAndOperation = async (
   robotId: string,
@@ -27,6 +27,10 @@ export const fetchTelemetriesByRobotAndOperation = async (
   try {
     const response = await fetch(url, {headers});
     if (!response.ok) {
+      if(response.status === 401){
+        // 로그인 토큰이 유효하지 않음
+        throw new Error("Unauthorized user")
+      }
       throw new Error(`Failed to fetch telemetries: ${response.statusText}`);
     }
     const data: TelemetryData[] = await response.json();

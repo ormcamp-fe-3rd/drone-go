@@ -5,18 +5,17 @@ const authorizer = (req, res, next) => {
   const authorization = req.headers['authorization']
   if (!authorization) {
     // 토큰이 없으면 실패
-    next(Error('missing authorization token'))
+    return res.status(401).json({error: "Missing authorization token"})
   }
 
   // 예) Bearer eyJhbGciOiJIUzI1N...
   const [, token] = authorization.split(' ')
-  const isVerified = jwt.verify(token, 'my-secret-key')
-  console.log(isVerified)
-  if (isVerified) {
+  try{
+    const isVerified = jwt.verify(token, 'my-secret-key')
     next()
-  } else {
+  }catch (error){
     // 토큰 검증에 실패
-    next(Error('invalid authorization token'))
+    return res.status(401).json({error: "Invalid authorization token"})
   }
 }
 

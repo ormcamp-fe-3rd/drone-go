@@ -32,7 +32,15 @@ export default function Map3dPage(){
     // enabled: !!selectedDrone && !!selectedOperation,
   });
   if (isPending) return "Loading...";
-  if (error) return "An error has occurred: " + error.message;
+  if (error) {
+    if (error.message === "Unauthorized user") {
+      localStorage.removeItem("token");
+      alert("Your session has expired. Please log in again.");
+      window.location.href="/";
+      return null;
+    }
+    return "An error has occurred: " + error.message;
+  }
 
   return (
     <>

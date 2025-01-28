@@ -21,6 +21,10 @@ export const fetchAttitudeDataByRobotAndOperation = async (
   try {
     const response = await fetch(url, {headers});
     if (!response.ok) {
+      if (response.status === 401) {
+        // 로그인 토큰이 유효하지 않음
+        throw new Error("Unauthorized user");
+      }
       throw new Error(`Failed to fetch telemetries: ${response.statusText}`);
     }
     const data: TelemetryAttitudeData[] = await response.json();

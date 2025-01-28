@@ -8,6 +8,10 @@ export const fetchRobots = async () => {
   
   const response = await fetch("http://localhost:3000/robots", {headers});
   if (!response.ok) {
+    if (response.status === 401) {
+      // 로그인 토큰이 유효하지 않음
+      throw new Error("Unauthorized user");
+    }
     throw new Error("Failed to fetch robots");
   }
   return response.json();
@@ -29,6 +33,10 @@ export const fetchOperationsByRobot = async (robotId: string) => {
   try {
     const response = await fetch(url, {headers});
     if (!response.ok) {
+      if (response.status === 401) {
+        // 로그인 토큰이 유효하지 않음
+        throw new Error("Unauthorized user");
+      }
       throw new Error(`Failed to fetch operations: ${response.statusText}`);
     }
     return response.json();
