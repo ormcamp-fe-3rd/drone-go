@@ -4,11 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 import { userLogin } from "@/api/userApi";
 
-interface LoginFormProps {
-  onClose: () => void; // 모달을 닫는 함수
-}
 
-export const LoginForm = ({onClose}: LoginFormProps) => {
+export const LoginForm = ({onSuccess}: { onSuccess: () => void;}) => {
     const [formData, setFormData] = useState({
       id: "",
       password: "",
@@ -23,7 +20,7 @@ export const LoginForm = ({onClose}: LoginFormProps) => {
         localStorage.setItem("token", data);
         alert("Welcome aboard!");
         navigate("/");
-        onClose();
+        onSuccess();
       },
       onError: (error) => {
         console.log(error);
@@ -60,7 +57,11 @@ export const LoginForm = ({onClose}: LoginFormProps) => {
         }
         disabled={loginMutation.isPending}
       />
-      <button className="mt-10 h-[3rem] w-[30rem] rounded-[10px] bg-black text-white">
+      <button 
+        type="submit"
+        className="mt-10 h-[3rem] w-[30rem] rounded-[10px] bg-black text-white"
+        disabled={loginMutation.isPending}
+      >
         {loginMutation.isPending ? "Signing in..." : "SIGN IN"}
       </button>
     </form>

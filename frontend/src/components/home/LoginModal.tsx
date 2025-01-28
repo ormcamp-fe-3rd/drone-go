@@ -83,7 +83,7 @@ export function LoginModal({ onClose }: LoginModalProps) {
         <p id="login-modal-title" className="mb-12 text-2xl font-bold">
           Login required to continue
         </p>
-        <LoginForm onClose={handleClose}/>
+        <LoginForm onSuccess={handleClose}/>
       </div>
     </div>
   );
