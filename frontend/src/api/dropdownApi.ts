@@ -1,6 +1,12 @@
 // API 호출
 export const fetchRobots = async () => {
-  const response = await fetch("http://localhost:3000/robots");
+  const token = localStorage.getItem("token");
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+  
+  const response = await fetch("http://localhost:3000/robots", {headers});
   if (!response.ok) {
     throw new Error("Failed to fetch robots");
   }
@@ -14,8 +20,14 @@ export const fetchOperationsByRobot = async (robotId: string) => {
   const url = `http://localhost:3000/operations?robot=${encodeURIComponent(robotId)}`;
   console.log("Fetching operations with URL:", url); // TODO: 배포 이후 제거
 
+  const token = localStorage.getItem("token");
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  };
+  
   try {
-    const response = await fetch(url);
+    const response = await fetch(url, {headers});
     if (!response.ok) {
       throw new Error(`Failed to fetch operations: ${response.statusText}`);
     }
