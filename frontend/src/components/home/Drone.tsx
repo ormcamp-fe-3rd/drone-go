@@ -93,7 +93,7 @@ export default function Drone({
 
   return (
     <div
-      className="absolute right-0 top-56 z-30 bg-black"
+      className="absolute right-0 z-30"
       style={{ height, width }} // 부모에서 전달된 크기로 설정
     >
       <Canvas camera={{ position: [0, 50, 100], fov: 75 }}>
