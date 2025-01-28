@@ -105,14 +105,14 @@ const AttitudeWidget = ({ children }: AttitudeProps) => {
       {/* TODO: 자세데이터 반영한 드론3d 오브젝트로 수정 */}
       <div className="attitude-3d relative col-span-2 row-start-2 flex items-center justify-center p-2">
         {/*<img className="drone w-[70%]" src="/public/images/image 3.png" />*/}
-        <div className="absolute -right-48 -top-[450px] bg-black">
+        <div className="absolute right-0 top-0 bg-black">
           <Suspense fallback={<div>Loading drone...</div>}>
             <Drone
-              scale={10}
+              scale={100}
               rotation={[0, -50, 0]}
               yAnimationHeight={0}
               height={"20vh"}
-              width={"20vh"}
+              width={"20vw"}
             />
           </Suspense>
         </div>

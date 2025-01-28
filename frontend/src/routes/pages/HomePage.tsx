@@ -46,7 +46,7 @@ export function HomePage() {
   return (
     <div className="relative">
       <div
-        className="absolute right-0 top-0 z-50 h-[25vh] w-[25vw]" // z-50을 추가하여 드론이 최상위에 배치
+        className="absolute right-0 top-56 z-50 h-[25vh] w-[25vw]" // z-50을 추가하여 드론이 최상위에 배치
         ref={droneRef}
       >
         <Drone
