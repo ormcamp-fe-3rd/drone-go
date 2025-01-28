@@ -49,7 +49,13 @@ export function HomePage() {
         className="absolute right-0 top-0 z-50 h-[25vh] w-[25vw]" // z-50을 추가하여 드론이 최상위에 배치
         ref={droneRef}
       >
-        <Drone scale={110} rotation={rotation} yAnimationHeight={5} />
+        <Drone
+          scale={110}
+          rotation={rotation}
+          yAnimationHeight={5}
+          height={"80vh"}
+          width={"70vw"}
+        />
       </div>
 
       {/* Main Content */}
