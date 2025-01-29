@@ -3,15 +3,13 @@ import { useState } from "react";
 
 import { fetchPositionDataByOperation } from "@/api/mapApi";
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
+import AltitudeWidget from "@/components/map3d/AltitudeWidget";
 import Map3D from "@/components/map3d/Map3D";
 import MapSwitchButton from "@/components/map3d/MapSwitchButton";
-import {
-  AltitudeWidget,
-  MiniMapWidget,
-  SpeedAltitudeWidget,
-  StateAlertWidget,
-  WeatherWidget,
-} from "@/components/map3d/Widget";
+import MiniMapWidget from "@/components/map3d/MiniMapWidget";
+import SpeedWidget from "@/components/map3d/SpeedWidget";
+import StateWidget from "@/components/map3d/StateWidget";
+import WeatherWidget from "@/components/map3d/WeatherWidget";
 import PhaseContextProvider from "@/contexts/PhaseContext";
 import toolbarWidgetData from "@/data/toolbarWidgetData.json";
 import { Operation, Robot } from "@/types/selectOptionsTypes";
@@ -58,13 +56,13 @@ export default function Map3dPage() {
             title={toolbarWidgetData[0].title}
             values={toolbarWidgetData[0].dataValues as string[]}
           />
-          <SpeedAltitudeWidget
+          <SpeedWidget
             icon={toolbarWidgetData[1].icon}
             title={toolbarWidgetData[1].title}
             value={toolbarWidgetData[1].dataValues![0]}
           />
           <AltitudeWidget positionData={data ?? null} />
-          <StateAlertWidget
+          <StateWidget
             icon={toolbarWidgetData[3].icon}
             title={toolbarWidgetData[3].title}
             values={toolbarWidgetData[3].stateValues!}
