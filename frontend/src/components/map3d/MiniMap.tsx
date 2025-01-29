@@ -152,23 +152,12 @@ export default function MiniMap({ positionData }: Props) {
           initialPoint.lat,
         ];
 
-        markerRef.current = new mapboxgl.Marker({
-          element: createMarkerElement("/public/images/group 906.svg"),
-        })
+        markerRef.current = new mapboxgl.Marker()
           .setLngLat(markerLngLat)
           .addTo(map);
       }
     };
   }, [latLonAlt]);
-
-  function createMarkerElement(imageUrl: string) {
-    const element = document.createElement("img");
-    element.src = imageUrl;
-    element.style.width = "50px";
-    element.style.height = "50px";
-    element.style.objectFit = "contain";
-    return element;
-  }
 
   return (
     <>
