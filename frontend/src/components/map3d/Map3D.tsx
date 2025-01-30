@@ -23,12 +23,12 @@ interface Props {
 
 export default function Map3D({ positionData }: Props) {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
-  const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>();
+  const [dronePath, setDronePath] = useState<LatLonAlt[] | null>();
   const [totalDuration, setTotalDuration] = useState<number>(0);
   const [startEndTime, setStartEndTime] = useState<{
     startTime: string;
     endTime: string;
-  }>({startTime: "", endTime: ""});
+  }>({ startTime: "", endTime: "" });
   const [flightStartTime, setFlightStartTime] = useState(0);
   const { phase, setPhase } = useContext(PhaseContext);
 
@@ -43,18 +43,20 @@ export default function Map3D({ positionData }: Props) {
     if (!mapRef.current || !positionData) return;
     setPhase(0);
 
+    //이동경로 데이터
     const payloadData: LatLonAlt[] = positionData.map((item) => ({
       lat: item.payload.lat,
       lon: item.payload.lon,
       alt: item.payload.alt,
     }));
-    setLatLonAlt(payloadData);
+    setDronePath(payloadData);
 
     mapRef.current.setCenter([
       positionData[0].payload.lon,
       positionData[0].payload.lat,
     ]);
 
+    //비행시간 설정
     const flightStartTime = positionData[0].timestamp; // Unix 타임스탬프
     const flightEndTime = positionData[positionData.length - 1].timestamp;
     const formattedStartTime = formatTime(new Date(flightStartTime)); // HH:mm:ss(string 타입)으로 포맷
@@ -64,22 +66,86 @@ export default function Map3D({ positionData }: Props) {
       endTime: formattedEndTime,
     });
     setFlightStartTime(flightStartTime);
-    const totalFlightTime = (flightEndTime - flightStartTime)/1000;
+    const totalFlightTime = (flightEndTime - flightStartTime) / 1000;
 
-    
-    setTotalDuration(totalFlightTime/speed);
+    setTotalDuration(totalFlightTime / speed);
+
+    //이동경로 라인 추가
+    const pathCoordinates = payloadData.map((point) => [point.lon, point.lat]);
+    if (mapRef.current.isStyleLoaded()) {
+      addRouteSourceAndLayer(pathCoordinates);
+    }
   }, [positionData, speed, setPhase]);
 
+  function addRouteSourceAndLayer(pathCoordinates: number[][]) {
+    if (!mapRef.current) return;
+
+    const map = mapRef.current.getMap();
+    if (map.getSource("route")) {
+      (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates: pathCoordinates,
+            },
+            properties: {},
+          },
+        ],
+      });
+    } else {
+      map.addSource("route", {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              geometry: {
+                type: "LineString",
+                coordinates: pathCoordinates,
+              },
+              properties: {},
+            },
+          ],
+        },
+      });
+
+      map.addLayer({
+        id: "route-line",
+        type: "line",
+        source: "route",
+        layout: {
+          "line-cap": "round",
+          "line-join": "round",
+        },
+        paint: {
+          "line-width": 4,
+          "line-color": "#007cbf",
+        },
+      });
+    }
+  }
 
   const updateCamera = useCallback(() => {
-    if (!totalDuration || !latLonAlt || !mapRef.current) return;
+    if (!totalDuration || !dronePath || !mapRef.current) return;
     const map = mapRef.current!.getMap();
-    const routeDistance = calculateDistance(latLonAlt);
+    const routeDistance = calculateDistance(dronePath);
+
+    // 현재 phase와 이전 phase 계산
+    const offsetPhase = 0.02; // 카메라가 드론보다 살짝 뒤에 위치하도록 조정
+    const prevPhase = Math.max(0, phase - offsetPhase);
 
     // 현재 phase에 따른 위치 계산
     const alongPoint = calculatePointAlongRoute(
-      latLonAlt,
+      dronePath,
       routeDistance * phase || 0.001,
+    );
+    const cameraPoint = calculatePointAlongRoute(
+      dronePath,
+      routeDistance * prevPhase || 0.001,
     );
 
     const cameraAltitude = alongPoint.alt;
@@ -87,8 +153,8 @@ export default function Map3D({ positionData }: Props) {
     const camera = map.getFreeCameraOptions();
     camera.position = mapboxgl.MercatorCoordinate.fromLngLat(
       {
-        lng: alongPoint.lon,
-        lat: alongPoint.lat,
+        lng: cameraPoint.lon,
+        lat: cameraPoint.lat,
       },
       cameraAltitude,
     );
@@ -98,9 +164,8 @@ export default function Map3D({ positionData }: Props) {
     });
 
     map.setFreeCameraOptions(camera);
-    // setAltitude(Number(alongPoint.alt.toFixed(2)));
-  }, [totalDuration, latLonAlt, mapRef, phase]);
-  
+  }, [totalDuration, dronePath, phase]);
+
   useEffect(() => {
     elapsedTimeRef.current = phase * totalDuration * 1000;
     updateCamera(); // phase 변경 시 카메라 위치 업데이트
@@ -134,7 +199,7 @@ export default function Map3D({ positionData }: Props) {
   // };
 
   const animate = (currentTime: number) => {
-    if (!mapRef.current || !latLonAlt || !positionData) return;
+    if (!mapRef.current || !dronePath || !positionData) return;
 
     // 첫 프레임이거나 재생 시작 시
     if (!lastTimeRef.current) {
@@ -195,7 +260,7 @@ export default function Map3D({ positionData }: Props) {
             longitude: 126.976944, //경도
             latitude: 37.572398, //위도
             zoom: 18,
-            pitch: 45,
+            pitch: 18,
           }}
           style={{ width: "100%", height: "100%" }}
           mapStyle="mapbox://styles/mapbox/standard"

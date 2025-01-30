@@ -46,7 +46,7 @@ export default function DroneInMap() {
       // 크기 설정
       glb.scene.scale.set(100, 100, 100);
       
-      glb.scene.rotation.set(THREE.MathUtils.degToRad(45), THREE.MathUtils.degToRad(90), 0);
+      glb.scene.rotation.set(THREE.MathUtils.degToRad(80), THREE.MathUtils.degToRad(90), 0);
       
       
       // 메탈 재질과 거칠기 설정
