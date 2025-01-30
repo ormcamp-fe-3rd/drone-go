@@ -5,10 +5,12 @@ interface DroneState {
   state: string;
 }
 
-interface ProgressProps{
-  children: ReactNode
+interface ProgressProps {
+  children: ReactNode;
+  startTime: string;
+  endTime: string;
 }
-const Progress = ({children}: ProgressProps) => {
+const ProgressBar = ({ children, startTime, endTime }: ProgressProps) => {
   const [hoverTime, setHoverTime] = useState<number | null>(null);
   const [droneState, setDroneState] = useState<string | null>(null);
 
@@ -53,50 +55,21 @@ const Progress = ({children}: ProgressProps) => {
           </div>
         ))}
 
-        <div className="progress-icon transition-left absolute left-0 top-[-12px] duration-200 ease-linear">
-          <img src="/public/images/Vector.svg" />
-        </div>
-
         {children}
 
-        <div className="current-time absolute bottom-[30px] left-5 h-[33px] w-[100px] -translate-x-1/2 transform rounded-[10px] bg-white bg-opacity-50 text-center text-[14px] leading-[33px] text-[#28282C]">
-          00:01:30
-        </div>
-
         <div className="time-left absolute bottom-[-30px] left-0 -translate-x-1/2 transform text-[14px] text-black">
-          00:00:00
+          {startTime}
         </div>
 
         <div className="time-right absolute bottom-[-30px] right-0 translate-x-1/2 transform text-[14px] text-black">
-          05:00:00
+          {endTime}
         </div>
       </div>
     </div>
   );
 };
 
-interface ProgressBarBtnProps{
-  isPlaying: boolean;
-  onClickPlay: () => void;
-  onClickPause: () => void;
-}
-const ProgressBarBtn = ({isPlaying, onClickPlay, onClickPause}:ProgressBarBtnProps) => {
-  return (
-    <div className="play-icon absolute left-1/2 mt-4 -translate-x-1/2 transform">
-      {isPlaying ? (
-        <button onClick={onClickPause} className="h-10 w-10">
-          <img src="/images/pause.svg" alt="pause" />
-        </button>
-      ) : (
-        <button onClick={onClickPlay} className="h-10 w-10">
-          <img src="/images/play.svg" alt="play" />
-        </button>
-      )}
-    </div>
-  );
-}
 
-export const Bar = Object.assign({
-  Progress,
-  ProgressBarBtn,
-})
+
+
+export default ProgressBar

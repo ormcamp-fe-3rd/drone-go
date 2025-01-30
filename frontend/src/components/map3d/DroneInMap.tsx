@@ -10,13 +10,11 @@ interface DroneProp {
   } | null;
 }
 
-export default function DroneInMap({dragPosition}:DroneProp) {
+export default function DroneInMap() {
   const glb = useLoader(GLTFLoader, "/objects/drone.glb");
   const mixerRef = useRef<THREE.AnimationMixer | null>(null);
   const clock = new THREE.Clock();
-  const [rotationX, setRotationX] = useState(0);
-  const [rotationY, setRotationY] = useState(0);
-
+  
   useEffect(() => {
     // 애니메이션 설정
     if (glb.animations.length > 0) {
@@ -26,7 +24,7 @@ export default function DroneInMap({dragPosition}:DroneProp) {
       });
     }
   }, [glb]);
-
+  
   useEffect(() => {
     let rafId = 0;
     const updateAnimation = () => {
@@ -36,21 +34,21 @@ export default function DroneInMap({dragPosition}:DroneProp) {
       }
       rafId = requestAnimationFrame(updateAnimation);
     };
-
+    
     updateAnimation();
-
+    
     return () => cancelAnimationFrame(rafId);
   });
-
+  
   // GLB 크기와 회전 및 머티리얼 속성 설정
   useEffect(() => {
     if (glb.scene) {
       // 크기 설정
       glb.scene.scale.set(100, 100, 100);
-
+      
       glb.scene.rotation.set(THREE.MathUtils.degToRad(45), THREE.MathUtils.degToRad(90), 0);
-
-
+      
+      
       // 메탈 재질과 거칠기 설정
       glb.scene.traverse((child) => {
         if ((child as THREE.Mesh).isMesh) {
@@ -72,24 +70,27 @@ export default function DroneInMap({dragPosition}:DroneProp) {
       });
     }
   }, [glb]);
+  
+  // TODO: dragPosition에 따른 회전 처리
+  // const [rotationX, setRotationX] = useState(0);
+  // const [rotationY, setRotationY] = useState(0);
 
-  // dragPosition에 따른 회전 처리
-  useFrame(() => {
-    if(!glb.scene || !dragPosition) return;
+  // useFrame(() => {
+  //   if(!glb.scene || !dragPosition) return;
 
-    //현재 회전값 저장
-    setRotationX(glb.scene.rotation.x);
-    setRotationY(glb.scene.rotation.y);
+  //   //현재 회전값 저장
+  //   setRotationX(glb.scene.rotation.x);
+  //   setRotationY(glb.scene.rotation.y);
 
-    //회전 범위
-    const deltaX = rotationX + dragPosition.x * Math.PI * 0.2;
-    const deltaY = rotationY + dragPosition.y * Math.PI * 0.2;
+  //   //회전 범위
+  //   const deltaX = rotationX + dragPosition.x * Math.PI * 0.2;
+  //   const deltaY = rotationY + dragPosition.y * Math.PI * 0.2;
 
-    //회전
-    glb.scene.rotation.x += (deltaX - rotationX) * 0.5;
-    glb.scene.rotation.y += (deltaY - rotationY) * 0.5;
+  //   //회전
+  //   glb.scene.rotation.x += (deltaX - rotationX) * 0.5;
+  //   glb.scene.rotation.y += (deltaY - rotationY) * 0.5;
 
-  });
+  // });
 
   return (
     <>

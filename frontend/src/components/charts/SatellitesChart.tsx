@@ -2,6 +2,7 @@ import React from "react";
 import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
 import { ProcessedTelemetrySatellitesData } from "../../types/telemetrySatellitesDataTypes";
+import { format } from "date-fns";
 
 interface ChartProps {
   data: ProcessedTelemetrySatellitesData[];
@@ -35,8 +36,8 @@ const SatellitesChart: React.FC<ChartProps> = ({ data }) => {
     },
     grid: {
       padding: {
-        left: 30, // 차트 왼쪽 여백
-        right: 20, // 차트 오른쪽 여백
+        left: 55, // 차트 왼쪽 여백
+        right: 30, // 차트 오른쪽 여백
         bottom: 40,
       },
     },
@@ -57,17 +58,22 @@ const SatellitesChart: React.FC<ChartProps> = ({ data }) => {
     },
     xaxis: {
       type: "datetime",
-      labels: { show: true },
-      categories: data.map((item) => item.timestamp.toISOString()),
+      labels: {
+        show: true,
+        formatter: function (value: string) {
+          return format(new Date(Number(value)), "HH:mm:ss"); // 포맷을 "HH:mm:ss"로 설정
+        },
+      },
+      categories: data.map((item) => item.timestamp.toString()),
       floating: true, // 플로팅 설정으로 가로 스크롤 가능
     },
     yaxis: {
       title: {
         text: "Satellites_Visible", // 첫 번째 y축의 타이틀
-        offsetX: 5,
+        offsetX: -10,
       },
       labels: {
-        offsetX: 20,
+        offsetX: 35,
         formatter: function (value: number) {
           return Math.round(value).toString();
         },
@@ -89,6 +95,15 @@ const SatellitesChart: React.FC<ChartProps> = ({ data }) => {
     },
     legend: {
       showForSingleSeries: true,
+    },
+    tooltip: {
+      shared: true,
+      intersect: false,
+      x: {
+        formatter: function (value: number) {
+          return format(new Date(value), "yyyy-MM-dd HH:mm:ss"); // 날짜와 시간 표시
+        },
+      },
     },
   };
 

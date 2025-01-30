@@ -1,10 +1,10 @@
-import { TelemetryPositionData } from "@/types/telemetryPositionDataTypes";
+import { TelemetryAttitudeData } from "@/types/telemetryAttitudeDataTypes";
 
 
-export const fetchPositionDataByOperation = async (
+export const fetchAttitudeDataByRobotAndOperation = async (
   robotId: string,
   operationId: string,
-): Promise<TelemetryPositionData[]> => {
+): Promise<TelemetryAttitudeData[]> => {
   if (!robotId || !operationId) {
     throw new Error("OperationId are required");
   }
@@ -17,22 +17,22 @@ export const fetchPositionDataByOperation = async (
     if (!response.ok) {
       throw new Error(`Failed to fetch telemetries: ${response.statusText}`);
     }
-    const data: TelemetryPositionData[] = await response.json();
+    const data: TelemetryAttitudeData[] = await response.json();
 
-    const GLOBAL_POSITION_INT_ID = 33;
-
-    const filterPositionData: TelemetryPositionData[] = data
-      .filter((telemetry) => telemetry.msgId === GLOBAL_POSITION_INT_ID)
+    // msgId가 30인 데이터만 필터링하고 필요한 값만 반환 - roll, pitch, yaw
+    const filterAttitudeData: TelemetryAttitudeData[] = data
+      .filter((telemetry) => telemetry.msgId === 30)
       .map((telemetry) => ({
         msgId: telemetry.msgId,
-        timestamp: telemetry.timestamp,
+        timestamp: new Date(telemetry.timestamp),
         payload: {
-          lat: telemetry.payload.lat,
-          lon: telemetry.payload.lon,
-          alt: telemetry.payload.alt,
+          roll: telemetry.payload.roll,
+          pitch: telemetry.payload.pitch,
+          yaw: telemetry.payload.yaw,
         },
       }));
-    return filterPositionData;
+
+    return filterAttitudeData;
   } catch (error) {
     console.error("Error fetching telemetries:", error);
     throw error;
