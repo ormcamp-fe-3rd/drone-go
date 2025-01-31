@@ -1,15 +1,15 @@
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { AuthContext } from "@/contexts/AuthContext";
 import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
+import AltAndSpeedChart from "../../components/charts/AltAndSpeedChart";
 import { Robot } from "../../types/selectOptionsTypes";
 import BatteryChart from "../../components/charts/BatteryChart";
 import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
 import FlightTimeDataComponenet from "../../components/charts/FilghtTimeDataComponent";
 import SatellitesChart from "../../components/charts/SatellitesChart";
 import StateDataComponent from "../../components/charts/StateDataComponent";
-import AltAndSpeedChart from "../../components/charts/AltAndSpeedChart";
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   children,
@@ -120,7 +120,7 @@ const ChartPage: React.FC = () => {
         selectedOperationAndDate={selectedOperationAndDate}
         setSelectedOperationAndDate={setSelectedOperationAndDate}
       />
-      <div className="grid grid-cols-1 gap-3 mx-10 mb-4 lg:grid-cols-2">
+      <div className="mx-10 mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
         {/* 드론 정보 카드 */}
         <div className="flex h-[380px] gap-3">
           <div className="flex w-3/5 flex-col rounded-[10px] border border-[#B2B2B7] bg-white">
@@ -132,7 +132,7 @@ const ChartPage: React.FC = () => {
                 <img
                   src={`/images/chart/${selectedDrone._id}.svg`}
                   alt={selectedDrone.name}
-                  className="object-contain w-full h-full"
+                  className="h-full w-full object-contain"
                 />
               ) : (
                 <p className="text-xl text-gray-500">Select a drone</p>
