@@ -3,11 +3,12 @@ import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
 import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
-import { Robot, Operation } from "../../types/selectOptionsTypes";
+import { Robot } from "../../types/selectOptionsTypes";
 import BatteryChart from "../../components/charts/BatteryChart";
 import FlightTimeDataComponenet from "../../components/charts/FilghtTimeDataComponent";
 import StateDataComponent from "../../components/charts/StateDataComponent";
 import SatellitesChart from "../../components/charts/SatellitesChart";
+import AltAndSpeedChart from "../../components/charts/AltAndSpeedChart";
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   children,
@@ -23,9 +24,11 @@ const ChartPage: React.FC = () => {
   const isMapPage = location.pathname === "/map";
 
   const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
-  const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
-    null,
-  );
+  const [selectedOperationAndDate, setSelectedOperationAndDate] = useState<{
+    operationId: string;
+    date: string;
+    name: string;
+  } | null>(null);
 
   const droneImages: { [key: string]: string } = {
     M1_1: "/images/chart/drone1.svg",
@@ -45,24 +48,39 @@ const ChartPage: React.FC = () => {
   const selectedImage = getDroneImage(selectedDrone);
 
   const {
-    data: telemetryData = { batteryData: [], textData: [], satellitesData: [] },
+    data: telemetryData = {
+      batteryData: [],
+      textData: [],
+      satellitesData: [],
+      altAndSpeedData: [],
+    },
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["telemetry", selectedDrone?._id, selectedOperation?._id],
+    queryKey: [
+      "telemetry",
+      selectedDrone?._id,
+      selectedOperationAndDate?.operationId,
+    ],
     queryFn: () => {
-      if (!selectedDrone || !selectedOperation) {
-        return { batteryData: [], textData: [], satellitesData: [] };
+      if (!selectedDrone || !selectedOperationAndDate) {
+        return {
+          batteryData: [],
+          textData: [],
+          satellitesData: [],
+          altAndSpeedData: [],
+        };
       }
       return fetchTelemetriesByRobotAndOperation(
         selectedDrone._id,
-        selectedOperation._id,
+        selectedOperationAndDate.operationId,
       );
     },
-    enabled: !!selectedDrone && !!selectedOperation, // 선택된 드론과 오퍼레이션 값이 있을 때만 API 호출
+    enabled: !!selectedDrone && !!selectedOperationAndDate, // 선택된 드론과 오퍼레이션 값이 있을 때만 API 호출
     staleTime: 60000, // 데이터 캐싱 시간 (1분)
   });
-  const { batteryData, textData, satellitesData } = telemetryData;
+  const { batteryData, textData, satellitesData, altAndSpeedData } =
+    telemetryData;
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F3F2F9]">
@@ -71,8 +89,8 @@ const ChartPage: React.FC = () => {
         isMapPage={isMapPage}
         selectedDrone={selectedDrone}
         setSelectedDrone={setSelectedDrone}
-        selectedOperation={selectedOperation}
-        setSelectedOperation={setSelectedOperation}
+        selectedOperationAndDate={selectedOperationAndDate}
+        setSelectedOperationAndDate={setSelectedOperationAndDate}
       />
       <div className="grid grid-cols-1 gap-3 mx-10 mb-4 lg:grid-cols-2">
         <div className="flex h-[380px] gap-3">
@@ -161,9 +179,23 @@ const ChartPage: React.FC = () => {
             </p>
           </ChartCard>
         )}
-        <ChartCard title="chart3">
-          <div />
-        </ChartCard>
+        {isLoading ? (
+          <ChartCard title="">
+            <p className="text-center">Loading chart data...</p>
+          </ChartCard>
+        ) : error instanceof Error ? (
+          <p className="text-center">Error loading data: {error.message}</p>
+        ) : altAndSpeedData.length > 0 ? (
+          <ChartCard title="">
+            <AltAndSpeedChart data={altAndSpeedData} />
+          </ChartCard>
+        ) : (
+          <ChartCard title="">
+            <p className="text-center">
+              <strong> Select a drone and operation to view the chart.</strong>
+            </p>
+          </ChartCard>
+        )}
       </div>
     </div>
   );

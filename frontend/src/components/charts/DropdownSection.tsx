@@ -3,22 +3,29 @@ import { useQuery } from "@tanstack/react-query";
 import { twMerge } from "tailwind-merge";
 import { fetchRobots, fetchOperationsByRobot } from "../../api/dropdownApi";
 import DropdownComponent from "../../components/charts/DropdownComponent";
-import { Robot, Operation } from "../../types/selectOptionsTypes";
+import { Robot } from "../../types/selectOptionsTypes";
 
+interface OperationAndDate {
+  operationId: string;
+  date: string;
+  name: string;
+}
 interface DropdownSectionProps {
   className?: string; // className을 받을 수 있도록 추가
   selectedDrone: Robot | null;
   setSelectedDrone: React.Dispatch<React.SetStateAction<Robot | null>>;
-  selectedOperation: Operation | null;
-  setSelectedOperation: React.Dispatch<React.SetStateAction<Operation | null>>;
+  selectedOperationAndDate: OperationAndDate | null;
+  setSelectedOperationAndDate: React.Dispatch<
+    React.SetStateAction<OperationAndDate | null>
+  >;
 }
 
 const DropdownSection: React.FC<DropdownSectionProps> = ({
   className,
   selectedDrone,
   setSelectedDrone,
-  selectedOperation,
-  setSelectedOperation,
+  selectedOperationAndDate,
+  setSelectedOperationAndDate,
 }) => {
   const {
     data: robots,
@@ -30,26 +37,45 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
   });
 
   const {
-    data: operations = [],
+    data: operationAndDates = [],
     isLoading: isOperationsLoading,
     error: operationsError,
   } = useQuery({
-    queryKey: ["operations", selectedDrone?._id],
+    queryKey: ["operationAndDates", selectedDrone?._id],
     queryFn: () => fetchOperationsByRobot(selectedDrone?._id || ""),
     enabled: !!selectedDrone?._id,
+    select: (data) => {
+      return data
+        .map((item) => {
+          const operationId = item.operationId;
+          const date =
+            item.dates && item.dates[0] ? item.dates[0] : "No Date Available";
+
+          return {
+            operationId,
+            date,
+          };
+        })
+        .sort((a, b) => {
+          if (a.operationId === b.operationId) {
+            return a.date.localeCompare(b.date);
+          }
+          return b.operationId.localeCompare(a.operationId);
+        });
+    },
   });
 
-  const handleDroneSelect = (robot: Robot) => {
+  const handleDroneSelect = (item: { _id: string; name: string }) => {
     //데이터 확인용 배포 이전 console.log 삭제 예정
-    console.log("Selected Drone:", robot);
-    setSelectedDrone(robot);
-    setSelectedOperation(null);
+    console.log("Selected Drone:", item);
+    setSelectedDrone(item as Robot);
+    setSelectedOperationAndDate(null);
   };
 
-  const handleOperationSelect = (operation: Operation) => {
+  const handleOperationAndDateSelect = (item: OperationAndDate) => {
     //데이터 확인용 배포 이전 console.log 삭제 예정
-    console.log("Selected operation:", operation);
-    setSelectedOperation(operation);
+    console.log("Selected operation and date:", item);
+    setSelectedOperationAndDate(item);
   };
 
   if (robotsError instanceof Error) {
@@ -76,12 +102,18 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
       {!isOperationsLoading && (
         <DropdownComponent
           value={
-            selectedOperation
-              ? `Operation ${operations.findIndex((op: Operation) => op._id === selectedOperation._id) + 1}`
-              : "Select Operation"
+            selectedOperationAndDate
+              ? selectedOperationAndDate.name
+              : "Select Operation | Date"
           }
-          onSelect={handleOperationSelect}
-          data={operations || []}
+          onSelect={handleOperationAndDateSelect}
+          data={operationAndDates.map((item, index) => ({
+            _id: item.operationId,
+            //_id: `${item.operation}-${item.date}-${index}`, // 고유한 _id를 추가
+            name: `Op ${index + 1}  |  ${item.date}`,
+            operationId: item.operationId,
+            date: item.date,
+          }))}
         />
       )}
     </div>

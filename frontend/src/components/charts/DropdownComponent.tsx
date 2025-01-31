@@ -13,7 +13,9 @@ interface DropdownDroneTypeProps<T> {
   data?: T[];
 }
 
-const DropdownComponent = <T extends { _id: string; name: string }>({
+const DropdownComponent = <
+  T extends { _id: string; name: string; operationId: string; date: string },
+>({
   value,
   onSelect,
   data = [],
@@ -22,10 +24,17 @@ const DropdownComponent = <T extends { _id: string; name: string }>({
   const sortedData = Array.isArray(data) ? [...data] : [];
 
   sortedData.sort((a, b) => {
-    if (typeof a._id === "string" && typeof b._id === "string") {
-      return a._id.localeCompare(b._id);
+    // if (typeof a._id === "string" && typeof b._id === "string") {
+    //   return a._id.localeCompare(b._id);
+    // }
+    // return 0;
+    if (a.operationId && b.operationId) {
+      if (a.operationId === b.operationId) {
+        return a.date.localeCompare(b.date); // 날짜 기준 정렬
+      }
+      return a.operationId.localeCompare(b.operationId); // operation 기준 정렬
     }
-    return 0;
+    return a.name.localeCompare(b.name); // 기본적으로 이름으로 정렬
   });
 
   return (
@@ -33,13 +42,13 @@ const DropdownComponent = <T extends { _id: string; name: string }>({
       <DropdownMenuTrigger asChild>
         <Button
           variant="outline"
-          className="flex w-44 justify-around rounded-[8px] border border-[#BBBBBF] bg-white"
+          className="flex w-52 justify-around rounded-[8px] border border-[#BBBBBF] bg-white"
         >
           {value}
           <FaCaretDown className="ml-2" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-44 rounded-[8px] bg-white">
+      <DropdownMenuContent className="w-52 rounded-[8px] bg-white">
         {sortedData.length ? (
           sortedData.map((item, index) => (
             <DropdownMenuItem
@@ -47,7 +56,7 @@ const DropdownComponent = <T extends { _id: string; name: string }>({
               onClick={() => onSelect(item)}
               className="flex flex-col items-center justify-center w-full border-b border-neutral-40"
             >
-              {item.name || `Operation ${index + 1}`}
+              {item.name || `Op ${index + 1} | ${item.date}`}
             </DropdownMenuItem>
           ))
         ) : (
@@ -59,4 +68,3 @@ const DropdownComponent = <T extends { _id: string; name: string }>({
 };
 
 export default DropdownComponent;
-
