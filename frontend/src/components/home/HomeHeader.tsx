@@ -40,7 +40,7 @@ export function HomeHeader() {
               src="../public/icons/drone.svg"
               alt="Drone Icon"
             />
-            <p className="text-3xl font-bold text-[#0800A1]">DronGo</p>
+            <p className="text-3xl font-bold text-[#0800A1]">DroneGo</p>
           </Link>
           <Link to={"/about"} className="ml-6 text-sm text-[#353740]">
             about

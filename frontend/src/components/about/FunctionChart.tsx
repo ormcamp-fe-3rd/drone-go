@@ -9,36 +9,56 @@ export function FunctionChart() {
 
   useEffect(() => {
     if (chartRef.current) {
-      // GSAP Timeline 정의
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: chartRef.current.querySelector(".chart"), // 트리거 대상
-          start: "top 0%", // 첫 번째 요소가 화면의 정중앙에 올 때 시작
-          end: "bottom 100%", // 화면 중간에서 끝나도록 설정 (스크롤이 다 내려가야 끝남)
-          scrub: 1, // 스크롤과 애니메이션을 완전히 동기화
-          markers: false, // 디버깅용 마커 표시
-        },
-      });
+      const chartElement = chartRef.current.querySelector(".chart");
 
-      // 두 번째 요소 애니메이션 (기능소개 문구2만)
-      tl.fromTo(
-        ".chart ul li:nth-child(2)", // 두 번째 문구(기능소개 문구2)만 애니메이션
-        { opacity: 0, y: 0 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 5,
-          ease: "power2.out",
-        },
-      );
+      // 화면 크기 변화에 따라 start와 end 값을 동적으로 계산
+      const updateScrollTrigger = () => {
+        const viewportHeight = window.innerHeight;
+        const start = `top ${viewportHeight * 0.3}px`; // 화면 높이의 45% 지점에서 시작
+        const end = `bottom ${viewportHeight * 1}px`; // 화면 높이의 100% 지점에서 끝남
+
+        ScrollTrigger.getById("chartAnimation")?.kill(); // 기존 ScrollTrigger 제거
+
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            id: "chartAnimation", // ScrollTrigger에 ID 부여
+            trigger: chartElement,
+            start: start,
+            end: end,
+            scrub: 1,
+            markers: false, // 디버깅용 마커 표시
+          },
+        });
+
+        tl.fromTo(
+          ".chart ul li:nth-child(2)",
+          { opacity: 0, y: 0 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 5,
+            ease: "power2.out",
+          },
+        );
+      };
+
+      // 초기 설정
+      updateScrollTrigger();
+
+      // 화면 크기 변경 시 ScrollTrigger 업데이트
+      window.addEventListener("resize", updateScrollTrigger);
+
+      // 컴포넌트 언마운트 시 이벤트 리스너 제거
+      return () => {
+        window.removeEventListener("resize", updateScrollTrigger);
+        ScrollTrigger.getById("chartAnimation")?.kill(); // ScrollTrigger 정리
+      };
     }
   }, []);
 
   return (
     <div ref={chartRef}>
-      {/* chart 기능 소개 */}
       <div className="chart relative aspect-[10/7] w-full py-10 lg:w-[920px]">
-        {/* 배경 이미지 */}
         <img
           className="absolute drop-shadow-lg"
           src="/public/images/introduce/section01-chart-01.png"
@@ -46,7 +66,6 @@ export function FunctionChart() {
         />
         <ul>
           <li>
-            {/* 배경을 제외한 첫 번째 문구는 애니메이션 적용하지 않음 */}
             <img
               className="chart1 absolute"
               src="/public/images/introduce/section01-chart-01.png"
@@ -54,7 +73,6 @@ export function FunctionChart() {
             />
           </li>
           <li>
-            {/* 두 번째 문구에만 애니메이션 적용 */}
             <img
               className="chart2 absolute"
               src="/public/images/introduce/section01-chart-02.png"

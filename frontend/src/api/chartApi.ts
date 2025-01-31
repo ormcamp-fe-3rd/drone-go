@@ -2,6 +2,8 @@ import { TelemetryData } from "../types/telemetryAllDataTypes";
 import { ProcessedTelemetryBatteryData } from "../types/telemetryBatteryDataTypes";
 import { ProcessedTelemetrySatellitesData } from "../types/telemetrySatellitesDataTypes";
 import { ProcessedTelemetryTextData } from "../types/telemetryTextData";
+import { AltAndSpeedData } from "@/types/altAndspeedDataType";
+
 
 export const fetchTelemetriesByRobotAndOperation = async (
   robotId: string,
@@ -10,6 +12,7 @@ export const fetchTelemetriesByRobotAndOperation = async (
   batteryData: ProcessedTelemetryBatteryData[];
   textData: ProcessedTelemetryTextData[];
   satellitesData: ProcessedTelemetrySatellitesData[];
+  altAndSpeedData: AltAndSpeedData[];
 }> => {
   if (!robotId || !operationId) {
     throw new Error("Both robotId and operationId are required");
@@ -73,7 +76,26 @@ export const fetchTelemetriesByRobotAndOperation = async (
         },
       }));
 
-    return { batteryData, textData, satellitesData };
+    // msgId가 74(groundspeed: 속도), 33(alt: 고도) 인 데이터만 필터링하고 필요한 값만 반환
+    const GROUNDSPEED_MSG_ID = 74; // msgId: 74
+    const ALTITUDE_MSG_ID = 33; // msgId: 33
+
+    const altAndSpeedData: AltAndSpeedData[] = data
+      .filter(
+        (telemetry) =>
+          telemetry.msgId === GROUNDSPEED_MSG_ID ||
+          telemetry.msgId === ALTITUDE_MSG_ID,
+      )
+      .map((telemetry) => ({
+        msgId: telemetry.msgId,
+        timestamp: new Date(telemetry.timestamp),
+        payload: {
+          groundspeed: telemetry.payload.groundspeed, // groundspeed 추가
+          alt: telemetry.payload.alt, // alt 추가
+        },
+      }));
+
+    return { batteryData, textData, satellitesData, altAndSpeedData };
   } catch (error) {
     console.error("Error fetching telemetries:", error);
     throw error;

@@ -1,7 +1,6 @@
 import { LatLonAlt } from "@/types/latLonAlt";
 import { TelemetryPositionData } from "@/types/telemetryPositionDataTypes";
 
-
 export const fetchPositionDataByOperation = async (
   robotId: string,
   operationId: string,
@@ -29,7 +28,7 @@ export const fetchPositionDataByOperation = async (
       throw new Error(`Failed to fetch telemetries: ${response.statusText}`);
     }
     const data: TelemetryPositionData[] = await response.json();
-
+    let lastHeading: number | null = null;
     // msgId가 33인 데이터만 필터링하고 필요한 값만 반환 - 경도, 위도, 고도
 
     // TODO: 위도,경도,고도 데이터만 먼저 연결, 추후 전체 데이터 연결
@@ -44,11 +43,12 @@ export const fetchPositionDataByOperation = async (
         //   lon: telemetry.payload.lon,
         //   alt: telemetry.payload.alt,
         // },
-
+        heading: lastHeading, //이전 데이터값 유지
         lat: telemetry.payload.lat,
         lon: telemetry.payload.lon,
         alt: telemetry.payload.alt,
       }));
+
     return filterPositionData;
   } catch (error) {
     console.error("Error fetching telemetries:", error);

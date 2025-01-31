@@ -8,6 +8,20 @@ interface ChartProps {
   data: ProcessedTelemetryBatteryData[];
 }
 
+const formatBatteryValue = (
+  value: number,
+  type: "temperature" | "battery" | "voltage",
+): string => {
+  if (type === "battery") {
+    const bayyeryvalue = value / 100;
+    return bayyeryvalue.toFixed(2);
+  }
+
+  const scaledValue = value / 1000;
+
+  return scaledValue.toFixed(2);
+};
+
 const BatteryChart: React.FC<ChartProps> = ({ data }) => {
   const chartSeries = [
     {
@@ -98,10 +112,11 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
             colors: "#757de8", // 첫 번째 y축 라벨 색상
           },
           formatter: function (value: number) {
-            return Math.round(value).toString(); // 소수점을 없애고 정수로 표시
+            return formatBatteryValue(value, "temperature");
           },
         },
         tickAmount: 10, // 10개의 눈금을 표시하여 촘촘하게
+        min: 0,
       },
       {
         opposite: true, // 두 번째 y축은 오른쪽에 표시
@@ -116,10 +131,11 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
             colors: "#4fc3f7", // 두 번째 y축 라벨 색상
           },
           formatter: function (value: number) {
-            return Math.round(value).toString();
+            return formatBatteryValue(value, "battery");
           },
         },
         tickAmount: 5, // 10개의 눈금을 표시하여 촘촘하게
+        min: 0,
       },
       {
         // 세 번째 y축은 왼쪽 표시
@@ -134,10 +150,11 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
             colors: "#66bb6a", // 타이틀 색상
           },
           formatter: function (value: number) {
-            return Math.round(value).toString();
+            return formatBatteryValue(value, "voltage");
           },
         },
-        tickAmount: 3, // 10개의 눈금을 표시하여 촘촘하게
+        tickAmount: 10,
+        min: 0,
       },
     ],
     theme: {
@@ -152,6 +169,12 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
       x: {
         formatter: function (value: number) {
           return format(new Date(value), "yyyy-MM-dd HH:mm:ss"); // 날짜와 시간 표시
+        },
+      },
+      y: {
+        formatter: function (value: number, { seriesIndex }: any) {
+          const types = ["temperature", "battery", "voltage"];
+          return formatBatteryValue(value, types[seriesIndex] as any);
         },
       },
     },
