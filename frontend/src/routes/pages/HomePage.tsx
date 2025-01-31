@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { DataList } from "@/components/home/DataList";
+
 import Drone from "@/components/home/Drone";
 import { HeroSection } from "@/components/home/HeroSection";
+import DataList from "@/components/home/DataList";
 
 gsap.registerPlugin(ScrollTrigger);
 
