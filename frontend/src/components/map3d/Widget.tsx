@@ -94,10 +94,14 @@ const StateAlertWidget = ({ icon, title, values }: StateProps) => {
 };
 
 interface AttitudeProps {
-  children: ReactNode;
+  children?: ReactNode;
+  heading: number;
 }
 
-const AttitudeWidget = ({ children }: AttitudeProps) => {
+const AttitudeWidget = ({ children, heading }: AttitudeProps) => {
+  if (heading === undefined) {
+    return <div>No heading data available</div>; // heading이 없을 때 처리
+  }
   return (
     <div className="toolbar-attitude mx-6 my-0 grid h-[27vh] w-[20vw] grid-cols-[1fr_1fr] grid-rows-[33%_1fr] rounded-[10px] bg-white bg-opacity-60">
       {children}
@@ -105,11 +109,11 @@ const AttitudeWidget = ({ children }: AttitudeProps) => {
       {/* TODO: 자세데이터 반영한 드론3d 오브젝트로 수정 */}
       <div className="attitude-3d relative col-span-2 row-start-2 flex items-center justify-center p-2">
         {/*<img className="drone w-[70%]" src="/public/images/image 3.png" />*/}
-        <div className="absolute right-0 top-0 bg-black">
+        <div className="absolute -top-10 right-0">
           <Suspense fallback={<div>Loading drone...</div>}>
             <Drone
               scale={100}
-              rotation={[0, -50, 0]}
+              rotation={[0, heading, 0]}
               yAnimationHeight={0}
               height={"20vh"}
               width={"20vw"}

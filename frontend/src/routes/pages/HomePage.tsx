@@ -25,7 +25,7 @@ export function HomePage() {
         ease: "power2.out",
         scrollTrigger: {
           trigger: dataListRef.current,
-          start: "top bottom",
+          start: "top 60%",
           end: "bottom top",
           scrub: true,
           markers: false,
