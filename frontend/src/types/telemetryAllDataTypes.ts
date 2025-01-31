@@ -9,5 +9,7 @@ export interface TelemetryData {
     satellitesVisible: number;
     groundspeed: number;
     alt: number;
+    roll: number;
+    pitch: number;
   };
 }
