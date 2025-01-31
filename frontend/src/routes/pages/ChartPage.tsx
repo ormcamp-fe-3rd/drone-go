@@ -1,21 +1,17 @@
-import React, { useEffect, useState } from "react";
-import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import React, { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import {AuthContext} from "@/contexts/AuthContext";
 
 import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
-import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
-import { Robot } from "../../types/selectOptionsTypes";
+import AltAndSpeedChart from "../../components/charts/AltAndSpeedChart";
 import BatteryChart from "../../components/charts/BatteryChart";
 import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
 import FlightTimeDataComponenet from "../../components/charts/FilghtTimeDataComponent";
 import SatellitesChart from "../../components/charts/SatellitesChart";
 import StateDataComponent from "../../components/charts/StateDataComponent";
-import { Operation,Robot } from "../../types/selectOptionsTypes";
-import AltAndSpeedChart from "../../components/charts/AltAndSpeedChart";
+import { Robot } from "../../types/selectOptionsTypes";
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   children,
