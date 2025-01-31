@@ -1,56 +1,104 @@
-import { useEffect, useRef, useState } from "react";
 import mapboxgl from "mapbox-gl";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
-import { LatLonAlt } from "@/types/latLonAlt";
-import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
 
-import { Bar } from "../map/ProgressBar";
+import { PhaseContext } from "@/contexts/PhaseContext";
+import { LatLonAlt } from "@/types/latLonAlt";
+import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
+import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
+import { formatTime } from "@/utils/formatTime";
+
+import ProgressBar from "../map/ProgressBar";
+import PlayHead from "./PlayHead";
+import ProgressBarBtn from "./ProgressBarBtn";
 
 interface Props {
-  latLonAltData: LatLonAlt[];
+  positionData: FormattedTelemetryPositionData[] | null;
 }
 
-export default function Map2D({ latLonAltData }: Props) {
+export default function Map2D({ positionData }: Props) {
   const mapRef = useRef<MapRef>(null); // 맵 인스턴스 접근
-  const [isDragging, setIsDragging] = useState(false);
-  const [_dragPosition, setDragPosition] = useState<{ x: number; y: number } | null>(null);
-
+  const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>();
+  const [totalDuration, setTotalDuration] = useState<number>(0);
+  const [startEndTime, setStartEndTime] = useState<{
+    startTime: string;
+    endTime: string;
+  }>({startTime: "", endTime: ""});
+  const [flightStartTime, setFlightStartTime] = useState(0);
+  const { phase, setPhase } = useContext(PhaseContext);
+  const [speed, setSpeed] = useState(1);
+  
   // 애니메이션 관련 변수
   const [isPlaying, setIsPlaying] = useState(false);
   const animationRef = useRef<number>();
   const elapsedTimeRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
-
   const markerRef = useRef<mapboxgl.Marker | null>(null);
-  const pathRef = useRef<mapboxgl.GeoJSONSource | null>(null);
-  console.log(pathRef)
 
-  // 마우스 이벤트 핸들러들
-  const handleMouseDown = (event: mapboxgl.MapMouseEvent) => {
-    if (event.originalEvent.ctrlKey) {
-      setIsDragging(true);
-    }
-  };
+  // 경로, 운행시간 셋팅
+  useEffect(() => {
+    if (!mapRef.current || !positionData) return;
+    setPhase(0);
+  
+    const payloadData: LatLonAlt[] = positionData.map((item) => ({
+      lat: item.payload.lat,
+      lon: item.payload.lon,
+      alt: item.payload.alt,
+    }));
+    setLatLonAlt(payloadData);
+  
+    mapRef.current.setCenter([
+      positionData[0].payload.lon,
+      positionData[0].payload.lat,
+    ]);
+  
+    const flightStartTime = positionData[0].timestamp; // Unix 타임스탬프
+    const flightEndTime = positionData[positionData.length - 1].timestamp;
+    const formattedStartTime = formatTime(new Date(flightStartTime)); // HH:mm:ss(string 타입)으로 포맷
+    const formattedEndTime = formatTime(new Date(flightEndTime));
+    setStartEndTime({
+      startTime: formattedStartTime,
+      endTime: formattedEndTime,
+    });
+    setFlightStartTime(flightStartTime);
 
-  const handleMouseMove = (event: mapboxgl.MapMouseEvent) => {
-    if (!isDragging || !mapRef.current) return;
+    const totalFlightTime = (flightEndTime - flightStartTime)/1000;
+    setTotalDuration(totalFlightTime/speed);
 
-    const point = event.point;
-    const x = (point.x / mapRef.current.getContainer().clientWidth) * 2 - 1;
-    const y = -(point.y / mapRef.current.getContainer().clientWidth) * 2 + 1;
-    setDragPosition({ x, y });
-  };
+  }, [positionData, setPhase, speed]);
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    setDragPosition(null);
-  };
 
-  // 애니메이션 실행
-  const animate = (currentTime: number) => {
-    if (!mapRef.current || !mapRef.current.getMap || !markerRef.current) return;
-
+  const updateCamera = useCallback((phaseValue: number )=> {
+    if (!mapRef.current || !latLonAlt || !markerRef.current) return;
     const map = mapRef.current.getMap();
+
+    const totalDistance = calculateDistance(latLonAlt);
+    const alongPoint = calculatePointAlongRoute(
+      latLonAlt,
+      totalDistance * phaseValue || 0.001,
+    );
+    
+    const markerLngLat: [number, number] = [alongPoint.lon, alongPoint.lat];
+    markerRef.current.setLngLat(markerLngLat);
+    
+    map.flyTo({
+      center: markerLngLat,
+      zoom: 12,
+      essential: true,
+    });
+  },[latLonAlt])
+
+
+  //playhead 조작한 경우 elapsedTimeRef 변경
+  useEffect(()=>{
+    elapsedTimeRef.current = phase * totalDuration * 1000;
+    updateCamera(phase);
+  },[phase, totalDuration, updateCamera]);
+
+
+  // play 버튼으로 애니메이션 실행
+  const animate = (currentTime: number) => {
+    if (!latLonAlt) return;
 
     if (!lastTimeRef.current) {
       lastTimeRef.current = currentTime;
@@ -60,58 +108,33 @@ export default function Map2D({ latLonAltData }: Props) {
     elapsedTimeRef.current += deltaTime;
     lastTimeRef.current = currentTime;
 
-    const animationDuration = 8000;
+    const animationDuration = totalDuration * 1000; // 단위: 밀리초
+
     const phase = Math.min(1, elapsedTimeRef.current / animationDuration);
+    
+    updateCamera(phase);
+    setPhase(phase);
 
     if (phase >= 1) {
       setIsPlaying(false);
+      setPhase(0);
       lastTimeRef.current = 0;
       elapsedTimeRef.current = 0;
-    }
-
-    const totalDistance = calculateDistance(latLonAltData);
-    const alongPoint = calculatePointAlongRoute(latLonAltData, totalDistance * phase);
-
-    if (latLonAltData.length === 0) {
-      console.error("latLonAltData is empty!");
       return;
     }
-
-    const markerLngLat: [number, number] = [alongPoint.lon, alongPoint.lat];
-
-    if (markerRef.current) {
-      markerRef.current.setLngLat(markerLngLat);
-    }
-
-    map.flyTo({
-      center: markerLngLat,
-      zoom: 12,
-      essential: true,
-    });
-
     animationRef.current = window.requestAnimationFrame(animate);
   };
 
-  const handlePlay = () => {
-    lastTimeRef.current = 0;
-    setIsPlaying(true);
-    animationRef.current = window.requestAnimationFrame(animate);
-  };
-
-  const handlePause = () => {
-    setIsPlaying(false);
-    if (animationRef.current) {
-      window.cancelAnimationFrame(animationRef.current);
-      lastTimeRef.current = 0;
-    }
-  };
 
   // 지도 및 마커 초기화
   useEffect(() => {
-    if (mapRef.current) {
+    if (mapRef.current && latLonAlt) {
       const map = mapRef.current.getMap();
 
-      const initialPoint = latLonAltData.length > 0 ? latLonAltData[0] : { lat: 37.572398, lon: 126.976944 }; // 서울 기본값
+      const initialPoint =
+        latLonAlt.length > 0
+          ? latLonAlt[0]
+          : { lat: 37.572398, lon: 126.976944 }; // 서울 기본값
 
       // 초기 맵 위치 설정
       map.jumpTo({
@@ -119,7 +142,10 @@ export default function Map2D({ latLonAltData }: Props) {
         zoom: 12,
       });
 
-      const pathCoordinates = latLonAltData.map((point) => [point.lon, point.lat]);
+      const pathCoordinates = latLonAlt.map((point) => [
+        point.lon,
+        point.lat,
+      ]);
 
       if (map.getSource("route")) {
         (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
@@ -169,34 +195,23 @@ export default function Map2D({ latLonAltData }: Props) {
       }
 
       if (!markerRef.current) {
-        const initialPoint = latLonAltData.length > 0 ? latLonAltData[0] : { lat: 37.572398, lon: 126.976944 };
-        const markerLngLat: [number, number] = [initialPoint.lon, initialPoint.lat];
+        const initialPoint =
+          latLonAlt.length > 0
+            ? latLonAlt[0]
+            : { lat: 37.572398, lon: 126.976944 };
+        const markerLngLat: [number, number] = [
+          initialPoint.lon,
+          initialPoint.lat,
+        ];
 
         markerRef.current = new mapboxgl.Marker({
-          element: createMarkerElement('/public/images/group 906.svg'),
+          element: createMarkerElement("/images/Group 906.svg"),
         })
           .setLngLat(markerLngLat)
           .addTo(map);
       }
-
-      // 애니메이션 시작
-      if (isPlaying) {
-        const totalDistance = calculateDistance(latLonAltData);
-        const alongPoint = calculatePointAlongRoute(latLonAltData, 0);
-        if (markerRef.current) {
-          markerRef.current.setLngLat([alongPoint.lon, alongPoint.lat]);
-        }
-        animationRef.current = window.requestAnimationFrame(animate);
-        console.log(totalDistance)
-      }
     }
-
-    return () => {
-      if (mapRef.current && animationRef.current) {
-        window.cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, [latLonAltData, isPlaying]);
+  }, [latLonAlt]);
 
   function createMarkerElement(imageUrl: string) {
     const element = document.createElement("img");
@@ -206,6 +221,29 @@ export default function Map2D({ latLonAltData }: Props) {
     element.style.objectFit = "contain";
     return element;
   }
+
+
+  const handlePlay = () => {
+    setIsPlaying(true);
+    lastTimeRef.current = 0; 
+    animationRef.current = window.requestAnimationFrame(animate);
+  };
+
+  const handlePause = () => {
+    setIsPlaying(false);
+    if (animationRef.current) {
+      window.cancelAnimationFrame(animationRef.current);
+      lastTimeRef.current = 0; 
+    }
+  };
+
+  const handlePlaySpeed = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    e.preventDefault();
+    setSpeed(Number(e.target.value));
+    setIsPlaying(false);
+    lastTimeRef.current = 0;
+    elapsedTimeRef.current = 0;
+  };
 
   return (
     <>
@@ -222,28 +260,30 @@ export default function Map2D({ latLonAltData }: Props) {
           }}
           style={{ width: "100%", height: "100%" }}
           mapStyle="mapbox://styles/mapbox/streets-v11"
-          boxZoom={false}
-          doubleClickZoom={false}
-          dragPan={false}
-          keyboard={false}
-          scrollZoom={false}
-          touchPitch={false}
-          touchZoomRotate={false}
-          dragRotate={true}
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
         />
       </div>
 
       <div className="fixed bottom-0 w-screen">
-        <Bar.Progress>
-          <Bar.ProgressBarBtn
+        <ProgressBar
+          startTime={startEndTime.startTime}
+          endTime={startEndTime.endTime}
+        >
+          <PlayHead
+            duration={totalDuration}
+            flightStartTime={flightStartTime}
+          />
+          <ProgressBarBtn
             isPlaying={isPlaying}
             onClickPlay={handlePlay}
             onClickPause={handlePause}
           />
-        </Bar.Progress>
+        </ProgressBar>
+        <select className="w-24" onChange={handlePlaySpeed}>
+          <option value="1">1x speed</option>
+          <option value="2">2x speed</option>
+          <option value="5">5x speed</option>
+          <option value="10">10x speed</option>
+        </select>
       </div>
     </>
   );

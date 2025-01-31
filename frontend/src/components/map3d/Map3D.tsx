@@ -1,57 +1,182 @@
 import { Canvas } from "@react-three/fiber";
-import mapboxgl from "mapbox-gl";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
+import { PhaseContext } from "@/contexts/PhaseContext";
 import { LatLonAlt } from "@/types/latLonAlt";
-import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
+import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
+import {
+  calculateDistance,
+  calculatePointAlongRoute,
+} from "@/utils/calculateDistance";
+import { formatTime } from "@/utils/formatTime";
 
-import  { Bar } from "../map/ProgressBar";
+import PlayHead from "../map/PlayHead";
+import ProgressBar from "../map/ProgressBar";
+import ProgressBarBtn from "../map/ProgressBarBtn";
 import DroneInMap from "./DroneInMap";
 
-interface Props{
-  latLonAltData: LatLonAlt[];
+interface Props {
+  positionData: FormattedTelemetryPositionData[] | null;
 }
 
-export default function Map3D({latLonAltData}:Props) {
+export default function Map3D({ positionData }: Props) {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
-  const [dragPosition, setDragPosition] = useState<{
-    x: number;
-    y: number;
-  } | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
+  const [dronePath, setDronePath] = useState<LatLonAlt[] | null>();
+  const [totalDuration, setTotalDuration] = useState<number>(0);
+  const [startEndTime, setStartEndTime] = useState<{
+    startTime: string;
+    endTime: string;
+  }>({ startTime: "", endTime: "" });
+  const [flightStartTime, setFlightStartTime] = useState(0);
+  const { phase, setPhase } = useContext(PhaseContext);
 
   // 애니메이션 관련 변수
   const [isPlaying, setIsPlaying] = useState(false);
   const animationRef = useRef<number>();
   const elapsedTimeRef = useRef<number>(0); // 총 경과 시간 저장
   const lastTimeRef = useRef<number>(0); // 마지막 프레임 시간 저장
+  const [speed, setSpeed] = useState(1);
 
+  useEffect(() => {
+    if (!mapRef.current || !positionData) return;
+    setPhase(0);
 
-  const handleMouseDown = (event: mapboxgl.MapMouseEvent) => {
-    if (event.originalEvent.ctrlKey) {
-      setIsDragging(true);
+    //이동경로 데이터
+    const payloadData: LatLonAlt[] = positionData.map((item) => ({
+      lat: item.payload.lat,
+      lon: item.payload.lon,
+      alt: item.payload.alt,
+    }));
+    setDronePath(payloadData);
+
+    mapRef.current.setCenter([
+      positionData[0].payload.lon,
+      positionData[0].payload.lat,
+    ]);
+
+    //비행시간 설정
+    const flightStartTime = positionData[0].timestamp; // Unix 타임스탬프
+    const flightEndTime = positionData[positionData.length - 1].timestamp;
+    const formattedStartTime = formatTime(new Date(flightStartTime)); // HH:mm:ss(string 타입)으로 포맷
+    const formattedEndTime = formatTime(new Date(flightEndTime));
+    setStartEndTime({
+      startTime: formattedStartTime,
+      endTime: formattedEndTime,
+    });
+    setFlightStartTime(flightStartTime);
+    const totalFlightTime = (flightEndTime - flightStartTime) / 1000;
+
+    setTotalDuration(totalFlightTime / speed);
+
+    //이동경로 라인 추가
+    const pathCoordinates = payloadData.map((point) => [point.lon, point.lat]);
+    if (mapRef.current.isStyleLoaded()) {
+      addRouteSourceAndLayer(pathCoordinates);
     }
-  };
+  }, [positionData, speed, setPhase]);
 
-  const handleMouseMove = (event: mapboxgl.MapMouseEvent) => {
-    if (!isDragging || !mapRef.current) return;
+  function addRouteSourceAndLayer(pathCoordinates: number[][]) {
+    if (!mapRef.current) return;
 
-    const point = event.point;
-    const x = (point.x / mapRef.current.getContainer().clientWidth) * 2 - 1;
-    const y = -(point.y / mapRef.current.getContainer().clientWidth) * 2 + 1;
-    setDragPosition({ x: x, y: y });
-  };
+    const map = mapRef.current.getMap();
+    if (map.getSource("route")) {
+      (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates: pathCoordinates,
+            },
+            properties: {},
+          },
+        ],
+      });
+    } else {
+      map.addSource("route", {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              geometry: {
+                type: "LineString",
+                coordinates: pathCoordinates,
+              },
+              properties: {},
+            },
+          ],
+        },
+      });
 
-  const handleMouseUp = () => {
-    setIsDragging(false);
-    setDragPosition(null);
-  };
+      map.addLayer({
+        id: "route-line",
+        type: "line",
+        source: "route",
+        layout: {
+          "line-cap": "round",
+          "line-join": "round",
+        },
+        paint: {
+          "line-width": 4,
+          "line-color": "#007cbf",
+        },
+      });
+    }
+  }
 
+  const updateCamera = useCallback(() => {
+    if (!totalDuration || !dronePath || !mapRef.current) return;
+    const map = mapRef.current!.getMap();
+    const routeDistance = calculateDistance(dronePath);
+
+    // 현재 phase에 따른 위치 계산
+    const alongPoint = calculatePointAlongRoute(
+      dronePath,
+      routeDistance * phase || 0.001,
+    );
+    
+    map.setCenter([alongPoint.lon, alongPoint.lat]);
+
+  }, [totalDuration, dronePath, phase]);
+
+  useEffect(() => {
+    elapsedTimeRef.current = phase * totalDuration * 1000;
+    updateCamera(); // phase 변경 시 카메라 위치 업데이트
+  }, [phase, totalDuration, elapsedTimeRef, updateCamera]);
+
+  // TODO: 회전기능은 후순위로 작업
+  // const [dragPosition, setDragPosition] = useState<{
+  //   x: number;
+  //   y: number;
+  // } | null>(null);
+  // const [isDragging, setIsDragging] = useState(false);
+
+  // const handleMouseDown = (event: mapboxgl.MapMouseEvent) => {
+  //   if (event.originalEvent.ctrlKey) {
+  //     setIsDragging(true);
+  //   }
+  // };
+
+  // const handleMouseMove = (event: mapboxgl.MapMouseEvent) => {
+  //   if (!isDragging || !mapRef.current) return;
+
+  //   const point = event.point;
+  //   const x = (point.x / mapRef.current.getContainer().clientWidth) * 2 - 1;
+  //   const y = -(point.y / mapRef.current.getContainer().clientWidth) * 2 + 1;
+  //   setDragPosition({ x: x, y: y });
+  // };
+
+  // const handleMouseUp = () => {
+  //   setIsDragging(false);
+  //   setDragPosition(null);
+  // };
 
   const animate = (currentTime: number) => {
-    if (!mapRef.current) return;
-    const map = mapRef.current.getMap();
+    if (!mapRef.current || !dronePath || !positionData) return;
 
     // 첫 프레임이거나 재생 시작 시
     if (!lastTimeRef.current) {
@@ -63,60 +188,26 @@ export default function Map3D({latLonAltData}:Props) {
     elapsedTimeRef.current += deltaTime;
     lastTimeRef.current = currentTime;
 
-    const animationDuration = 8000;
-    const cameraAltitude = 600;
-
-    //TODO: latLonData를 실제 데이터로 변경
-    // 총 이동거리
-    const routeDistance = calculateDistance(latLonAltData);
-    const cameraRouteDistance = calculateDistance(latLonAltData);
+    const animationDuration = totalDuration * 1000; // 단위: 밀리초
 
     const phase = Math.min(1, elapsedTimeRef.current / animationDuration);
+    setPhase(phase);
 
     if (phase >= 1) {
       // 애니메이션 완료
-      setIsPlaying(false); 
+      setIsPlaying(false);
+      setPhase(0);
       lastTimeRef.current = 0;
       elapsedTimeRef.current = 0;
       return;
     }
-
-    // 현재 이동거리에 따른 이동지점
-    const alongPoint = calculatePointAlongRoute(
-      latLonAltData,
-      routeDistance * phase || 0.001,
-    );
-    const alongCamera = calculatePointAlongRoute(
-      latLonAltData,
-      cameraRouteDistance * phase || 0.001,
-    );
-
-    const alongRoute = [alongPoint.lon, alongPoint.lat];
-    const alongRouteCamera = [alongCamera.lon, alongCamera.lat];
-
-    const camera = map.getFreeCameraOptions();
-
-    camera.position = mapboxgl.MercatorCoordinate.fromLngLat(
-      {
-        lng: alongRouteCamera[0],
-        lat: alongRouteCamera[1],
-      },
-      cameraAltitude,
-    );
-
-    camera.lookAtPoint({
-      lng: alongRoute[0],
-      lat: alongRoute[1],
-    });
-
-    map.setFreeCameraOptions(camera);
-
+    updateCamera();
     animationRef.current = window.requestAnimationFrame(animate);
   };
 
   const handlePlay = () => {
-    lastTimeRef.current = 0; // 새로운 시작 시간을 설정하기 위해 리셋
     setIsPlaying(true);
+    lastTimeRef.current = 0; // 새로운 시작 시간을 설정하기 위해 리셋
     animationRef.current = window.requestAnimationFrame(animate);
   };
 
@@ -128,13 +219,13 @@ export default function Map3D({latLonAltData}:Props) {
     }
   };
 
-  useEffect(() => {
-    return () => {
-      if (animationRef.current) {
-        window.cancelAnimationFrame(animationRef.current);
-      }
-    };
-  }, []);
+  const handlePlaySpeed = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    e.preventDefault();
+    setSpeed(Number(e.target.value));
+    setIsPlaying(false);
+    lastTimeRef.current = 0;
+    elapsedTimeRef.current = 0;
+  };
 
   return (
     <>
@@ -146,7 +237,7 @@ export default function Map3D({latLonAltData}:Props) {
             longitude: 126.976944, //경도
             latitude: 37.572398, //위도
             zoom: 18,
-            pitch: 45,
+            pitch: 50,
           }}
           style={{ width: "100%", height: "100%" }}
           mapStyle="mapbox://styles/mapbox/standard"
@@ -158,24 +249,39 @@ export default function Map3D({latLonAltData}:Props) {
           touchPitch={false}
           touchZoomRotate={false}
           dragRotate={true} //드래그로 회전만 가능
-          onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
-          onMouseMove={handleMouseMove}
+          // TODO: 회전기능은 후순위로 작업
+          // onMouseDown={handleMouseDown}
+          // onMouseUp={handleMouseUp}
+          // onMouseMove={handleMouseMove}
         >
           <div className="absolute left-1/2 top-1/2 h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2">
             <Canvas camera={{ position: [0, 0, 100], fov: 75 }}>
-              <DroneInMap dragPosition={dragPosition} />
+              <DroneInMap />
             </Canvas>
           </div>
         </Map>
       </div>
-      <div className="fixed bottom-0 w-screen ">
-        <Bar.Progress>
-          <Bar.ProgressBarBtn isPlaying={isPlaying} 
-          onClickPlay={handlePlay} 
-          onClickPause={handlePause}
+      <div className="fixed bottom-0 w-screen">
+        <ProgressBar
+          startTime={startEndTime.startTime}
+          endTime={startEndTime.endTime}
+        >
+          <PlayHead
+            duration={totalDuration}
+            flightStartTime={flightStartTime}
           />
-        </Bar.Progress>
+          <ProgressBarBtn
+            isPlaying={isPlaying}
+            onClickPlay={handlePlay}
+            onClickPause={handlePause}
+          />
+        </ProgressBar>
+        <select className="w-24" onChange={handlePlaySpeed}>
+          <option value="1">1x speed</option>
+          <option value="2">2x speed</option>
+          <option value="5">5x speed</option>
+          <option value="10">10x speed</option>
+        </select>
       </div>
     </>
   );

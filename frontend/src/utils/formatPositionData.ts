@@ -1,22 +1,33 @@
-import { LatLonAlt } from "@/types/latLonAlt";
+import { TelemetryPositionData } from "@/types/telemetryPositionDataTypes";
 
 const LAT_LON_DIVISOR = 1e7;
 const ALT_DIVISOR = 1e3;
 
-export default function formatPositionData(data: LatLonAlt) {
-  // TODO: 위도,경도,고도 데이터만 먼저 연결, 추후 전체 데이터 연결
 
-  // const formattedPayload = {
-  //   lat: data.lat / LAT_LON_DIVISOR,
-  //   lon: data.lon / LAT_LON_DIVISOR,
-  //   alt: data.alt / ALT_DIVISOR,
-  // };
+export default function formatPositionData(data: TelemetryPositionData) {
+  const formattedPayload = {
+    lat: data.payload.lat / LAT_LON_DIVISOR,
+    lon: data.payload.lon / LAT_LON_DIVISOR,
+    alt: data.payload.alt / ALT_DIVISOR,
+  };
   return {
-    // ...data,
-    // payload: formattedPayload
-    lat: data.lat / LAT_LON_DIVISOR,
-    lon: data.lon / LAT_LON_DIVISOR,
-    alt: data.alt / ALT_DIVISOR,
-    heading: data.heading,
+    msgId: data.msgId,
+    timestamp: data.timestamp,
+    payload: formattedPayload,
   };
 }
+
+export function formatAndSortPositionData(dataArray: TelemetryPositionData[]) {
+  return dataArray
+    .map((data) => ({
+      msgId: data.msgId,
+      timestamp: new Date(data.timestamp).getTime(), // 2025-01-03T02:14:01.233Z -> 1735870439152
+      payload: {
+        lat: data.payload.lat / LAT_LON_DIVISOR,
+        lon: data.payload.lon / LAT_LON_DIVISOR,
+        alt: data.payload.alt / ALT_DIVISOR,
+      },
+    }))
+    .sort((a, b) => a.timestamp - b.timestamp);
+}
+
