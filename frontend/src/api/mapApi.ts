@@ -29,15 +29,12 @@ export const fetchPositionDataByOperation = async (
     const data: TelemetryPositionData[] = await response.json();
 
     const GLOBAL_POSITION_INT_ID = 33;
-    const lastHeading: number | null = null;
-    // msgId가 33인 데이터만 필터링하고 필요한 값만 반환 - 경도, 위도, 고도
 
     const filterPositionData: TelemetryPositionData[] = data
       .filter((telemetry) => telemetry.msgId === GLOBAL_POSITION_INT_ID)
       .map((telemetry) => ({
         msgId: telemetry.msgId,
         timestamp: telemetry.timestamp,
-        heading: lastHeading,
         payload: {
           lat: telemetry.payload.lat,
           lon: telemetry.payload.lon,
