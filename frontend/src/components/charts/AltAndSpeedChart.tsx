@@ -1,42 +1,42 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 import { ApexOptions } from "apexcharts";
-import { ProcessedTelemetryBatteryData } from "../../types/telemetryBatteryDataTypes";
 import { format } from "date-fns";
+import { AltAndSpeedData } from "@/types/altAndspeedDataType";
 
 interface ChartProps {
-  data: ProcessedTelemetryBatteryData[];
+  data: AltAndSpeedData[];
 }
 
-const formatBatteryValue = (
-  value: number,
-  type: "temperature" | "battery" | "voltage",
-): string => {
-  if (type === "battery") {
-    const bayyeryvalue = value / 100;
-    return bayyeryvalue.toFixed(2);
-  }
+const AltAndSpeedChart: React.FC<ChartProps> = ({ data }) => {
+  const convertSpeedToKmh = (speed: number) => {
+    const speedKmh = speed * 3.6; // m/s를 km/h로 변환
+    return parseFloat(speedKmh.toFixed(2)); // 소수점 둘째 자리까지 반올림
+  };
 
-  const scaledValue = value / 1000;
+  const convertAltToKmh = (alt: number) => {
+    const altKm = alt / 1000; // 미터를 킬로미터로 변환
+    return parseFloat(altKm.toFixed(2)); // 소수점 둘째 자리까지 반올림
+  };
 
-  return scaledValue.toFixed(2);
-};
+  // timestamp를 밀리초 단위의 숫자로 변환
+  const timestamps = data.map((item) => new Date(item.timestamp).getTime());
 
-const BatteryChart: React.FC<ChartProps> = ({ data }) => {
   const chartSeries = [
     {
-      name: "Temperature (°C)",
-      data: data.map((item) => item.payload.temperature),
+      name: "Alt",
+      data: data.map((item, index) => ({
+        x: timestamps[index],
+        y: convertAltToKmh(item.payload.alt || 0),
+      })),
       type: "line",
     },
     {
-      name: "Battery Remaining (%)",
-      data: data.map((item) => item.payload.batteryRemaining),
-      type: "area",
-    },
-    {
-      name: "Voltage (V)",
-      data: data.map((item) => item.payload.voltage),
+      name: "Speed",
+      data: data.map((item, index) => ({
+        x: timestamps[index],
+        y: convertSpeedToKmh(item.payload.groundspeed || 0),
+      })),
       type: "line",
     },
   ];
@@ -61,7 +61,7 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
     },
     fill: {
       type: "solid",
-      opacity: [1, 0.2, 1], // 각 시리즈의 투명도를 배열로 설정
+      opacity: [1, 1], // 각 시리즈의 투명도를 배열로 설정
     },
     grid: {
       padding: {
@@ -78,7 +78,7 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
       dashArray: 0,
     },
     title: {
-      text: "Drone Battery Status", // 차트 타이틀 텍스트
+      text: "Drone Alt and Speed", // 차트 타이틀 텍스트
       align: "left", // 타이틀의 정렬 (center로 설정)
       margin: 5, // 타이틀과 차트 간 여백
       offsetX: 20, // X축 기준으로 타이틀 위치 조정
@@ -91,18 +91,17 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
       type: "datetime",
       labels: {
         show: true,
+        datetimeUTC: false,
+        format: "HH:mm:ss.SSS", // 밀리초까지 표시
         formatter: function (value: string) {
-          return format(new Date(Number(value)), "HH:mm:ss"); // 포맷을 "HH:mm:ss"로 설정
+          return format(new Date(value), "HH:mm:ss.SSS");
         },
       },
-      categories: data.map((item) => item.timestamp.toString()),
-
-      floating: true, // 플로팅 설정으로 가로 스크롤 가능
     },
     yaxis: [
       {
         title: {
-          text: "Temperature (°C)", // 첫 번째 y축의 타이틀
+          text: "Alt", // 첫 번째 y축의 타이틀
           style: {
             color: "#757de8", // 타이틀 색상
           },
@@ -112,16 +111,15 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
             colors: "#757de8", // 첫 번째 y축 라벨 색상
           },
           formatter: function (value: number) {
-            return formatBatteryValue(value, "temperature");
+            return value.toFixed(2); // 소수점 둘째 자리까지 표시
           },
         },
-        tickAmount: 10, // 10개의 눈금을 표시하여 촘촘하게
-        min: 0,
+        tickAmount: 8, // 10개의 눈금을 표시하여 촘촘하게
       },
       {
         opposite: true, // 두 번째 y축은 오른쪽에 표시
         title: {
-          text: "Battery Remaining (%)", // 두 번째 y축의 타이틀
+          text: "Speed", // 두 번째 y축의 타이틀
           style: {
             color: "#4fc3f7", // 타이틀 색상
           },
@@ -131,30 +129,10 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
             colors: "#4fc3f7", // 두 번째 y축 라벨 색상
           },
           formatter: function (value: number) {
-            return formatBatteryValue(value, "battery");
+            return value.toFixed(2); // 소수점 둘째 자리까지 표시
           },
         },
         tickAmount: 5, // 10개의 눈금을 표시하여 촘촘하게
-        min: 0,
-      },
-      {
-        // 세 번째 y축은 왼쪽 표시
-        title: {
-          text: "Voltage (V)", // 세 번째 y축의 타이틀
-          style: {
-            color: "#66bb6a", // 타이틀 색상
-          },
-        },
-        labels: {
-          style: {
-            colors: "#66bb6a", // 타이틀 색상
-          },
-          formatter: function (value: number) {
-            return formatBatteryValue(value, "voltage");
-          },
-        },
-        tickAmount: 10,
-        min: 0,
       },
     ],
     theme: {
@@ -168,18 +146,11 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
       intersect: false,
       x: {
         formatter: function (value: number) {
-          return format(new Date(value), "yyyy-MM-dd HH:mm:ss"); // 날짜와 시간 표시
-        },
-      },
-      y: {
-        formatter: function (value: number, { seriesIndex }: any) {
-          const types = ["temperature", "battery", "voltage"];
-          return formatBatteryValue(value, types[seriesIndex] as any);
+          return format(new Date(value), "yyyy-MM-dd HH:mm:ss.SSS");
         },
       },
     },
   };
-
   return (
     <div className="mr-2">
       <ReactApexChart
@@ -191,5 +162,4 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
     </div>
   );
 };
-
-export default BatteryChart;
+export default AltAndSpeedChart;

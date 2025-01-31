@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { fetchPositionDataByOperation } from "@/api/mapApi";
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
@@ -10,28 +11,53 @@ import MiniMapWidget from "@/components/map3d/MiniMapWidget";
 import SpeedWidget from "@/components/map3d/SpeedWidget";
 import StateWidget from "@/components/map3d/StateWidget";
 import WeatherWidget from "@/components/map3d/WeatherWidget";
+import { AuthContext } from "@/contexts/AuthContext";
 import PhaseContextProvider from "@/contexts/PhaseContext";
 import toolbarWidgetData from "@/data/toolbarWidgetData.json";
-import { Operation, Robot } from "@/types/selectOptionsTypes";
+import { Robot } from "@/types/selectOptionsTypes";
 import { formatAndSortPositionData } from "@/utils/formatPositionData";
 
 export default function Map3dPage() {
   const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
-  const [selectedOperation, setSelectedOperation] = useState<Operation | null>(null);
+  const [selectedOperationAndDate, setSelectedOperationAndDate] = useState<{
+    operationId: string;
+    date: string;
+    name: string;
+  } | null>(null);
+  const { isAuth }  = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  const { error, data } = useQuery({
-    queryKey: ["position", selectedDrone, selectedOperation],
+  useEffect(()=>{
+    if(!isAuth){
+      alert("Signing in is required");
+      navigate("/")
+    }
+  },[isAuth, navigate])
+
+
+  const { error, data, isPending } = useQuery({
+    queryKey: ["position", selectedDrone, selectedOperationAndDate],
     queryFn: async () => {
-      if (!selectedDrone || !selectedOperation) return;
+      if (!selectedDrone || !selectedOperationAndDate) return;
       const rawData = await fetchPositionDataByOperation(
         selectedDrone!._id,
-        selectedOperation!._id,
+        selectedOperationAndDate.operationId,
       );
       return formatAndSortPositionData(rawData);
     },
-    enabled: !!selectedOperation,
+    enabled: !!selectedOperationAndDate,
   });
-  if (error) return "An error has occurred: " + error.message;
+
+  if (isPending) return "Loading...";
+  if (error) {
+    if (error.message === "Unauthorized user") {
+      localStorage.removeItem("token");
+      alert("Your session has expired. Please log in again.");
+      window.location.href="/";
+      return null;
+    }
+    return "An error has occurred: " + error.message;
+  }
 
   return (
     <>
@@ -42,15 +68,15 @@ export default function Map3dPage() {
             isMapPage={true}
             selectedDrone={selectedDrone}
             setSelectedDrone={setSelectedDrone}
-            selectedOperation={selectedOperation}
-            setSelectedOperation={setSelectedOperation}
+            selectedOperationAndDate={selectedOperationAndDate}
+            setSelectedOperationAndDate={setSelectedOperationAndDate}
           />
         </div>
         <div className="fixed right-10 top-[10rem] z-10">
           <MapSwitchButton />
         </div>
         <div className="fixed left-4 top-[10rem] z-10">
-          <MiniMapWidget positionData={data ?? null}/>
+          <MiniMapWidget positionData={data ?? null} />
           <WeatherWidget
             icon={toolbarWidgetData[0].icon}
             title={toolbarWidgetData[0].title}

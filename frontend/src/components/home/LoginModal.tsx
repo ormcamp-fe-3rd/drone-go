@@ -1,4 +1,7 @@
-import { useState, useEffect } from "react";
+import { useEffect,useState } from "react";
+
+import { LoginForm } from "./LoginForm";
+
 
 interface LoginModalProps {
   onClose: () => void; // onClose는 반환 값이 없는 함수
@@ -80,20 +83,7 @@ export function LoginModal({ onClose }: LoginModalProps) {
         <p id="login-modal-title" className="mb-12 text-2xl font-bold">
           Login required to continue
         </p>
-        <input
-          type="email"
-          placeholder="ID"
-          className="h-[3rem] w-[30rem] rounded-[10px] border-[1px] border-[#B2B2B7] px-4 text-xl"
-          autoFocus
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          className="mt-7 h-[3rem] w-[30rem] rounded-[10px] border-[1px] border-[#B2B2B7] px-4 text-xl"
-        />
-        <button className="mt-10 h-[3rem] w-[30rem] rounded-[10px] bg-black text-white">
-          SIGN IN
-        </button>
+        <LoginForm onSuccess={handleClose}/>
       </div>
     </div>
   );
