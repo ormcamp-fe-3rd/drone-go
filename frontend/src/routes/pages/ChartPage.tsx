@@ -38,7 +38,7 @@ const ChartPage: React.FC = () => {
       console.log("선택된 드론:", drone);
       console.log("Selected Operation:", selectedOperation);*/
     }
-  }, [robotId, name, _id, robot]);
+  }, [robotId, name, _id]);
 
   // 데이터 요청
   const {
