@@ -4,6 +4,12 @@ import { ProcessedTelemetryTextData } from "../types/telemetryTextData";
 import { ProcessedTelemetrySatellitesData } from "../types/telemetrySatellitesDataTypes";
 import { AltAndSpeedData } from "@/types/altAndspeedDataType";
 
+interface TimestampedData {
+  //msgId: number;
+  timestamp: Date;
+  payload: Record<string, any>;
+}
+
 export const fetchTelemetriesByRobotAndOperation = async (
   robotId: string,
   operationId: string,
@@ -76,7 +82,7 @@ export const fetchTelemetriesByRobotAndOperation = async (
           telemetry.msgId === ALTITUDE_MSG_ID,
       )
       .map((telemetry) => ({
-        msgId: telemetry.msgId,
+        // msgId: telemetry.msgId,
         timestamp: new Date(telemetry.timestamp),
         payload: {
           groundspeed: telemetry.payload.groundspeed, // groundspeed 추가
@@ -84,7 +90,41 @@ export const fetchTelemetriesByRobotAndOperation = async (
         },
       }));
 
-    return { batteryData, textData, satellitesData, altAndSpeedData };
+    // timestamp 기준으로 데이터 합치기
+    const mergeDataByTimestamp = <T extends TimestampedData>(
+      data: T[],
+    ): T[] => {
+      const mergedData: T[] = [];
+
+      data.forEach((current) => {
+        const existingData = mergedData.find(
+          (item) =>
+            item.timestamp.toISOString() === current.timestamp.toISOString(),
+        );
+
+        if (existingData) {
+          // 동일한 timestamp인 경우, payload 병합
+          existingData.payload.groundspeed =
+            existingData.payload.groundspeed ?? current.payload.groundspeed;
+          existingData.payload.alt =
+            existingData.payload.alt ?? current.payload.alt;
+        } else {
+          // timestamp가 다르면 새로운 항목 추가
+          mergedData.push(current);
+        }
+      });
+
+      return mergedData;
+    };
+
+    const mergedAltAndSpeedData = mergeDataByTimestamp(altAndSpeedData);
+
+    return {
+      batteryData,
+      textData,
+      satellitesData,
+      altAndSpeedData: mergedAltAndSpeedData,
+    };
   } catch (error) {
     console.error("Error fetching telemetries:", error);
     throw error;

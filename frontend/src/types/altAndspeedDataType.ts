@@ -1,5 +1,5 @@
 export interface AltAndSpeedData {
-  msgId: number;
+  //msgId: number;
   timestamp: Date;
   payload: {
     groundspeed: number;
