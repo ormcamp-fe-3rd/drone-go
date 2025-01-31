@@ -1,7 +1,6 @@
 const AttitudeWidget = () => {
   return (
-    <div className="mx-6 my-0 grid h-[27vh] w-[20vw] grid-cols-[1fr_1fr] grid-rows-[33%_1fr] rounded-[10px] bg-white bg-opacity-60">
-
+    <div className="toolbar-attitude mx-6 my-0 hidden h-[27vh] w-[30vw] max-w-[17rem] grid-cols-[1fr_1fr] grid-rows-[33%_1fr] rounded-[10px] bg-white bg-opacity-60 sm:grid">
       {/* 배터리 */}
       <div className="col-start-1 row-start-1 flex items-start justify-start p-2">
         <div className="battery">
