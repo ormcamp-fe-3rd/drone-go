@@ -12,9 +12,19 @@ export const fetchPositionDataByOperation = async (
   const url = `http://localhost:3000/telemetries?robot=${encodeURIComponent(robotId)}&operation=${encodeURIComponent(operationId)}`;
   console.log("Fetching telemetries with URL:", url); // TODO: 배포 이후 제거
 
+  const token = localStorage.getItem("token")
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json",
+  }
+
   try {
-    const response = await fetch(url);
+    const response = await fetch(url,{headers});
     if (!response.ok) {
+      if (response.status === 401) {
+        // 로그인 토큰이 유효하지 않음
+        throw new Error("Unauthorized user");
+      }
       throw new Error(`Failed to fetch telemetries: ${response.statusText}`);
     }
     const data: TelemetryPositionData[] = await response.json();

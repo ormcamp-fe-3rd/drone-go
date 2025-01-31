@@ -1,17 +1,28 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import { SignButton } from "./SignButton";
+
+import { AuthContext } from "@/contexts/AuthContext";
+
 import { LoginModal } from "./LoginModal"; // LoginModal 컴포넌트 임포트
+import { SignButton } from "./SignButton";
 
 export function HomeHeader() {
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false); // 로그인 모달 상태 관리
+  const { isAuth, setIsAuth } = useContext(AuthContext);
+
 
   const handleSignUpClick = () => {
     alert("The SIGN UP feature is not available yet.🔧");
   };
 
   const handleSignInClick = () => {
-    setIsLoginModalOpen(true); // SIGN IN 클릭 시 모달을 열기
+    if(isAuth){ // SIGN OUT 클릭 시 로그아웃
+      setIsAuth(false);
+      localStorage.removeItem("token");
+      alert("Successfully Signed Out")
+    }else{
+      setIsLoginModalOpen(true); // SIGN IN 클릭 시 모달을 열기
+    }
   };
 
   const handleCloseLoginModal = () => {
@@ -32,7 +43,6 @@ export function HomeHeader() {
             <p className="text-3xl font-bold text-[#0800A1]">DroneGo</p>
           </Link>
           <Link to={"/about"} className="ml-6 text-sm text-[#353740]">
-            {/* //TODO: 소개페이지 링크 연결해야함*/}
             about
           </Link>
         </div>
@@ -43,8 +53,9 @@ export function HomeHeader() {
             onClick={handleSignUpClick}
           />
           {/* 클릭 시 알럿 */}
+          {/* TODO: 로그인 상태에 따라 SIGN OUT 으로 수정 */}
           <SignButton
-            text="SIGN IN"
+            text={isAuth ? "SIGN OUT" : "SIGN IN" }
             bgColor="black"
             onClick={handleSignInClick} // SIGN IN 클릭 시 모달을 열기
           />

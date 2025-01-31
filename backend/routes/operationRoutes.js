@@ -4,6 +4,7 @@ const router = express.Router()
 
 const Operation = require("../models/operationModel")
 const { getAllOperations, getOperationsByRobotId } = require('../controllers/operationController');
+const authorizer = require("../middleware/authorizer");
 
 /**
  * Operation 데이터를 가져옵니다.
@@ -14,7 +15,7 @@ const { getAllOperations, getOperationsByRobotId } = require('../controllers/ope
  * @returns {Promise<void>} - JSON 형식으로 Operation 데이터를 응답
  * @throws {Error} - 서버 에러 발생 시 500 상태 코드와 에러 메시지 반환
  */
-router.get('/', async (req, res) => {
+router.get('/', authorizer, async (req, res) => {
   try {
     const { robot } = req.query;
 
