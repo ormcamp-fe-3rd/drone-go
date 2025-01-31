@@ -1,14 +1,30 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import React, { useContext, useEffect, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
+import {AuthContext} from "@/contexts/AuthContext";
+
 import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
 import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
 import { Robot } from "../../types/selectOptionsTypes";
 import BatteryChart from "../../components/charts/BatteryChart";
+import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
 import FlightTimeDataComponenet from "../../components/charts/FilghtTimeDataComponent";
-import StateDataComponent from "../../components/charts/StateDataComponent";
 import SatellitesChart from "../../components/charts/SatellitesChart";
+import StateDataComponent from "../../components/charts/StateDataComponent";
+import { Operation,Robot } from "../../types/selectOptionsTypes";
 import AltAndSpeedChart from "../../components/charts/AltAndSpeedChart";
+
+const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
+  children,
+}) => (
+  <div className="h-[380px] rounded-[10px] border border-[#B2B2B7] bg-white pt-5">
+    {children}
+  </div>
+);
+
 
 const ChartPage: React.FC = () => {
   const location = useLocation();
@@ -18,6 +34,21 @@ const ChartPage: React.FC = () => {
     date: string;
     name: string;
   } | null>(null);
+  const { isAuth }  = useContext(AuthContext);
+  const navigate = useNavigate();
+  
+  useEffect(()=>{
+    if(!isAuth){
+      alert("Signing in is required");
+      navigate("/");
+    }
+  },[isAuth, navigate])
+  
+  const droneImages: { [key: string]: string } = {
+    M1_1: "/images/chart/drone1.svg",
+    M1_2: "/images/chart/drone2.svg",
+    M1_3: "/images/chart/drone1.svg",
+  };
 
   // location에서 robot_id 가져오기
   const robotId = location.state?.robot_id;
@@ -77,8 +108,14 @@ const ChartPage: React.FC = () => {
     staleTime: 60000, // 데이터 캐싱 시간 (1분)
   });
 
-  const { batteryData, textData, satellitesData, altAndSpeedData } =
-    telemetryData;
+  if (error?.message === "Unauthorized user") {
+    localStorage.removeItem("token");
+    alert("Your session has expired. Please log in again.");
+    window.location.href = "/";
+    return null;
+  }
+  const { batteryData, textData, satellitesData, altAndSpeedData } = telemetryData;
+
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F3F2F9]">

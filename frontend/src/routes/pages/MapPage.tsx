@@ -1,20 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import { fetchPositionDataByOperation } from "@/api/mapApi";
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
 import Map2D from "@/components/map/Map2D";
 import MapSwitchButton from "@/components/map3d/MapSwitchButton";
-import {
-  AttitudeWidget,
-  BatteryState,
-  HeadingState,
-  SpeedAltitudeWidget,
-  StateAlertWidget,
-  WeatherWidget,
-} from "@/components/map3d/Widget";
-import toolbarWidgetData from "@/data/toolbarWidgetData.json";
-import { Operation, Robot } from "@/types/selectOptionsTypes";
+import { AttitudeWidget, BatteryState, HeadingState, SpeedAltitudeWidget, StateAlertWidget, WeatherWidget } from "@/components/map3d/Widget";
+import {AuthContext} from "@/contexts/AuthContext";
+import toolbarWidgetData from "@/data/toolbarWidgetData.json"
+import { Operation,Robot } from "@/types/selectOptionsTypes";
 import formatPositionData from "@/utils/formatPositionData";
 
 export default function MapPage() {
@@ -22,8 +17,19 @@ export default function MapPage() {
   const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
     null,
   );
+  const { isAuth }  = useContext(AuthContext);
+  const navigate = useNavigate();
 
-  // TODO: drone id, operation id -> 사용자가 선택한 값으로 변경
+
+  useEffect(()=>{
+    if(!isAuth){
+      alert("Signing in is required");
+      navigate("/");
+    }
+  },[isAuth, navigate])
+  
+  //TODO: drone id, operation id -> 사용자가 선택한 값으로 변경 
+
   const { isPending, error, data } = useQuery({
     queryKey: ["position", selectedDrone?._id, selectedOperation?._id],
     queryFn: async () => {
@@ -38,7 +44,15 @@ export default function MapPage() {
   });
 
   if (isPending) return "Loading...";
-  if (error) return "An error has occurred: " + error.message;
+  if (error) {
+    if (error.message === "Unauthorized user") {
+      localStorage.removeItem("token");
+      alert("Your session has expired. Please log in again.");
+      window.location.href = "/";
+      return null;
+    }
+    return "An error has occurred: " + error.message;
+  }
 
   // 데이터가 있을 경우, heading을 기준으로 정렬, 없으면 0으로 설정
   const sortedData = data?.filter((item) => item?.heading != null); // heading이 null인 값은 필터링
