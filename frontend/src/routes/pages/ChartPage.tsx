@@ -3,18 +3,21 @@ import { useLocation } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
 import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
-import { Robot, Operation } from "../../types/selectOptionsTypes";
+import { Robot } from "../../types/selectOptionsTypes";
 import BatteryChart from "../../components/charts/BatteryChart";
 import FlightTimeDataComponenet from "../../components/charts/FilghtTimeDataComponent";
 import StateDataComponent from "../../components/charts/StateDataComponent";
 import SatellitesChart from "../../components/charts/SatellitesChart";
+import AltAndSpeedChart from "../../components/charts/AltAndSpeedChart";
 
 const ChartPage: React.FC = () => {
   const location = useLocation();
   const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
-  const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
-    null,
-  );
+  const [selectedOperationAndDate, setSelectedOperationAndDate] = useState<{
+    operationId: string;
+    date: string;
+    name: string;
+  } | null>(null);
 
   // location에서 robot_id 가져오기
   const robotId = location.state?.robot_id;
@@ -42,25 +45,40 @@ const ChartPage: React.FC = () => {
 
   // 데이터 요청
   const {
-    data: telemetryData = { batteryData: [], textData: [], satellitesData: [] },
+    data: telemetryData = {
+      batteryData: [],
+      textData: [],
+      satellitesData: [],
+      altAndSpeedData: [],
+    },
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["telemetry", selectedDrone?._id, selectedOperation?._id],
+    queryKey: [
+      "telemetry",
+      selectedDrone?._id,
+      selectedOperationAndDate?.operationId,
+    ],
     queryFn: () => {
-      if (!selectedDrone || !selectedOperation) {
-        return { batteryData: [], textData: [], satellitesData: [] };
+      if (!selectedDrone || !selectedOperationAndDate) {
+        return {
+          batteryData: [],
+          textData: [],
+          satellitesData: [],
+          altAndSpeedData: [],
+        };
       }
       return fetchTelemetriesByRobotAndOperation(
         selectedDrone._id,
-        selectedOperation._id,
+        selectedOperationAndDate.operationId,
       );
     },
-    enabled: !!selectedDrone && !!selectedOperation, // 선택된 드론과 오퍼레이션 값이 있을 때만 API 호출
+    enabled: !!selectedDrone && !!selectedOperationAndDate, // 선택된 드론과 오퍼레이션 값이 있을 때만 API 호출
     staleTime: 60000, // 데이터 캐싱 시간 (1분)
   });
 
-  const { batteryData, textData, satellitesData } = telemetryData;
+  const { batteryData, textData, satellitesData, altAndSpeedData } =
+    telemetryData;
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F3F2F9]">
@@ -69,8 +87,8 @@ const ChartPage: React.FC = () => {
         isMapPage={location.pathname === "/map"}
         selectedDrone={selectedDrone}
         setSelectedDrone={setSelectedDrone}
-        selectedOperation={selectedOperation}
-        setSelectedOperation={setSelectedOperation}
+        selectedOperationAndDate={selectedOperationAndDate}
+        setSelectedOperationAndDate={setSelectedOperationAndDate}
       />
       <div className="mx-10 mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
         {/* 드론 정보 카드 */}
@@ -138,6 +156,25 @@ const ChartPage: React.FC = () => {
             <SatellitesChart data={satellitesData} />
           </>
         )}
+
+        {isLoading ? (
+          <ChartCard title="">
+            <p className="text-center">Loading chart data...</p>
+          </ChartCard>
+        ) : error instanceof Error ? (
+          <p className="text-center">Error loading data: {error.message}</p>
+        ) : altAndSpeedData.length > 0 ? (
+          <ChartCard title="">
+            <AltAndSpeedChart data={altAndSpeedData} />
+          </ChartCard>
+        ) : (
+          <ChartCard title="">
+            <p className="text-center">
+              <strong> Select a drone and operation to view the chart.</strong>
+            </p>
+          </ChartCard>
+        )}
+
       </div>
     </div>
   );
