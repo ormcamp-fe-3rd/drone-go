@@ -1,5 +1,4 @@
 import { Canvas } from "@react-three/fiber";
-import mapboxgl from "mapbox-gl";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
@@ -134,36 +133,14 @@ export default function Map3D({ positionData }: Props) {
     const map = mapRef.current!.getMap();
     const routeDistance = calculateDistance(dronePath);
 
-    // 현재 phase와 이전 phase 계산
-    const offsetPhase = 0.02; // 카메라가 드론보다 살짝 뒤에 위치하도록 조정
-    const prevPhase = Math.max(0, phase - offsetPhase);
-
     // 현재 phase에 따른 위치 계산
     const alongPoint = calculatePointAlongRoute(
       dronePath,
       routeDistance * phase || 0.001,
     );
-    const cameraPoint = calculatePointAlongRoute(
-      dronePath,
-      routeDistance * prevPhase || 0.001,
-    );
+    
+    map.setCenter([alongPoint.lon, alongPoint.lat]);
 
-    const cameraAltitude = alongPoint.alt;
-
-    const camera = map.getFreeCameraOptions();
-    camera.position = mapboxgl.MercatorCoordinate.fromLngLat(
-      {
-        lng: cameraPoint.lon,
-        lat: cameraPoint.lat,
-      },
-      cameraAltitude,
-    );
-    camera.lookAtPoint({
-      lng: alongPoint.lon,
-      lat: alongPoint.lat,
-    });
-
-    map.setFreeCameraOptions(camera);
   }, [totalDuration, dronePath, phase]);
 
   useEffect(() => {
@@ -260,7 +237,7 @@ export default function Map3D({ positionData }: Props) {
             longitude: 126.976944, //경도
             latitude: 37.572398, //위도
             zoom: 18,
-            pitch: 18,
+            pitch: 50,
           }}
           style={{ width: "100%", height: "100%" }}
           mapStyle="mapbox://styles/mapbox/standard"
