@@ -23,7 +23,9 @@ export const LoginForm = ({onSuccess}: { onSuccess: () => void;}) => {
       onSuccess: (data) => {
         setIsAuth(true);
         localStorage.setItem("token", data);
-        alert("Welcome aboard!");
+        setTimeout(()=> {
+          alert("Welcome aboard!");
+        },0)
         navigate("/");
         onSuccess();
       },
