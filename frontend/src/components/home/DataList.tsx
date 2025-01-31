@@ -29,10 +29,9 @@ const DroneList = () => {
           (
             drone: { robot_id: string; name: string; img: string; _id: string },
             op: { robot: string },
-            index: number,
           ) => (
             <FlightDataCard
-              key={index}
+              key={drone._id}
               name={drone.name}
               img={drone.img}
               robot_id={drone.robot_id}
