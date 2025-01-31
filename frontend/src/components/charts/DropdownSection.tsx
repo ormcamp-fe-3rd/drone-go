@@ -55,9 +55,6 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
         return { operationId, timestamp: actualTimestamp };
       });
 
-      // ✅ 데이터 디버깅
-      console.log("Before Sorting:", JSON.stringify(processedData, null, 2));
-
       const sortedData = processedData.sort((a, b) => {
         const timeA = new Date(a.timestamp).getTime();
         const timeB = new Date(b.timestamp).getTime();
@@ -68,9 +65,6 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
 
         return Number(b.operationId) - Number(a.operationId);
       });
-
-      // ✅ 정렬 결과 확인
-      console.log("After Sorting:", JSON.stringify(sortedData, null, 2));
 
       return sortedData;
     },
