@@ -7,7 +7,7 @@ import { Robot } from "../../types/selectOptionsTypes";
 
 interface OperationAndDate {
   operationId: string;
-  date: string;
+  timestamp: string; // 정렬용 원본 데이터
   name: string;
 }
 interface DropdownSectionProps {
@@ -45,23 +45,34 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
     queryFn: () => fetchOperationsByRobot(selectedDrone?._id || ""),
     enabled: !!selectedDrone?._id,
     select: (data) => {
-      return data
-        .map((item) => {
-          const operationId = item.operationId;
-          const date =
-            item.dates && item.dates[0] ? item.dates[0] : "No Date Available";
+      const processedData = data.map((item) => {
+        const operationId = item.operationId;
+        const timestamp =
+          item.dates && item.dates[0] ? item.dates[0] : "No Date Available";
 
-          return {
-            operationId,
-            date,
-          };
-        })
-        .sort((a, b) => {
-          if (a.operationId === b.operationId) {
-            return a.date.localeCompare(b.date);
-          }
-          return b.operationId.localeCompare(a.operationId);
-        });
+        const actualTimestamp = timestamp.timestamp || timestamp;
+
+        return { operationId, timestamp: actualTimestamp };
+      });
+
+      // ✅ 데이터 디버깅
+      console.log("Before Sorting:", JSON.stringify(processedData, null, 2));
+
+      const sortedData = processedData.sort((a, b) => {
+        const timeA = new Date(a.timestamp).getTime();
+        const timeB = new Date(b.timestamp).getTime();
+
+        if (timeA !== timeB) {
+          return timeB - timeA;
+        }
+
+        return Number(b.operationId) - Number(a.operationId);
+      });
+
+      // ✅ 정렬 결과 확인
+      console.log("After Sorting:", JSON.stringify(sortedData, null, 2));
+
+      return sortedData;
     },
   });
 
@@ -107,13 +118,20 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
               : "Select Operation | Date"
           }
           onSelect={handleOperationAndDateSelect}
-          data={operationAndDates.map((item, index) => ({
-            _id: item.operationId,
-            //_id: `${item.operation}-${item.date}-${index}`, // 고유한 _id를 추가
-            name: `Op ${index + 1}  |  ${item.date}`,
-            operationId: item.operationId,
-            date: item.date,
-          }))}
+          data={operationAndDates.map((item, index) => {
+            const formattedTimestamp = new Date(item.timestamp);
+            const localDate =
+              formattedTimestamp instanceof Date &&
+              !isNaN(formattedTimestamp.getTime())
+                ? formattedTimestamp.toISOString().split("T")[0]
+                : "Invalid Date"; // 유효하지 않은 날짜일 경우 기본 값 설정
+            return {
+              _id: item.operationId,
+              name: `Op ${operationAndDates.length - index}   |   ${localDate}`,
+              operationId: item.operationId,
+              timestamp: item.timestamp,
+            };
+          })}
         />
       )}
     </div>

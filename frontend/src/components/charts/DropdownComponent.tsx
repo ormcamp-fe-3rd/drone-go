@@ -14,7 +14,12 @@ interface DropdownDroneTypeProps<T> {
 }
 
 const DropdownComponent = <
-  T extends { _id: string; name: string; operationId: string; date: string },
+  T extends {
+    _id: string;
+    name: string;
+    operationId: string;
+    timestamp: string;
+  },
 >({
   value,
   onSelect,
@@ -22,20 +27,6 @@ const DropdownComponent = <
 }: DropdownDroneTypeProps<T>) => {
   // data가 배열이 아닌 경우를 처리
   const sortedData = Array.isArray(data) ? [...data] : [];
-
-  sortedData.sort((a, b) => {
-    // if (typeof a._id === "string" && typeof b._id === "string") {
-    //   return a._id.localeCompare(b._id);
-    // }
-    // return 0;
-    if (a.operationId && b.operationId) {
-      if (a.operationId === b.operationId) {
-        return a.date.localeCompare(b.date); // 날짜 기준 정렬
-      }
-      return a.operationId.localeCompare(b.operationId); // operation 기준 정렬
-    }
-    return a.name.localeCompare(b.name); // 기본적으로 이름으로 정렬
-  });
 
   return (
     <DropdownMenu>
@@ -50,15 +41,17 @@ const DropdownComponent = <
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-52 rounded-[8px] bg-white">
         {sortedData.length ? (
-          sortedData.map((item, index) => (
-            <DropdownMenuItem
-              key={item._id}
-              onClick={() => onSelect(item)}
-              className="flex flex-col items-center justify-center w-full border-b border-neutral-40"
-            >
-              {item.name || `Op ${index + 1} | ${item.date}`}
-            </DropdownMenuItem>
-          ))
+          sortedData.map((item) => {
+            return (
+              <DropdownMenuItem
+                key={item._id}
+                onClick={() => onSelect(item)}
+                className="flex flex-col items-center justify-center w-full border-b border-neutral-40"
+              >
+                {item.name}
+              </DropdownMenuItem>
+            );
+          })
         ) : (
           <DropdownMenuItem>No data available</DropdownMenuItem>
         )}

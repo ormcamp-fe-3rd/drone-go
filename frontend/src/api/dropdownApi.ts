@@ -44,13 +44,15 @@ export const fetchOperationsByRobot = async (robotId: string) => {
         interface Telemetry {
           timestamp: string;
         }
-        const uniqueDates = [
-          ...new Set(
-            telemetries.map(
-              (telemetry: Telemetry) =>
-                new Date(telemetry.timestamp).toISOString().split("T")[0],
-            ),
-          ),
+        const uniqueDatesWithTimestamp = [
+          ...new Map(
+            telemetries.map((telemetry: Telemetry) => {
+              return [
+                telemetry.timestamp, // timestamp 그대로 사용
+                { timestamp: telemetry.timestamp }, // timestamp만 포함
+              ];
+            }),
+          ).values(),
         ];
 
         // operationId 정상적으로 존재하는지 확인
@@ -58,7 +60,7 @@ export const fetchOperationsByRobot = async (robotId: string) => {
 
         return {
           operationId: operationId, //operation._id,
-          dates: uniqueDates, // 해당 오퍼레이션의 날짜 정보
+          dates: uniqueDatesWithTimestamp, // 해당 오퍼레이션의 날짜 정보
         };
       }),
     );
