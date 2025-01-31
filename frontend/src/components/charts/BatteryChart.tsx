@@ -13,23 +13,13 @@ const formatBatteryValue = (
   type: "temperature" | "battery" | "voltage",
 ): string => {
   if (type === "battery") {
-    // if (value >= 100) return value.toString();
-    // if (value >= 10)
-    //   return `${Math.floor(value)}.${Math.round((value % 1) * 10)}`;
-    // return value.toFixed(2);
-    return value.toFixed(0);
+    const bayyeryvalue = value / 100;
+    return bayyeryvalue.toFixed(2);
   }
 
-  const strValue = value.toString();
+  const scaledValue = value / 1000;
 
-  if (strValue.length <= 2) {
-    return `${strValue}.00`;
-  }
-
-  const firstTwoDigits = strValue.slice(0, 2);
-  const remainingDigits = strValue.slice(2, 4).padEnd(2, "0");
-
-  return `${firstTwoDigits}.${remainingDigits}`;
+  return scaledValue.toFixed(2);
 };
 
 const BatteryChart: React.FC<ChartProps> = ({ data }) => {
@@ -122,7 +112,7 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
             colors: "#757de8", // 첫 번째 y축 라벨 색상
           },
           formatter: function (value: number) {
-            return formatBatteryValue(value, "temperature"); // 소수점을 없애고 정수로 표시
+            return formatBatteryValue(value, "temperature");
           },
         },
         tickAmount: 10, // 10개의 눈금을 표시하여 촘촘하게
@@ -145,6 +135,7 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
           },
         },
         tickAmount: 5, // 10개의 눈금을 표시하여 촘촘하게
+        min: 0,
       },
       {
         // 세 번째 y축은 왼쪽 표시
@@ -162,7 +153,7 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
             return formatBatteryValue(value, "voltage");
           },
         },
-        tickAmount: 3, // 10개의 눈금을 표시하여 촘촘하게
+        tickAmount: 10,
         min: 0,
       },
     ],
