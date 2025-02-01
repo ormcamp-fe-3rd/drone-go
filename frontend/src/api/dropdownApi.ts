@@ -55,7 +55,7 @@ export const fetchOperationsByRobot = async (robotId: string) => {
 
         const telemetriesResponse = await fetch(telemetriesUrl, {headers});
         if (!telemetriesResponse.ok) {
-          if (operationsResponse.status === 401) {
+          if (telemetriesResponse.status === 401) {
             // 로그인 토큰이 유효하지 않음
             throw new Error("Unauthorized user");
           }
