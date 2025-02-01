@@ -37,12 +37,6 @@ const ChartPage: React.FC = () => {
     }
   }, [isAuth, navigate]);
 
-  const droneImages: { [key: string]: string } = {
-    M1_1: "/images/chart/drone1.svg",
-    M1_2: "/images/chart/drone2.svg",
-    M1_3: "/images/chart/drone1.svg",
-  };
-
   // location에서 robot_id 가져오기
   const robotId = location.state?.robot_id;
   const name = location.state?.name;
@@ -130,7 +124,7 @@ const ChartPage: React.FC = () => {
             <div className="mx-5 h-[300px]">
               {selectedDrone ? (
                 <img
-                  src={`/images/chart/${selectedDrone._id}.svg`}
+                  src={`/images/chart/${selectedDrone.name}.svg`}
                   alt={selectedDrone.name}
                   className="object-contain w-full h-full"
                 />
