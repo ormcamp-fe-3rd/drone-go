@@ -120,7 +120,7 @@ const ChartPage: React.FC = () => {
         selectedOperationAndDate={selectedOperationAndDate}
         setSelectedOperationAndDate={setSelectedOperationAndDate}
       />
-      <div className="mx-10 mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 mx-10 mb-4 lg:grid-cols-2">
         {/* 드론 정보 카드 */}
         <div className="flex h-[380px] gap-3">
           <div className="flex w-3/5 flex-col rounded-[10px] border border-[#B2B2B7] bg-white">
@@ -132,7 +132,7 @@ const ChartPage: React.FC = () => {
                 <img
                   src={`/images/chart/${selectedDrone._id}.svg`}
                   alt={selectedDrone.name}
-                  className="h-full w-full object-contain"
+                  className="object-contain w-full h-full"
                 />
               ) : (
                 <p className="text-xl text-gray-500">Select a drone</p>
@@ -175,18 +175,40 @@ const ChartPage: React.FC = () => {
             </div>
           </div>
         </div>
-        {/* 차트 */}
         {isLoading ? (
-          <p>Loading chart data...</p>
-        ) : error ? (
-          <p>Error loading data</p>
-        ) : (
-          <>
+          <ChartCard title="">
+            <p className="text-center">Loading chart data...</p>
+          </ChartCard>
+        ) : error instanceof Error ? (
+          <p className="text-center">Error loading data: {error.message}</p>
+        ) : altAndSpeedData.length > 0 ? (
+          <ChartCard title="">
             <BatteryChart data={batteryData} />
-            <SatellitesChart data={satellitesData} />
-          </>
+          </ChartCard>
+        ) : (
+          <ChartCard title="">
+            <p className="text-center">
+              <strong> Select a drone and operation to view the chart.</strong>
+            </p>
+          </ChartCard>
         )}
-
+        {isLoading ? (
+          <ChartCard title="">
+            <p className="text-center">Loading chart data...</p>
+          </ChartCard>
+        ) : error instanceof Error ? (
+          <p className="text-center">Error loading data: {error.message}</p>
+        ) : altAndSpeedData.length > 0 ? (
+          <ChartCard title="">
+            <SatellitesChart data={satellitesData} />
+          </ChartCard>
+        ) : (
+          <ChartCard title="">
+            <p className="text-center">
+              <strong> Select a drone and operation to view the chart.</strong>
+            </p>
+          </ChartCard>
+        )}
         {isLoading ? (
           <ChartCard title="">
             <p className="text-center">Loading chart data...</p>
