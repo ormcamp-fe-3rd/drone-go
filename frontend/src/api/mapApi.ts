@@ -22,6 +22,11 @@ export const fetchPositionDataByOperation = async (
     if (!response.ok) {
       if (response.status === 401) {
         // 로그인 토큰이 유효하지 않음
+        localStorage.removeItem("token");
+        alert("Your session has expired. Please log in again.");
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 100);
         throw new Error("Unauthorized user");
       }
       throw new Error(`Failed to fetch telemetries: ${response.statusText}`);

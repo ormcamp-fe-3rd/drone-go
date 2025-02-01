@@ -36,7 +36,7 @@ export default function Map3dPage() {
   },[isAuth, navigate])
 
 
-  const { error, data, isPending } = useQuery({
+  const { error, data } = useQuery({
     queryKey: ["position", selectedDrone, selectedOperationAndDate],
     queryFn: async () => {
       if (!selectedDrone || !selectedOperationAndDate) return;
@@ -49,14 +49,7 @@ export default function Map3dPage() {
     enabled: !!selectedOperationAndDate,
   });
 
-  // if (isPending) return "Loading...";
   if (error) {
-    if (error.message === "Unauthorized user") {
-      localStorage.removeItem("token");
-      alert("Your session has expired. Please log in again.");
-      window.location.href="/";
-      return null;
-    }
     return "An error has occurred: " + error.message;
   }
 

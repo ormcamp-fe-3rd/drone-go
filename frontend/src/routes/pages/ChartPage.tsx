@@ -12,7 +12,6 @@ import StateDataComponent from "../../components/charts/StateDataComponent";
 import exportToExcel from "../../components/charts/ExportToExcel";
 import { Robot } from "../../types/selectOptionsTypes";
 
-
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   children,
 }) => (
@@ -32,9 +31,9 @@ const ChartPage: React.FC = () => {
   const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  useEffect(()=>{
-    if(isAuth === null) return;
-    if(!isAuth){
+  useEffect(() => {
+    if (isAuth === null) return;
+    if (!isAuth) {
       alert("Signing in is required");
       navigate("/");
     }
@@ -104,6 +103,7 @@ const ChartPage: React.FC = () => {
     window.location.href = "/";
     return null;
   }
+
   const { batteryData, textData, satellitesData, altAndSpeedData } =
     telemetryData;
 
@@ -127,7 +127,7 @@ const ChartPage: React.FC = () => {
           )
         } // 엑셀 익스포트 함수 전달
       />
-      <div className="grid grid-cols-1 gap-3 mx-10 mb-4 lg:grid-cols-2">
+      <div className="mx-10 mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
         {/* 드론 정보 카드 */}
         <div className="flex h-[380px] gap-3">
           <div className="flex w-3/5 flex-col rounded-[10px] border border-[#B2B2B7] bg-white">
@@ -139,7 +139,7 @@ const ChartPage: React.FC = () => {
                 <img
                   src={`/images/chart/${selectedDrone.name}.svg`}
                   alt={selectedDrone.name}
-                  className="object-contain w-full h-full"
+                  className="h-full w-full object-contain"
                 />
               ) : (
                 <p className="text-xl text-gray-500">Select a drone</p>

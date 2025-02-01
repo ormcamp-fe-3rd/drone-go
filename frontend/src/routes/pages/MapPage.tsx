@@ -33,30 +33,37 @@ export default function MapPage() {
   }, [isAuth, navigate]);
 
   // useTelemetry2D 훅을 사용하여 데이터 가져오기
-  const { data, error, isPending } = useTelemetry2D(selectedDrone, selectedOperationAndDate);
+  const { error, data } = useQuery({
+    queryKey: ["position", selectedDrone, selectedOperationAndDate],
+    queryFn: async () => {
+      if (!selectedDrone || !selectedOperationAndDate) return;
+      const rawData = await fetchPositionDataByOperation(
+        selectedDrone!._id,
+        selectedOperationAndDate.operationId,
+      );
+      return formatAndSortPositionData(rawData);
+    },
+    enabled: !!selectedOperationAndDate,
+  });
 
   if (error) {
-    if (error.message === "Unauthorized user") {
-      localStorage.removeItem("token");
-      alert("Your session has expired. Please log in again.");
-      window.location.href = "/";
-      return null;
-    }
     return "An error has occurred: " + error.message;
   }
 
   // 속도데이터
   const rawSpeedData = data?.filter((entry) => entry.msgId === 74) ?? [];
-  const speedData = rawSpeedData.length > 0 ? rawSpeedData : null; 
+  const speedData = rawSpeedData.length > 0 ? rawSpeedData : null;
 
   // 위치데이터
   const rawPositionData = data?.filter((entry) => entry.msgId === 33) ?? [];
   const positionData =
-    rawPositionData.length > 0 ? formatAndSortPositionData(rawPositionData) : null;
+    rawPositionData.length > 0
+      ? formatAndSortPositionData(rawPositionData)
+      : null;
 
   // 상태데이터
   const rawStateData = data?.filter((entry) => entry.msgId === 253) ?? [];
-  const stateData = rawStateData.length > 0 ? rawStateData : null; 
+  const stateData = rawStateData.length > 0 ? rawStateData : null;
 
   return (
     <>
@@ -75,17 +82,20 @@ export default function MapPage() {
       </div>
       <div className="fixed left-4 top-[10rem] z-10">
         <WeatherWidget positionData={positionData ?? null} />
-          
+
         <SpeedWidget speedData={speedData ?? null} />
-      
+
         <AltitudeWidget positionData={positionData ?? null} />
 
         <StateWidget
           stateData={stateData ?? null}
           selectedDrone={selectedDrone ? selectedDrone._id : null}
-          selectedOperationAndDate={selectedOperationAndDate ? selectedOperationAndDate.operationId : null}
+          selectedOperationAndDate={
+            selectedOperationAndDate
+              ? selectedOperationAndDate.operationId
+              : null
+          }
         />
-          
       </div>
 
       <Map2D
