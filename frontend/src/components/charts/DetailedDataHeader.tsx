@@ -4,7 +4,7 @@ import DropdownSection from "./DropdownSection";
 import { Robot } from "../../types/selectOptionsTypes";
 interface OperationAndDate {
   operationId: string;
-  date: string;
+  timestamp: string;
   name: string;
 }
 interface Props {

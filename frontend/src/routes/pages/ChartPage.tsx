@@ -24,7 +24,7 @@ const ChartPage: React.FC = () => {
   const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
   const [selectedOperationAndDate, setSelectedOperationAndDate] = useState<{
     operationId: string;
-    date: string;
+    timestamp: string;
     name: string;
   } | null>(null);
   const { isAuth } = useContext(AuthContext);
