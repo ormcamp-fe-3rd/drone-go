@@ -53,8 +53,12 @@ export const fetchOperationsByRobot = async (robotId: string) => {
           robotId,
         )}&operation=${encodeURIComponent(operation._id)}&fields=timestamp`;
 
-        const telemetriesResponse = await fetch(telemetriesUrl);
+        const telemetriesResponse = await fetch(telemetriesUrl, {headers});
         if (!telemetriesResponse.ok) {
+          if (telemetriesResponse.status === 401) {
+            // 로그인 토큰이 유효하지 않음
+            throw new Error("Unauthorized user");
+          }
           throw new Error(
             `Failed to fetch telemetries: ${telemetriesResponse.statusText}`,
           );

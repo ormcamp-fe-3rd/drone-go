@@ -29,6 +29,7 @@ export default function MapPage() {
 
 
   useEffect(()=>{
+    if(isAuth === null) return;
     if(!isAuth){
       alert("Signing in is required");
       navigate("/");
@@ -49,7 +50,7 @@ export default function MapPage() {
     enabled: !!selectedOperationAndDate,
   });
 
-  if (isPending) return "Loading...";
+  // if (isPending) return "Loading...";
   if (error) {
     if (error.message === "Unauthorized user") {
       localStorage.removeItem("token");

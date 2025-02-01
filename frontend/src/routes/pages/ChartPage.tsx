@@ -34,6 +34,7 @@ const ChartPage: React.FC = () => {
   const navigate = useNavigate();
   
   useEffect(()=>{
+    if(isAuth === null) return;
     if(!isAuth){
       alert("Signing in is required");
       navigate("/");
