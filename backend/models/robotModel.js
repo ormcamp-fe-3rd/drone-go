@@ -6,6 +6,10 @@ const { Schema, model} = require('mongoose')
  *   schemas:
  *     Robot:
  *       type: object
+ *       required:
+ *         - _id
+ *         - name
+ *         - robot_id
  *       properties:
  *         _id:
  *           type: string

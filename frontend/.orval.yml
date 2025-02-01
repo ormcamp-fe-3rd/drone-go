@@ -1,7 +1,0 @@
-output:
-  path: './src/api'  # 생성할 파일의 위치
-  mode: 'tags'  # Swagger spec에 정의된 tags별로 API를 나눠서 생성
-  target: './src/types/generated'  # 타입 파일을 생성할 경로
-
-api:
-  file: './public/swagger.json'  # OpenAPI 스펙 파일의 URL

@@ -1,59 +1,44 @@
 const mongoose = require('mongoose');
 const Telemetry = require('../models/telemetryModel');
-const Operation = require('../models/operationModel');
 const Robot = require('../models/robotModel');
+const Operation = require('../models/operationModel');
 
 /**
- * 로봇 ID와 오퍼레이션 ID를 기준으로 Telemetry 데이터를 필터링합니다.
- * @async
- * @function getTelemetriesByRobotAndOperation
- * @param {object} req
- * @param {object} res
- * @returns {Promise<void>}
+ * 특정 로봇과 오퍼레이션에 대한 Telemetry 데이터를 가져오는 서비스 함수
+ * @param {string} robot - 로봇봇
+ * @param {string} operation - 오퍼레이션
+ * @param {string} [fields] - 선택적으로 가져올 필드 목록 (쉼표로 구분된 문자열)
+ * @returns {Promise<Array>} 필터링된 Telemetry 데이터 배열
+ * @throws {Error} 유효하지 않은 ID 또는 데이터가 존재하지 않는 경우
  */
-const getTelemetriesByRobotAndOperation = async (req, res) => {
-    try {
-        const { robotId, operationId, fields } = req.query;
+const getTelemetriesByRobotAndOperation = async (robot, operation, fields) => {
 
-        if (!robotId || !operationId) {
-            return res.status(400).json({ message: 'robotId and operationId are required' });
-        }
-
-        const robot = await Robot.findById(robotId);
-        if (!robot) {
-            return res.status(404).json({ message: `Robot with ID ${robotId} not found.` });
-        }
-
-        const operation = await Operation.findById(operationId);
-        if (!operation) {
-            return res.status(404).json({ message: `Operation with ID ${operationId} not found.` });
-        }
-
-        const telemetries = await Telemetry.find({ robot: robot._id, operation: operation._id });
-
-        if (telemetries.length === 0) {
-            return res.status(404).json({ message: 'No matching telemetries found.' });
-        }
-
-        if (fields) {
-            const fieldsArray = fields.split(',');
-            const filteredTelemetries = telemetries.map(telemetry => {
-                const filteredTelemetry = {};
-                fieldsArray.forEach(field => {
-                    if (telemetry[field]) {
-                        filteredTelemetry[field] = telemetry[field];
-                    }
-                });
-                return filteredTelemetry;
-            });
-            return res.json(filteredTelemetries);
-        }
-
-        return res.json(telemetries);
-    } catch (error) {
-        console.error('Error in getTelemetriesByRobotAndOperation:', error);
-        return res.status(500).json({ message: 'Internal Server Error', error: error.message });
+    if (!mongoose.Types.Object.isValid(robot) || !mongoose.Types.ObjectId.isValid(operation)) {
+        throw new Error('Invalid robot or operation format');
     }
+
+    const robot = await Robot.findById(robot);
+    if (!robot) throw new Error(`Robot with ID ${robot} not found`);
+
+    const operation = await Operation.findById(operation);
+    if (!operation) throw new Error(`Operation with ID ${operation} not found`);
+
+    let telemetries = await Telemetry.find({ robot: robot, operation: operation });
+
+    if (fields) {
+        const fieldsArray = fields.split(',');
+        telemetries = telemetries.map(telemetry => {
+            const filteredTelemetry = {};
+            fieldsArray.forEach(field => {
+                if (Object.hasOwnProperty.call(telemetry, field)) {
+                    filteredTelemetry[field] = telemetry[field];
+                }
+            });
+            return filteredTelemetry;
+        });
+    }
+
+    return telemetries;
 };
 
 module.exports = { getTelemetriesByRobotAndOperation };

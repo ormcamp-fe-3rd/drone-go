@@ -6,6 +6,14 @@ const { Schema, model } = require('mongoose');
  *   schemas:
  *     Telemetry:
  *       type: object
+ *       required:
+ *         - _id
+ *         - operation
+ *         - robot
+ *         - __v
+ *         - msgId
+ *         - timestamp
+ *         - payload
  *       properties:
  *         _id:
  *           type: string
@@ -17,10 +25,10 @@ const { Schema, model } = require('mongoose');
  *           type: string
  *           description: Reference to the Robot model
  *         __v:
- *           type: Number
+ *           type: number
  *           description: Version key for Mongoose documents
  *         msgId:
- *           type: Number
+ *           type: number
  *           description: Message ID
  *         timestamp:
  *           type: string
@@ -30,292 +38,158 @@ const { Schema, model } = require('mongoose');
  *           type: object
  *           properties:
  *             airspeed:
- *               type: Number
- *               description: Airspeed of the robot
+ *               type: number
  *             groundspeed:
- *               type: Number
- *               description: Groundspeed of the robot
+ *               type: number
  *             alt:
- *               type: Number
- *               description: Altitude
+ *               type: number
  *             pitch:
- *               type: Number
- *               description: Pitch angle
+ *               type: number
  *             pitchspeed:
- *               type: Number
- *               description: Pitch speed
+ *               type: number
  *             roll:
- *               type: Number
- *               description: Roll angle
+ *               type: number
  *             rollspeed:
- *               type: Number
- *               description: Roll speed
+ *               type: number
  *             yaw:
- *               type: Number
- *               description: Yaw angle
+ *               type: number
  *             yawspeed:
- *               type: Number
- *               description: Yaw speed
+ *               type: number
  *             climb:
- *               type: Number
- *               description: Climb rate
+ *               type: number
  *             altEllipsoid:
- *               type: Number
- *               description: Ellipsoid altitude
+ *               type: number
  *             batteryFunction:
- *               type: Number
- *               description: Battery function status
+ *               type: number
  *             batteryRemaining:
- *               type: Number
- *               description: Remaining battery percentage
+ *               type: number
  *             chargeState:
- *               type: Number
- *               description: Charge state of the battery
+ *               type: number
+ *             cog:
+ *               type: number
  *             currentBattery:
- *               type: Number
- *               description: Current battery level
+ *               type: number
+ *             currentConsumed:
+ *               type: number
+ *             energyConsumed:
+ *               type: number
+ *             eph:
+ *               type: number
+ *             epv:
+ *               type: number
+ *             faultBitmask:
+ *               type: number
  *             fixType:
- *               type: Number
- *               description: GPS fix type
+ *               type: number
+ *             hAcc:
+ *               type: number
  *             hdg:
- *               type: Number
- *               description: Heading
+ *               type: number
+ *             hdgAcc:
+ *               type: number
+ *             heading:
+ *               type: number
+ *             id:
+ *               type: number
  *             lat:
- *               type: Number
- *               description: Latitude of the telemetry data
+ *               type: number
  *             lon:
- *               type: Number
- *               description: Longitude of the telemetry data
+ *               type: number
+ *             mode:
+ *               type: number
+ *             relativeAlt:
+ *               type: number
+ *             satellitesVisible:
+ *               type: number
+ *             temperature:
+ *               type: number
+ *             text:
+ *               type: string
+ *             throttle:
+ *               type: number
+ *             timeBootMs:
+ *               type: number
+ *             timeRemaining:
+ *               type: number
+ *             timeUsec:
+ *               type: number
+ *             vAcc:
+ *               type: number
+ *             vel:
+ *               type: number
+ *             velAcc:
+ *               type: number
+ *             vx:
+ *               type: number
+ *             vy:
+ *               type: number
+ *             vz:
+ *               type: number
  *             voltages:
  *               type: array
  *               items:
- *                 type: Number
- *               description: Battery voltage readings
+ *                 type: number
  *             voltagesExt:
  *               type: array
  *               items:
- *                 type: Number
- *               description: Extended battery voltage readings
+ *                 type: number
  */
 
 const telemetrySchema = new Schema({
-  _id: {
-    type: Schema.Types.ObjectId,
-    required: true,
-  },
-  operation: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'Operation',
-  },
-  robot: {
-    type: Schema.Types.ObjectId,
-    required: true,
-    ref: 'Robot',
-  },
-  __v: {
-    type: Number,
-    required: true,
-  },
-  msgId: {
-    type: Number,
-    required: true,
-  },
-  timestamp: {
-    type: Date,
-    required: true
-  },
+  _id: Schema.Types.ObjectId,
+  operation: { type: Schema.Types.ObjectId, ref: 'Operation', required: true },
+  robot: { type: Schema.Types.ObjectId, ref: 'Robot', required: true },
+  __v: Number,
+  msgId: { type: Number, required: true },
+  timestamp: { type: Date, required: true },
   payload: {
-    type: Object,
-    required: true,
-    properties: {
-      airspeed : {
-        type: Number,
-        required: true,
-      },
-      groundspeed : {
-        type: Number,
-        required: true,
-      },
-      alt : {
-        type: Number,
-        required: true,
-      },
-      pitch : {
-        type: Number,
-        required: true,
-      },
-      pitchspeed : {
-        type: Number,
-        required: true,
-      },
-      roll : {
-        type: Number,
-        required: true,
-      },
-      rollspeed : {
-        type: Number,
-        required: true,
-      },
-      yaw : {
-        type: Number,
-        required: true,
-      },
-      yawspeed : {
-        type: Number,
-        required: true,
-      },
-      climb : {
-        type: Number,
-        required: true,
-      },
-      altEllipsoid: {
-        type: Number,
-        required: true,
-      },
-      batteryFunction: {
-        type: Number,
-        required: true,
-      },
-      batteryRemaining: {
-        type: Number,
-        required: true,
-      },
-      chargeState: {
-        type: Number,
-        required: true,
-      },
-      cog: {
-        type: Number,
-        required: true,
-      },
-      currentBattery: {
-        type: Number,
-        required: true,
-      },
-      currentConsumed: {
-        type: Number,
-        required: true,
-      },
-      energyConsumed: {
-        type: Number,
-        required: true,
-      },
-      eph: {
-        type: Number,
-        required: true,
-      },
-      epv: {
-        type: Number,
-        required: true,
-      },
-      faultBitmask: {
-        type: Number,
-        required: true,
-      },
-      fixType: {
-        type: Number,
-        required: true,
-      },
-      hAcc: {
-        type: Number,
-        required: true,
-      },
-      hdg: {
-        type: Number,
-        required: true,
-      },
-      hdgAcc: {
-        type: Number,
-        required: true,
-      },
-      heading: {
-        type: Number,
-        required: true,
-      },
-      id: {
-        type: Number,
-        required: true,
-      },
-      lat: {
-        type: Number,
-        required: true,
-      },
-      lon: {
-        type: Number,
-        required: true,
-      },
-      mode: {
-        type: Number,
-        required: true,
-      },
-      relativeAlt: {
-        type: Number,
-        required: true,
-      },
-      satellitesVisible: {
-        type: Number,
-        required: true,
-      },
-      temperature: {
-        type: Number,
-        required: true,
-      },
-      throttle: {
-        type: Number,
-        required: true,
-      },
-      timeBootMs: {
-        type: Number,
-        required: true,
-      },
-      timeRemaining: {
-        type: Number,
-        required: true,
-      },
-      timeUsec: {
-        type: Number,
-        required: true,
-      },
-      vAcc: {
-        type: Number,
-        required: true,
-      },
-      vel: {
-        type: Number,
-        required: true,
-      },
-      velAcc: {
-        type: Number,
-        required: true,
-      },
-      vx: {
-        type: Number,
-        required: true,
-      },
-      vy: {
-        type: Number,
-        required: true,
-      },
-      vz: {
-        type: Number,
-        required: true,
-      },
-      vx: {
-        type: Number,
-        required: true,
-      },
-      voltages: {
-        type: [Number],
-        required: true,
-      },
-      voltagesExt: {
-        type: [Number],
-        required: true,
-      },
-    },
+    airspeed: Number,
+    groundspeed: Number,
+    alt: Number,
+    pitch: Number,
+    pitchspeed: Number,
+    roll: Number,
+    rollspeed: Number,
+    yaw: Number,
+    yawspeed: Number,
+    climb: Number,
+    altEllipsoid: Number,
+    batteryFunction: Number,
+    batteryRemaining: Number,
+    chargeState: Number,
+    cog: Number,
+    currentBattery: Number,
+    currentConsumed: Number,
+    energyConsumed: Number,
+    eph: Number,
+    epv: Number,
+    faultBitmask: Number,
+    fixType: Number,
+    hAcc: Number,
+    hdg: Number,
+    hdgAcc: Number,
+    heading: Number,
+    id: Number,
+    lat: Number,
+    lon: Number,
+    mode: Number,
+    relativeAlt: Number,
+    satellitesVisible: Number,
+    temperature: Number,
+    text: String,
+    throttle: Number,
+    timeBootMs: Number,
+    timeRemaining: Number,
+    timeUsec: Number,
+    vAcc: Number,
+    vel: Number,
+    velAcc: Number,
+    vx: Number,
+    vy: Number,
+    vz: Number,
+    voltages: [Number],
+    voltagesExt: [Number],
   },
 });
 
 module.exports = model('Telemetry', telemetrySchema);
-

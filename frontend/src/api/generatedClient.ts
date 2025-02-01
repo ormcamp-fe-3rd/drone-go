@@ -5,21 +5,24 @@
  * API Documentation for Drone Telemetry Visualization
  * OpenAPI spec version: 1.0.0
  */
-export type GetTelemetries200Item = { [key: string]: unknown };
-
+import { fetcher } from './customAxios';
 export type GetTelemetriesParams = {
 /**
  * The robot ID
  */
-robotId: string;
+robot: string;
 /**
  * The operation ID
  */
-operationId: string;
+operation: string;
 /**
  * Filter telemetry by message ID (optional)
  */
 msgId?: number;
+/**
+ * Filter telemetry by timestamp (optional)
+ */
+timestamp?: string;
 /**
  * Comma-separated list of fields to filter (e.g., lat, lon, alt)
  */
@@ -30,216 +33,139 @@ export type GetOperationsParams = {
 /**
  * The robot ID
  */
-robotId: string;
+robot: string;
 };
 
 export type TelemetryPayload = {
-  /** Airspeed of the robot */
   airspeed?: number;
-  /** Groundspeed of the robot */
   groundspeed?: number;
-  /** Altitude */
   alt?: number;
-  /** Pitch angle */
   pitch?: number;
-  /** Pitch speed */
   pitchspeed?: number;
-  /** Roll angle */
   roll?: number;
-  /** Roll speed */
   rollspeed?: number;
-  /** Yaw angle */
   yaw?: number;
-  /** Yaw speed */
   yawspeed?: number;
-  /** Climb rate */
   climb?: number;
-  /** Ellipsoid altitude */
   altEllipsoid?: number;
-  /** Battery function status */
   batteryFunction?: number;
-  /** Remaining battery percentage */
   batteryRemaining?: number;
-  /** Charge state of the battery */
   chargeState?: number;
-  /** Current battery level */
+  cog?: number;
   currentBattery?: number;
-  /** GPS fix type */
+  currentConsumed?: number;
+  energyConsumed?: number;
+  eph?: number;
+  epv?: number;
+  faultBitmask?: number;
   fixType?: number;
-  /** Heading */
+  hAcc?: number;
   hdg?: number;
-  /** Latitude of the telemetry data */
+  hdgAcc?: number;
+  heading?: number;
+  id?: number;
   lat?: number;
-  /** Longitude of the telemetry data */
   lon?: number;
-  /** Battery voltage readings */
+  mode?: number;
+  relativeAlt?: number;
+  satellitesVisible?: number;
+  temperature?: number;
+  text?: string;
+  throttle?: number;
+  timeBootMs?: number;
+  timeRemaining?: number;
+  timeUsec?: number;
+  vAcc?: number;
+  vel?: number;
+  velAcc?: number;
+  vx?: number;
+  vy?: number;
+  vz?: number;
   voltages?: number[];
-  /** Extended battery voltage readings */
   voltagesExt?: number[];
 };
 
 export interface Telemetry {
   /** Unique identifier for the telemetry data */
-  _id?: string;
+  _id: string;
   /** Reference to the Operation model */
-  operation?: string;
+  operation: string;
   /** Reference to the Robot model */
-  robot?: string;
+  robot: string;
   /** Version key for Mongoose documents */
-  __v?: number;
+  __v: number;
   /** Message ID */
-  msgId?: number;
+  msgId: number;
   /** Timestamp when the telemetry was recorded */
-  timestamp?: string;
-  payload?: TelemetryPayload;
+  timestamp: string;
+  payload: TelemetryPayload;
 }
 
 export interface Robot {
   /** Unique identifier for the robot */
-  _id?: string;
+  _id: string;
   /** Name of the robot */
-  name?: string;
+  name: string;
   /** A unique robot identifier (e.g., serial number) */
-  robot_id?: string;
+  robot_id: string;
 }
 
 export interface Operation {
   /** Unique identifier for the operation */
-  _id?: string;
+  _id: string;
   /** Reference to the Robot model */
-  robot?: string;
+  robot: string;
 }
 
 
 
+
+type SecondParameter<T extends (...args: any) => any> = Parameters<T>[1];
+
+
+  export const getDroneTelemetryAPI = () => {
 /**
  * Fetch a list of all available robots
  * @summary Fetch available robots
  */
-export type getRobotsResponse = {
-  data: string[] | void;
-  status: number;
-  headers: Headers;
-}
-
-// 기본 API URL 설정
-const BASE_URL = 'http://localhost:3000'; // 여기에 실제 API 서버 URL을 입력하세요
-
-export const getGetRobotsUrl = () => {
-
-
-  return `${BASE_URL}/robots`
-}
-
-export const getRobots = async ( options?: RequestInit): Promise<getRobotsResponse> => {
+const getRobots = (
+    
+ options?: SecondParameter<typeof fetcher>,) => {
+      return fetcher<Robot[]>(
+      {url: `/robots`, method: 'GET'
+    },
+      options);
+    }
   
-  const res = await fetch(getGetRobotsUrl(),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const data:string[] = ([204, 205, 304].includes(res.status) || !res.body) ? {} : await res.json()
-
-  return { status: res.status, data, headers: res.headers }
-}
-
-
-
 /**
  * Fetch a list of all operations for a specific robot
  * @summary Fetch available operations for a robot
  */
-export type getOperationsResponse = {
-  data: string[] | void;
-  status: number;
-  headers: Headers;
-}
-
-export const getGetOperationsUrl = (params: GetOperationsParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+const getOperations = (
+    params: GetOperationsParams,
+ options?: SecondParameter<typeof fetcher>,) => {
+      return fetcher<Operation[]>(
+      {url: `/operations`, method: 'GET',
+        params
+    },
+      options);
     }
-  });
-
-  return normalizedParams.size ? `${BASE_URL}/operations?${normalizedParams.toString()}` : `${BASE_URL}/operations`
-}
-
-export const getOperations = async (params: GetOperationsParams, options?: RequestInit): Promise<getOperationsResponse> => {
   
-  const res = await fetch(getGetOperationsUrl(params),
-  {      
-    ...options,
-    method: 'GET'
-    
-    
-  }
-)
-
-  const data:string[] = ([204, 205, 304].includes(res.status) || !res.body) ? {} : await res.json()
-
-  return { status: res.status, data, headers: res.headers }
-}
-
-
-
 /**
- * Fetch telemetry data based on robotId and operationId, and allow filtering by telemetry fields
+ * Fetch telemetry data based on robot and operation, and allow filtering by telemetry fields
  * @summary Fetch telemetry data for a robot and operation
  */
-export type getTelemetriesResponse = {
-  data: GetTelemetries200Item[] | void;
-  status: number;
-  headers: Headers;
-}
-
-export const getGetTelemetriesUrl = (params: GetTelemetriesParams,) => {
-  const normalizedParams = new URLSearchParams();
-
-  Object.entries(params || {}).forEach(([key, value]) => {
-    
-    if (value !== undefined) {
-      normalizedParams.append(key, value === null ? 'null' : value.toString())
+const getTelemetries = (
+    params: GetTelemetriesParams,
+ options?: SecondParameter<typeof fetcher>,) => {
+      return fetcher<Telemetry[]>(
+      {url: `/telemetries`, method: 'GET',
+        params
+    },
+      options);
     }
-  });
-
-  return normalizedParams.size ? `${BASE_URL}/telemetries?${normalizedParams.toString()}` : `${BASE_URL}/telemetries`
-}
-
-export const getTelemetries = async (params: GetTelemetriesParams, options?: RequestInit): Promise<getTelemetriesResponse> => {
-  console.log("Sending request with params:", params);  // 요청 파라미터 로그
-
-  const url = getGetTelemetriesUrl(params);
-  console.log("Generated API URL:", url);  // 요청 URL 로그
-
-  try {
-    const res = await fetch(url, {
-      ...options,
-      method: 'GET',
-    });
-
-    console.log("API Response Status:", res.status);  // 상태 코드 로그
-    console.log("API Response Headers:", res.headers);  // 응답 헤더 로그
-
-    const data: GetTelemetries200Item[] = 
-      ([204, 205, 304].includes(res.status) || !res.body) ? [] : await res.json();
-
-    console.log("API Response Data:", data);  // 응답 데이터 로그
-
-    return { status: res.status, data, headers: res.headers };
-  } catch (error) {
-    console.error("Error fetching telemetries:", error);
-    return { status: 500, data: [], headers: new Headers() };  // 오류 시 기본 응답 반환
-  }
-};
-
-
-
-
+  
+return {getRobots,getOperations,getTelemetries}};
+export type GetRobotsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getDroneTelemetryAPI>['getRobots']>>>
+export type GetOperationsResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getDroneTelemetryAPI>['getOperations']>>>
+export type GetTelemetriesResult = NonNullable<Awaited<ReturnType<ReturnType<typeof getDroneTelemetryAPI>['getTelemetries']>>>

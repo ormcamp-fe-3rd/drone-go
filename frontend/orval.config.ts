@@ -1,12 +1,17 @@
 import { defineConfig } from 'orval';
 
 export default defineConfig({
-  // 스키마와 API 클라이언트를 설정하는 방법
   api: {
-    input: './public/swagger.json', // OpenAPI 스키마 파일 경로
+    input: './public/swagger.json', // OpenAPI 스펙 파일 경로
     output: {
-      client: 'fetch',  // 기본으로 fetch를 사용하도록 설정
-      target: './src/api/generatedClient.ts', // 생성된 클라이언트 코드 위치
+      client: 'axios',  // fetch 기반 API 클라이언트 생성
+      target: './src/api/generatedClient.ts', // 생성될 API 클라이언트 경로
+      override: {
+        "mutator": {
+          "path": "./src/api/customAxios.ts",
+          "name": "fetcher"
+        },
+      },
     },
   },
 });

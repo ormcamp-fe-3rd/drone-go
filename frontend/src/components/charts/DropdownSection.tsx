@@ -1,12 +1,16 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
+import { getDroneTelemetryAPI } from "@/api/generatedClient";
 import { twMerge } from "tailwind-merge";
-import { fetchRobots, fetchOperationsByRobot } from "../../api/dropdownApi";
+import { Robot, Operation } from "@/api/generatedClient";
+import { useOperationsByRobot } from "@/api/operationData";
+import { useTimestampsByOperation } from "@/api/operationData";
 import DropdownComponent from "../../components/charts/DropdownComponent";
-import { Robot, Operation } from "../../types/selectOptionsTypes";
+
+const { getRobots } = getDroneTelemetryAPI();
 
 interface DropdownSectionProps {
-  className?: string; // className을 받을 수 있도록 추가
+  className?: string;
   selectedDrone: Robot | null;
   setSelectedDrone: React.Dispatch<React.SetStateAction<Robot | null>>;
   selectedOperation: Operation | null;
@@ -20,72 +24,90 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
   selectedOperation,
   setSelectedOperation,
 }) => {
-  const {
-    data: robots,
-    isLoading: isRobotsLoading,
-    error: robotsError,
-  } = useQuery({
+  // ✅ 로봇 목록 API 호출
+  const { data: robots = [], isLoading: isRobotsLoading, error: robotsError } = useQuery({
     queryKey: ["robots"],
-    queryFn: fetchRobots,
+    queryFn: getRobots,
+    staleTime: 1000 * 60 * 5,
   });
 
-  const {
-    data: operations = [],
-    isLoading: isOperationsLoading,
-    error: operationsError,
-  } = useQuery({
-    queryKey: ["operations", selectedDrone?._id],
-    queryFn: () => fetchOperationsByRobot(selectedDrone?._id || ""),
-    enabled: !!selectedDrone?._id,
-  });
+  // 선택된 로봇의 오퍼레이션 목록 API 호출
+  const { data: operations = [], isLoading: isOperationsLoading, error: operationsError } = useOperationsByRobot(
+    selectedDrone?._id || ""
+  );
+
+  // 선택된 오퍼레이션의 타임스탬프 필터링 데이터 가져오기
+  const { data: timestamps = [], isLoading: isTimestampsLoading, error: timestampsError } = useTimestampsByOperation(
+    selectedDrone?._id || "",
+    selectedOperation?._id || ""
+  );
 
   const handleDroneSelect = (robot: Robot) => {
-    //데이터 확인용 배포 이전 console.log 삭제 예정
-    console.log("Selected Drone:", robot);
     setSelectedDrone(robot);
     setSelectedOperation(null);
   };
 
-  const handleOperationSelect = (operation: Operation) => {
-    //데이터 확인용 배포 이전 console.log 삭제 예정
-    console.log("Selected operation:", operation);
-    setSelectedOperation(operation);
+  const handleOperationSelect = (operationId: string) => {
+    const selectedOp = operations.find((op) => op._id === operationId);
+    if (selectedOp) {
+      setSelectedOperation(selectedOp);
+    }
   };
 
+  const formattedOperations = operations.map((op, index) => {
+
+    const formattedDate = timestamps.length > 0
+      ? new Date(timestamps[0]).toISOString().split("T")[0] 
+      : "날짜 없음";
+
+    return {
+      _id: op._id,
+      name: `${formattedDate} 오퍼레이션 ${index + 1}`,
+    };
+  });
+
   if (robotsError instanceof Error) {
-    return <div>Error loading robots: {robotsError.message}</div>;
+    return <div className="text-red-500">Error loading robots: {robotsError.message}</div>;
   }
 
   if (operationsError instanceof Error) {
-    return <div>Error loading operations: {operationsError.message}</div>;
+    return <div className="text-red-500">Error loading operations: {operationsError.message}</div>;
+  }
+
+  if (timestampsError instanceof Error) {
+    return <div className="text-red-500">Error loading timestamps: {timestampsError.message}</div>;
   }
 
   return (
-    <div
-      className={twMerge(
-        `mx-3 flex flex-wrap justify-center gap-3 md:flex-nowrap md:justify-end ${className}`,
-      )}
-    >
+    <div className={twMerge(`mx-3 flex flex-wrap justify-center gap-3 md:flex-nowrap md:justify-end ${className}`)}>
       {!isRobotsLoading && (
         <DropdownComponent
           value={selectedDrone ? selectedDrone.name : "Select Drone"}
-          onSelect={handleDroneSelect}
-          data={robots || []}
+          onSelect={(robot) => handleDroneSelect(robot as Robot)}
+          data={robots}
         />
       )}
-      {!isOperationsLoading && (
+      {!isOperationsLoading && selectedDrone && formattedOperations.length > 0 && (
         <DropdownComponent
           value={
             selectedOperation
-              ? `Operation ${operations.findIndex((op: Operation) => op._id === selectedOperation._id) + 1}`
+              ? formattedOperations.find((op) => op._id === selectedOperation._id)?.name ?? "Select Operation"
               : "Select Operation"
           }
-          onSelect={handleOperationSelect}
-          data={operations || []}
+          onSelect={(operation) => handleOperationSelect(operation._id)}
+          data={formattedOperations}
         />
       )}
+      {!isTimestampsLoading && selectedOperation && timestamps.length ? (
+        <div>
+          <h3 className="text-center text-sm text-gray-500">
+            Filtered Timestamps: {timestamps.length ?? 0}
+          </h3>
+        </div>
+      ) : null}
     </div>
   );
 };
 
 export default DropdownSection;
+
