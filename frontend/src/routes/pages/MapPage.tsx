@@ -33,18 +33,10 @@ export default function MapPage() {
   }, [isAuth, navigate]);
 
   // useTelemetry2D 훅을 사용하여 데이터 가져오기
-  const { error, data } = useQuery({
-    queryKey: ["position", selectedDrone, selectedOperationAndDate],
-    queryFn: async () => {
-      if (!selectedDrone || !selectedOperationAndDate) return;
-      const rawData = await fetchPositionDataByOperation(
-        selectedDrone!._id,
-        selectedOperationAndDate.operationId,
-      );
-      return formatAndSortPositionData(rawData);
-    },
-    enabled: !!selectedOperationAndDate,
-  });
+  const { data, error, isPending } = useTelemetry2D(
+    selectedDrone,
+    selectedOperationAndDate,
+  );
 
   if (error) {
     return "An error has occurred: " + error.message;

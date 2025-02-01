@@ -36,6 +36,7 @@ export const fetchTelemetriesByRobotAndOperation = async (
         setTimeout(() => {
           window.location.href = "/";
         }, 100);
+        throw new Error("Unauthorized user");
       }
       throw new Error(`Failed to fetch telemetries: ${response.statusText}`);
     }
