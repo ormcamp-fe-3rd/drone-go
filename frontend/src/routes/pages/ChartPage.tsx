@@ -4,13 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 import { AuthContext } from "@/contexts/AuthContext";
 import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
 import AltAndSpeedChart from "../../components/charts/AltAndSpeedChart";
-import { Robot } from "../../types/selectOptionsTypes";
 import BatteryChart from "../../components/charts/BatteryChart";
 import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
 import FlightTimeDataComponenet from "../../components/charts/FilghtTimeDataComponent";
 import SatellitesChart from "../../components/charts/SatellitesChart";
 import StateDataComponent from "../../components/charts/StateDataComponent";
 import exportToExcel from "../../components/charts/ExportToExcel";
+import { Robot } from "../../types/selectOptionsTypes";
+
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   children,
@@ -31,8 +32,9 @@ const ChartPage: React.FC = () => {
   const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (!isAuth) {
+  useEffect(()=>{
+    if(isAuth === null) return;
+    if(!isAuth){
       alert("Signing in is required");
       navigate("/");
     }

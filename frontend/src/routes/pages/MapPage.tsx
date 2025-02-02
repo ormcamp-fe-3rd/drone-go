@@ -29,8 +29,8 @@ export default function MapPage() {
 
 
   useEffect(()=>{
-    const token = localStorage.getItem("token")
-    if(!token){
+    if(isAuth === null) return;
+    if(!isAuth){
       alert("Signing in is required");
       navigate("/");
     }
