@@ -5,7 +5,6 @@ import Map, { MapRef } from "react-map-gl";
 import { PhaseContext } from "@/contexts/PhaseContext";
 import { LatLonAlt } from "@/types/latLonAlt";
 import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
-import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
 import { formatTime } from "@/utils/formatTime";
 
 import ProgressBar from "../map/ProgressBar";
@@ -68,22 +67,21 @@ export default function Map2D({ positionData }: Props) {
   }, [positionData, setPhase, speed]);
 
 
-  const updateCamera = useCallback((phaseValue: number )=> {
+  const updateCamera = useCallback((phase: number )=> {
     if (!mapRef.current || !latLonAlt || !markerRef.current) return;
     const map = mapRef.current.getMap();
 
-    const totalDistance = calculateDistance(latLonAlt);
-    const alongPoint = calculatePointAlongRoute(
-      latLonAlt,
-      totalDistance * phaseValue || 0.001,
+    const index = Math.min(
+      Math.floor(phase * (latLonAlt.length - 1)),
+      latLonAlt.length - 1,
     );
-    
-    const markerLngLat: [number, number] = [alongPoint.lon, alongPoint.lat];
+    const currentItem = latLonAlt[index];
+
+    const markerLngLat: [number, number] = [currentItem.lon, currentItem.lat];
     markerRef.current.setLngLat(markerLngLat);
     
     map.flyTo({
       center: markerLngLat,
-      zoom: 12,
       essential: true,
     });
   },[latLonAlt])
