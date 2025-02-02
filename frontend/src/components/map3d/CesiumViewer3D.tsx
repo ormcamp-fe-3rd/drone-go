@@ -24,9 +24,11 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({ positionData }: CesiumViewe
   },[positionData])
 
   useEffect(() => {
-    if(!dronePath) return;
+    if (!dronePath || viewerRef.current) return;
+
     const initializeCesium = async () => {
       if (cesiumContainerRef.current) {
+        Cesium.Ion.defaultAccessToken = import.meta.env.VITE_CESIUM_ION_API_KEY; 
         // 비동기 호출로 terrainProvider 설정
         const terrainProvider = await Cesium.createWorldTerrainAsync();
 
@@ -55,7 +57,22 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({ positionData }: CesiumViewe
           //     mapId: 'mapbox.satellite', // 예시: Satellite 스타일
           //   }),
           // }),
-          shouldAnimate: true, // 애니메이션 활성화
+          shouldAnimate: false, // 애니메이션 활성화
+          animation: false,
+          timeline: false, // 타임라인 숨기기
+          homeButton: false, // 홈 버튼 숨기기
+          sceneModePicker: false, // 씬 모드 선택 버튼 숨기기
+          selectionIndicator: false, // 선택 표시 숨기기
+          navigationHelpButton: false, // 네비게이션 도움말 버튼 숨기기
+          fullscreenButton: false, // 전체 화면 버튼 숨기기
+          geocoder: false, // 위치 검색 숨기기
+          infoBox: false, // 인포박스 숨기기
+          // clock: false, // 시계 숨기기
+          navigationInstructionsInitiallyVisible: false, // 내비게이션 도움말 숨기기
+          baseLayerPicker: false,
+          vrButton: false,
+          projectionPicker: false,
+          requestRenderMode: false,
         });
 
         // 초기 위치 설정
@@ -65,10 +82,11 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({ positionData }: CesiumViewe
           dronePath[0].alt,
         );
 
-        const offset = new Cesium.Cartesian3(0, -100, 50); // 뒤로 100m, 위로 100m 이동
+        // const offset = new Cesium.Cartesian3(0, -100, 50); // 뒤로 100m, 위로 100m 이동
 
-        viewerRef.current.camera.lookAt(initialPosition, offset);
+        // viewerRef.current.camera.lookAt(initialPosition, offset);
         viewerRef.current.camera.setView({
+          destination: initialPosition,
           orientation: {
             heading: Cesium.Math.toRadians(0), // 동쪽을 바라보도록 설정 (기본값: 0)
             pitch: Cesium.Math.toRadians(10), // 아래를 45도 각도로 내려다보도록 설정
@@ -91,6 +109,7 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({ positionData }: CesiumViewe
         });
       }
     };
+  
 
     // 초기화 함수 실행
     initializeCesium();
@@ -99,6 +118,7 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({ positionData }: CesiumViewe
     return () => {
       if (viewerRef.current) {
         viewerRef.current.destroy(); // Cesium Viewer 종료
+        viewerRef.current = null;
       }
     };
   }, [dronePath]);
