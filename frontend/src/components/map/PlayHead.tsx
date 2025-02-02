@@ -1,8 +1,7 @@
-import { useContext, useEffect,useRef, useState } from "react";
-
+import { useContext, useEffect, useRef, useState } from "react";
 import { PhaseContext } from "@/contexts/PhaseContext";
+import { useCurrentTime } from "@/contexts/CurrentTimeContext";
 import { formatTime } from "@/utils/formatTime";
-
 
 interface Prop {
   flightStartTime: number;
@@ -13,13 +12,17 @@ const PlayHead = ({ flightStartTime, duration }: Prop) => {
   const isDraggingRef = useRef(false);
   const progressBarRef = useRef<HTMLDivElement | null>(null);
   const { phase, setPhase } = useContext(PhaseContext);
+  const { setCurrentTime } = useCurrentTime(); // 추가된 부분
   const [timeStamp, setTimeStamp] = useState("");
 
   useEffect(() => {
     const phaseTime = phase * duration * 1000;
     const totalTimeStamp = phaseTime + flightStartTime;
-    setTimeStamp(formatTime(new Date(totalTimeStamp))); //HH:mm:ss
-  }, [phase, duration, flightStartTime]);
+    setTimeStamp(formatTime(new Date(totalTimeStamp))); // HH:mm:ss
+
+    // 현재 재생 시간을 Context에 업데이트
+    setCurrentTime(totalTimeStamp);
+  }, [phase, duration, flightStartTime, setCurrentTime]);
 
   useEffect(() => {
     const handleMouseUp = () => {

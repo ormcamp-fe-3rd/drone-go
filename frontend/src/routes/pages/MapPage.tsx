@@ -55,6 +55,10 @@ export default function MapPage() {
   const positionData =
     rawPositionData.length > 0 ? formatAndSortPositionData(rawPositionData) : null;
 
+  // 상태데이터
+  const rawStateData = data?.filter((entry) => entry.msgId === 253) ?? [];
+  const stateData = rawStateData.length > 0 ? rawStateData : null; 
+
   return (
     <>
       <div className="fixed z-10 w-full">
@@ -79,14 +83,19 @@ export default function MapPage() {
         <SpeedWidget speedData={speedData ?? null} />
       
         <AltitudeWidget positionData={positionData ?? null} />
+
         <StateWidget
-          icon={toolbarWidgetData[3].icon}
-          title={toolbarWidgetData[3].title}
-          values={toolbarWidgetData[3].stateValues!}
+          stateData={stateData ?? null}
+          selectedDrone={selectedDrone ? selectedDrone._id : null}
+          selectedOperationAndDate={selectedOperationAndDate ? selectedOperationAndDate.operationId : null}
         />
+          
       </div>
 
-      <Map2D positionData={positionData ?? null} />
+      <Map2D
+        positionData={positionData ?? null}
+        stateData={stateData ?? null}
+      />
     </>
   );
 }
