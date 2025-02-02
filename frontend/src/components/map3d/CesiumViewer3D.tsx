@@ -48,7 +48,7 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({ positionData }) => {
         if (viewerRef.current) {
           viewerRef.current.destroy();
         }
-        if(!cesiumContainerRef.current) return;
+        if (!cesiumContainerRef.current) return;
         viewerRef.current = new Cesium.Viewer(cesiumContainerRef.current, {
           terrainProvider,
           animation: false,
@@ -90,6 +90,73 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({ positionData }) => {
       setIsInitialized(false);
     };
   }, []);
+
+  useEffect(() => {
+    if (positionData) {
+      setPhase(0);
+    }
+  }, [positionData, setPhase]);
+
+  // phase에 따른 드론 위치 업데이트
+  const updateDronePosition = useCallback(
+    (currentPhase: number) => {
+      if (!viewerRef.current || !positionData || !modelEntityRef.current)
+        return;
+
+      const index = Math.min(
+        Math.floor(currentPhase * (positionData.length - 1)),
+        positionData.length - 1,
+      );
+
+      if (!positionData[index] || !positionData[index].payload) return;
+
+      const currentItem = positionData[index];
+      const position = Cesium.Cartesian3.fromDegrees(
+        currentItem.payload.lon,
+        currentItem.payload.lat,
+        currentItem.payload.alt,
+      );
+
+      // 위치 업데이트
+      modelEntityRef.current.position = new Cesium.ConstantPositionProperty(
+        position,
+      );
+
+      // 방향 계산 및 업데이트
+      if (index > 0) {
+        const prevItem = positionData[index - 1];
+        const prevPosition = Cesium.Cartesian3.fromDegrees(
+          prevItem.payload.lon,
+          prevItem.payload.lat,
+          prevItem.payload.alt,
+        );
+
+        const direction = Cesium.Cartesian3.subtract(
+          position,
+          prevPosition,
+          new Cesium.Cartesian3(),
+        );
+
+        if (Cesium.Cartesian3.magnitudeSquared(direction) > 0) {
+          Cesium.Cartesian3.normalize(direction, direction);
+          const heading = Math.atan2(direction.y, direction.x);
+          const orientation = Cesium.Transforms.headingPitchRollQuaternion(
+            position,
+            new Cesium.HeadingPitchRoll(heading, 0, 0),
+          );
+          modelEntityRef.current.orientation = new Cesium.ConstantProperty(
+            orientation,
+          );
+        }
+      }
+
+      // 카메라 업데이트
+      if (!viewerRef.current.trackedEntity) {
+        viewerRef.current.trackedEntity = modelEntityRef.current;
+      }
+    },
+    [positionData],
+  );
 
   // 경로 데이터 설정
   useEffect(() => {
@@ -141,66 +208,7 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({ positionData }) => {
 
     // 초기 위치 설정
     updateDronePosition(0);
-  }, [positionData, isInitialized]);
-
-  // phase에 따른 드론 위치 업데이트
-  const updateDronePosition = useCallback(
-    (currentPhase: number) => {
-      if (!viewerRef.current || !positionData || !modelEntityRef.current)
-        return;
-
-      const index = Math.min(
-        Math.floor(currentPhase * (positionData.length - 1)),
-        positionData.length - 1,
-      );
-
-      const currentItem = positionData[index];
-      const position = Cesium.Cartesian3.fromDegrees(
-        currentItem.payload.lon,
-        currentItem.payload.lat,
-        currentItem.payload.alt,
-      );
-
-      // 위치 업데이트
-      modelEntityRef.current.position = new Cesium.ConstantPositionProperty(
-        position,
-      );
-
-      // 방향 계산 및 업데이트
-      if (index > 0) {
-        const prevItem = positionData[index - 1];
-        const prevPosition = Cesium.Cartesian3.fromDegrees(
-          prevItem.payload.lon,
-          prevItem.payload.lat,
-          prevItem.payload.alt,
-        );
-
-        const direction = Cesium.Cartesian3.subtract(
-          position,
-          prevPosition,
-          new Cesium.Cartesian3(),
-        );
-
-        if (Cesium.Cartesian3.magnitudeSquared(direction) > 0) {
-          Cesium.Cartesian3.normalize(direction, direction);
-          const heading = Math.atan2(direction.y, direction.x);
-          const orientation = Cesium.Transforms.headingPitchRollQuaternion(
-            position,
-            new Cesium.HeadingPitchRoll(heading, 0, 0),
-          );
-          modelEntityRef.current.orientation = new Cesium.ConstantProperty(
-            orientation,
-          );
-        }
-      }
-      
-      // 카메라 업데이트
-      if (!viewerRef.current.trackedEntity) {
-        viewerRef.current.trackedEntity = modelEntityRef.current;
-      }
-    },
-    [positionData],
-  );
+  }, [positionData, isInitialized, updateDronePosition]);
 
   // phase 변경 시 드론 위치 업데이트
   useEffect(() => {
