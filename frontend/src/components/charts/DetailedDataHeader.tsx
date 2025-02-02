@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import DropdownSection from "./DropdownSection";
 import { Robot } from "../../types/selectOptionsTypes";
+
 interface OperationAndDate {
   operationId: string;
   timestamp: string;
@@ -16,6 +17,7 @@ interface Props {
     React.SetStateAction<OperationAndDate | null>
   >;
   backgroundOpacity: number;
+  exportToExcel: () => void;
 }
 
 const DetailedDataHeader: React.FC<Props> = ({
@@ -25,7 +27,16 @@ const DetailedDataHeader: React.FC<Props> = ({
   selectedOperationAndDate,
   setSelectedOperationAndDate,
   backgroundOpacity,
+  exportToExcel,
 }) => {
+  const handleExportClick = () => {
+    if (!selectedDrone || !selectedOperationAndDate) {
+      alert("드론과 오퍼레이션 날짜를 선택해야 합니다.");
+      return;
+    }
+    exportToExcel();
+  };
+
   return (
     <div
       className={`mx-10 my-5 flex flex-wrap items-center justify-evenly gap-1 rounded-[10px] border bg-white px-5 py-4 sm:justify-between md:flex-nowrap md:justify-evenly md:gap-4 md:px-5 bg-opacity-${backgroundOpacity}`}
@@ -56,7 +67,10 @@ const DetailedDataHeader: React.FC<Props> = ({
         />
       </div>
       <div className="flex gap-4">
-        <Button className="h-16 w-16 min-w-[64px] rounded-[10px] bg-white">
+        <Button
+          className="h-16 w-16 min-w-[64px] rounded-[10px] bg-white"
+          onClick={handleExportClick}
+        >
           <img
             src="/icons/download.svg"
             alt="Button Icon"

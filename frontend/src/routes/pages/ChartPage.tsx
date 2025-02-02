@@ -10,6 +10,7 @@ import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
 import FlightTimeDataComponenet from "../../components/charts/FilghtTimeDataComponent";
 import SatellitesChart from "../../components/charts/SatellitesChart";
 import StateDataComponent from "../../components/charts/StateDataComponent";
+import exportToExcel from "../../components/charts/ExportToExcel";
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   children,
@@ -113,6 +114,16 @@ const ChartPage: React.FC = () => {
         setSelectedDrone={setSelectedDrone}
         selectedOperationAndDate={selectedOperationAndDate}
         setSelectedOperationAndDate={setSelectedOperationAndDate}
+        exportToExcel={() =>
+          exportToExcel(
+            batteryData,
+            textData,
+            satellitesData,
+            altAndSpeedData,
+            selectedDrone?.name ?? null,
+            selectedOperationAndDate?.name ?? null,
+          )
+        } // 엑셀 익스포트 함수 전달
       />
       <div className="grid grid-cols-1 gap-3 mx-10 mb-4 lg:grid-cols-2">
         {/* 드론 정보 카드 */}
