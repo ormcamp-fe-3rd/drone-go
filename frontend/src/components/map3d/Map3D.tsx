@@ -1,4 +1,4 @@
-import { Canvas } from "@react-three/fiber";
+import mapboxgl from "mapbox-gl";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
@@ -14,7 +14,6 @@ import { formatTime } from "@/utils/formatTime";
 import PlayHead from "../map/PlayHead";
 import ProgressBar from "../map/ProgressBar";
 import ProgressBarBtn from "../map/ProgressBarBtn";
-import DroneInMap from "./DroneInMap";
 
 interface Props {
   positionData: FormattedTelemetryPositionData[] | null;
@@ -22,6 +21,7 @@ interface Props {
 
 export default function Map3D({ positionData }: Props) {
   const mapRef = useRef<MapRef>(null); //맵 인스턴스 접근
+  const markerRef = useRef<mapboxgl.Marker | null>(null);
   const [dronePath, setDronePath] = useState<LatLonAlt[] | null>();
   const [totalDuration, setTotalDuration] = useState<number>(0);
   const [startEndTime, setStartEndTime] = useState<{
@@ -74,6 +74,15 @@ export default function Map3D({ positionData }: Props) {
     if (mapRef.current.isStyleLoaded()) {
       addRouteSourceAndLayer(pathCoordinates);
     }
+
+    //마커 추가
+    if(!markerRef.current){
+      markerRef.current = new mapboxgl.Marker({
+        element: createMarkerElement("/images/Group 906.svg"),
+        rotationAlignment: "map"
+      }).setLngLat(mapRef.current.getCenter())
+      .addTo(mapRef.current.getMap());
+    }
   }, [positionData, speed, setPhase]);
 
   function addRouteSourceAndLayer(pathCoordinates: number[][]) {
@@ -125,11 +134,19 @@ export default function Map3D({ positionData }: Props) {
           "line-color": "#007cbf",
         },
       });
-    }
+  }}
+  
+  function createMarkerElement(imageUrl: string) {
+    const element = document.createElement("img");
+    element.src = imageUrl;
+    element.style.width = "50px";
+    element.style.height = "50px";
+    element.style.objectFit = "contain";
+    return element;
   }
 
   const updateCamera = useCallback(() => {
-    if (!totalDuration || !dronePath || !mapRef.current) return;
+    if (!totalDuration || !dronePath || !mapRef.current || !markerRef.current) return;
     const map = mapRef.current!.getMap();
     const routeDistance = calculateDistance(dronePath);
 
@@ -140,6 +157,8 @@ export default function Map3D({ positionData }: Props) {
     );
     
     map.setCenter([alongPoint.lon, alongPoint.lat]);
+    const markerLngLat: [number, number] = [alongPoint.lon, alongPoint.lat];
+    markerRef.current.setLngLat(markerLngLat);
 
   }, [totalDuration, dronePath, phase]);
 
@@ -147,33 +166,6 @@ export default function Map3D({ positionData }: Props) {
     elapsedTimeRef.current = phase * totalDuration * 1000;
     updateCamera(); // phase 변경 시 카메라 위치 업데이트
   }, [phase, totalDuration, elapsedTimeRef, updateCamera]);
-
-  // TODO: 회전기능은 후순위로 작업
-  // const [dragPosition, setDragPosition] = useState<{
-  //   x: number;
-  //   y: number;
-  // } | null>(null);
-  // const [isDragging, setIsDragging] = useState(false);
-
-  // const handleMouseDown = (event: mapboxgl.MapMouseEvent) => {
-  //   if (event.originalEvent.ctrlKey) {
-  //     setIsDragging(true);
-  //   }
-  // };
-
-  // const handleMouseMove = (event: mapboxgl.MapMouseEvent) => {
-  //   if (!isDragging || !mapRef.current) return;
-
-  //   const point = event.point;
-  //   const x = (point.x / mapRef.current.getContainer().clientWidth) * 2 - 1;
-  //   const y = -(point.y / mapRef.current.getContainer().clientWidth) * 2 + 1;
-  //   setDragPosition({ x: x, y: y });
-  // };
-
-  // const handleMouseUp = () => {
-  //   setIsDragging(false);
-  //   setDragPosition(null);
-  // };
 
   const animate = (currentTime: number) => {
     if (!mapRef.current || !dronePath || !positionData) return;
@@ -249,16 +241,7 @@ export default function Map3D({ positionData }: Props) {
           touchPitch={false}
           touchZoomRotate={false}
           dragRotate={true} //드래그로 회전만 가능
-          // TODO: 회전기능은 후순위로 작업
-          // onMouseDown={handleMouseDown}
-          // onMouseUp={handleMouseUp}
-          // onMouseMove={handleMouseMove}
         >
-          <div className="absolute left-1/2 top-1/2 h-[200px] w-[200px] -translate-x-1/2 -translate-y-1/2">
-            <Canvas camera={{ position: [0, 0, 100], fov: 75 }}>
-              <DroneInMap />
-            </Canvas>
-          </div>
         </Map>
       </div>
       <div className="fixed bottom-0 w-screen">
