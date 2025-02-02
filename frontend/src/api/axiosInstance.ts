@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Axios 인스턴스 생성
 const apiClient = axios.create({
-  baseURL: "http://localhost:3000", // 기본 API 주소
+  baseURL: "http://localhost:3000",
   headers: {
     "Content-Type": "application/json",
   },

@@ -4,59 +4,57 @@ export interface Telemetry {
   robot: string;
   __v?: number;
   msgId: number;
-  timestamp: Date | number;
+  timestamp: Date;
   payload: TelemetryPayload;
 }
 
-// ✅ 텔레메트리 필드 취사 선택 (기본 필드 + 페이로드 전체)
-export type TelemetrySubset<T extends keyof Telemetry> = Pick<Telemetry, T>;
-
+// 전체 payload 타입
 export interface TelemetryPayload {
-  airspeed?: number | null;
-  groundspeed?: number | null;
-  alt?: number | null;
-  pitch?: number | null;
-  pitchspeed?: number | null;
-  roll?: number | null;
-  rollspeed?: number | null;
-  yaw?: number | null;
-  yawspeed?: number | null;
-  climb?: number | null;
-  altEllipsoid?: number | null;
-  batteryFunction?: number | null;
-  batteryRemaining?: number | null;
-  chargeState?: number | null;
-  cog?: number | null;
-  currentBattery?: number | null;
-  currentConsumed?: number | null;
-  energyConsumed?: number | null;
-  eph?: number | null;
-  epv?: number | null;
-  faultBitmask?: number | null;
-  fixType?: number | null;
-  hAcc?: number | null;
-  hdg?: number | null;
-  hdgAcc?: number | null;
-  heading?: number | null;
-  id?: number | null;
-  lat?: number | null;
-  lon?: number | null;
-  mode?: number | null;
-  relativeAlt?: number | null;
-  satellitesVisible?: number | null;
-  temperature?: number | null;
-  text?: string | null;
-  throttle?: number | null;
-  timeBootMs?: number | null;
-  timeRemaining?: number | null;
-  timeUsec?: number | null;
-  vAcc?: number | null;
-  vel?: number | null;
-  velAcc?: number | null;
-  vx?: number | null;
-  vy?: number | null;
-  vz?: number | null;
-  voltages?: number[] | null;
-  voltagesExt?: number[] | null;
-  [key: string]: any | null; // 추가적인 동적 필드 지원
+  airspeed?: number;
+  groundspeed?: number;
+  alt?: number;
+  pitch?: number;
+  pitchspeed?: number;
+  roll?: number;
+  rollspeed?: number;
+  yaw?: number;
+  yawspeed?: number;
+  climb?: number;
+  altEllipsoid?: number;
+  batteryFunction?: number;
+  batteryRemaining?: number;
+  chargeState?: number;
+  cog?: number;
+  currentBattery?: number;
+  currentConsumed?: number;
+  energyConsumed?: number;
+  eph?: number;
+  epv?: number;
+  faultBitmask?: number;
+  fixType?: number;
+  hAcc?: number;
+  hdg?: number;
+  hdgAcc?: number;
+  heading?: number;
+  id?: number;
+  lat?: number;
+  lon?: number;
+  mode?: number;
+  relativeAlt?: number;
+  satellitesVisible?: number;
+  temperature?: number;
+  text?: string;
+  throttle?: number;
+  timeBootMs?: number;
+  timeRemaining?: number;
+  timeUsec?: number;
+  vAcc?: number;
+  vel?: number;
+  velAcc?: number;
+  vx?: number;
+  vy?: number;
+  vz?: number;
+  voltages?: number[];
+  voltagesExt?: number[];
+  [key: string]: any; // 추가적인 동적 필드 지원
 }
