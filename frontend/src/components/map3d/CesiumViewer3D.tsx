@@ -26,7 +26,7 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
         if (viewerRef.current) {
           viewerRef.current.destroy();
         }
-        if(!cesiumContainerRef.current) return;
+        if (!cesiumContainerRef.current) return;
         viewerRef.current = new Cesium.Viewer(cesiumContainerRef.current, {
           terrainProvider,
           imageryProviderViewModels: [
@@ -58,6 +58,16 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
           projectionPicker: false,
           requestRenderMode: false,
         });
+
+        // 3D 건물 타일셋 추가
+        const buildingTileset = await Cesium.Cesium3DTileset.fromIonAssetId(
+          96188,
+          {
+            maximumScreenSpaceError: 16, // 화질 설정 (낮을수록 고화질)
+          },
+        );
+
+        viewerRef.current.scene.primitives.add(buildingTileset);
 
         setIsInitialized(true);
       } catch (error) {
