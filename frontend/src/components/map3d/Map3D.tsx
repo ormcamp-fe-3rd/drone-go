@@ -78,7 +78,7 @@ export default function Map3D({ positionData }: Props) {
     //마커 추가
     if(!markerRef.current){
       markerRef.current = new mapboxgl.Marker({
-        element: createMarkerElement("/images/Group 906.svg"),
+        element: createMarkerElement("/images/droneMarker.svg"),
         rotationAlignment: "map"
       }).setLngLat(mapRef.current.getCenter())
       .addTo(mapRef.current.getMap());
