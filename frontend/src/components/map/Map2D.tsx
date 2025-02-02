@@ -3,8 +3,8 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
 import { PhaseContext } from "@/contexts/PhaseContext";
-import { LatLonAlt } from "@/types/latLonAlt";
-import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
+import { Telemetry2dPayloadSubset } from "@/types/telemetry2dDataTypes";
+import { formatAndSortPositionData } from "@/utils/formatPositionData";
 import { calculateDistance, calculatePointAlongRoute } from "@/utils/calculateDistance";
 import { formatTime } from "@/utils/formatTime";
 
@@ -13,12 +13,12 @@ import PlayHead from "./PlayHead";
 import ProgressBarBtn from "./ProgressBarBtn";
 
 interface Props {
-  positionData: FormattedTelemetryPositionData[] | null;
+  positionData: ReturnType<typeof formatAndSortPositionData> | null;
 }
 
 export default function Map2D({ positionData }: Props) {
   const mapRef = useRef<MapRef>(null); // 맵 인스턴스 접근
-  const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>();
+  const [latLonAlt, setLatLonAlt] = useState<Telemetry2dPayloadSubset<"lat" | "lon" | "alt">[] | null>(null);
   const [totalDuration, setTotalDuration] = useState<number>(0);
   const [startEndTime, setStartEndTime] = useState<{
     startTime: string;
@@ -40,7 +40,7 @@ export default function Map2D({ positionData }: Props) {
     if (!mapRef.current || !positionData) return;
     setPhase(0);
   
-    const payloadData: LatLonAlt[] = positionData.map((item) => ({
+    const payloadData: Telemetry2dPayloadSubset<"lat" | "lon" | "alt">[] = positionData.map((item) => ({
       lat: item.payload.lat,
       lon: item.payload.lon,
       alt: item.payload.alt,
@@ -48,12 +48,12 @@ export default function Map2D({ positionData }: Props) {
     setLatLonAlt(payloadData);
   
     mapRef.current.setCenter([
-      positionData[0].payload.lon,
-      positionData[0].payload.lat,
+      positionData[0]?.payload?.lon ?? 0,
+      positionData[0]?.payload?.lat ?? 0,
     ]);
   
-    const flightStartTime = positionData[0].timestamp; // Unix 타임스탬프
-    const flightEndTime = positionData[positionData.length - 1].timestamp;
+    const flightStartTime = positionData[0]?.timestamp ?? "데이터 없음"; // Unix 타임스탬프
+    const flightEndTime = positionData[positionData.length - 1]?.timestamp ?? "데이터 없음";
     const formattedStartTime = formatTime(new Date(flightStartTime)); // HH:mm:ss(string 타입)으로 포맷
     const formattedEndTime = formatTime(new Date(flightEndTime));
     setStartEndTime({
@@ -78,7 +78,7 @@ export default function Map2D({ positionData }: Props) {
       totalDistance * phaseValue || 0.001,
     );
     
-    const markerLngLat: [number, number] = [alongPoint.lon, alongPoint.lat];
+    const markerLngLat: [number, number] = [alongPoint.lon ?? 0, alongPoint.lat ?? 0];
     markerRef.current.setLngLat(markerLngLat);
     
     map.flyTo({
@@ -125,28 +125,29 @@ export default function Map2D({ positionData }: Props) {
     animationRef.current = window.requestAnimationFrame(animate);
   };
 
-
   // 지도 및 마커 초기화
   useEffect(() => {
-    if (mapRef.current && latLonAlt) {
-      const map = mapRef.current.getMap();
-
-      const initialPoint =
-        latLonAlt.length > 0
-          ? latLonAlt[0]
-          : { lat: 37.572398, lon: 126.976944 }; // 서울 기본값
-
-      // 초기 맵 위치 설정
-      map.jumpTo({
-        center: [initialPoint.lon, initialPoint.lat],
-        zoom: 12,
-      });
-
-      const pathCoordinates = latLonAlt.map((point) => [
-        point.lon,
-        point.lat,
-      ]);
-
+    if (!mapRef.current || !latLonAlt) return;
+  
+    const map = mapRef.current.getMap();
+  
+    const initialPoint =
+      latLonAlt.length > 0
+        ? latLonAlt[0]
+        : { lat: 37.572398, lon: 126.976944 }; // 서울 기본값
+  
+    // 초기 맵 위치 설정
+    map.jumpTo({
+      center: [initialPoint.lon ?? 0, initialPoint.lat ?? 0],
+      zoom: 12,
+    });
+  
+    const pathCoordinates = latLonAlt
+      .filter((point) => point.lon !== null && point.lat !== null)
+      .map((point) => [point.lon as number, point.lat as number]);
+  
+    // 🔹 경로 데이터 업데이트 함수
+    const updateRouteSource = () => {
       if (map.getSource("route")) {
         (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
           type: "FeatureCollection",
@@ -178,7 +179,7 @@ export default function Map2D({ positionData }: Props) {
             ],
           },
         });
-
+  
         map.addLayer({
           id: "route-line",
           type: "line",
@@ -193,25 +194,37 @@ export default function Map2D({ positionData }: Props) {
           },
         });
       }
-
-      if (!markerRef.current) {
-        const initialPoint =
-          latLonAlt.length > 0
-            ? latLonAlt[0]
-            : { lat: 37.572398, lon: 126.976944 };
-        const markerLngLat: [number, number] = [
-          initialPoint.lon,
-          initialPoint.lat,
-        ];
-
-        markerRef.current = new mapboxgl.Marker({
-          element: createMarkerElement("/images/Group 906.svg"),
-        })
-          .setLngLat(markerLngLat)
-          .addTo(map);
-      }
+    };
+  
+    // 🔹 스타일 로딩 확인 후 데이터 업데이트 실행
+    if (map.isStyleLoaded()) {
+      updateRouteSource();
+    } else {
+      map.once("style.load", () => {
+        console.log("✅ 스타일 로딩 완료! 데이터 업데이트 실행");
+        updateRouteSource();
+      });
+    }
+  
+    // 🔹 마커 추가
+    if (!markerRef.current) {
+      const initialMarkerPoint =
+        latLonAlt.length > 0
+          ? latLonAlt[0]
+          : { lat: 37.572398, lon: 126.976944 };
+      const markerLngLat: [number, number] = [
+        initialMarkerPoint.lon ?? 0,
+        initialMarkerPoint.lat ?? 0,
+      ];
+  
+      markerRef.current = new mapboxgl.Marker({
+        element: createMarkerElement("/images/Group 906.svg"),
+      })
+        .setLngLat(markerLngLat)
+        .addTo(map);
     }
   }, [latLonAlt]);
+  
 
   function createMarkerElement(imageUrl: string) {
     const element = document.createElement("img");
@@ -288,4 +301,3 @@ export default function Map2D({ positionData }: Props) {
     </>
   );
 }
-

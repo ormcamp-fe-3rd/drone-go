@@ -1,6 +1,10 @@
 const { Schema, model } = require('mongoose');
 
 const telemetrySchema = new Schema({
+  _id: {
+    type: Schema.Types.ObjectId,
+    required: true,
+  },
   operation: {
     type: Schema.Types.ObjectId,
     required: true,
@@ -22,6 +26,9 @@ const telemetrySchema = new Schema({
   timestamp: {
     type: Date,
     required: true
+  },
+  __v: {
+    type: Number
   }
 });
 
