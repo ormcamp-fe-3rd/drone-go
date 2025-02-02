@@ -10,7 +10,6 @@ const Telemetry = require('../models/telemetryModel');
  * @returns {Promise<void>} - 성공 시 가공된 Telemetry 데이터를 JSON 형식으로 응답
  * @throws {Error} - 서버 에러 발생 시 500 상태 코드와 에러 메시지 반환
  */
-
 const getAllTelemetries = async (req, res) => {
     try {
         const { robot, operation } = req.query;
@@ -32,19 +31,23 @@ const getAllTelemetries = async (req, res) => {
             return res.status(404).json({ message: 'No matching telemetries found' });
         }
 
-        // 데이터 후처리 (undefined → null 변환 및 기본값 처리)
-        const processedTelemetries = telemetries.map((telemetry) => ({
-            ...telemetry.toObject(),
-            payload: Object.fromEntries(
-                Object.entries(telemetry.payload || {}).map(([key, value]) => [
+        // 데이터 후처리 (모든 필드의 undefined → null 변환)
+        const processUndefinedToNull = (obj) => {
+            return Object.fromEntries(
+                Object.entries(obj).map(([key, value]) => [
                     key,
-                    value !== undefined ? value : null,
+                    value !== undefined
+                        ? typeof value === 'object' && value !== null
+                            ? processUndefinedToNull(value) // 재귀적으로 처리
+                            : value
+                        : null
                 ])
-            ),
-        }));
+            );
+        };
 
-        // ✅ 응답 보내기 전에 콘솔 로그 찍기
-        console.log("📡 API Response Data:", JSON.stringify(processedData, null, 2));
+        const processedTelemetries = telemetries.map((telemetry) =>
+            processUndefinedToNull(telemetry.toObject())
+        );
 
         res.json(processedTelemetries);
     } catch (error) {
