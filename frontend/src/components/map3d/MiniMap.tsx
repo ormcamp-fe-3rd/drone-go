@@ -5,10 +5,6 @@ import Map, { MapRef } from "react-map-gl";
 import { PhaseContext } from "@/contexts/PhaseContext";
 import { LatLonAlt } from "@/types/latLonAlt";
 import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
-import {
-  calculateDistance,
-  calculatePointAlongRoute,
-} from "@/utils/calculateDistance";
 
 
 interface Props {
@@ -47,15 +43,11 @@ export default function MiniMap({ positionData }: Props) {
     if (!mapRef.current || !latLonAlt || latLonAlt.length === 0) return;
 
     const map = mapRef.current.getMap();
-    const totalDistance = calculateDistance(latLonAlt);
 
-    // phase에 따른 위치 계산
-    const alongPoint = calculatePointAlongRoute(
-      latLonAlt,
-      totalDistance * phase,
-    );
+    const currentIndex = Math.floor(phase * (latLonAlt.length - 1));
+    const currentPoint = latLonAlt[currentIndex];
 
-    const markerLngLat: [number, number] = [alongPoint.lon, alongPoint.lat];
+    const markerLngLat: [number, number] = [currentPoint.lon, currentPoint.lat];
 
     // 마커 업데이트
     if (!markerRef.current) {
