@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchPositionDataByOperation } from "@/api/mapApi";
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
 import AltitudeWidget from "@/components/map3d/AltitudeWidget";
-import Map3D from "@/components/map3d/Map3D";
+import CesiumViewer3D from "@/components/map3d/CesiumViewer3D";
 import MapSwitchButton from "@/components/map3d/MapSwitchButton";
 import MiniMapWidget from "@/components/map3d/MiniMapWidget";
 import SpeedWidget from "@/components/map3d/SpeedWidget";
@@ -88,7 +88,9 @@ export default function Map3dPage() {
             values={toolbarWidgetData[3].stateValues!}
           />
         </div>
-        <Map3D positionData={data ?? null} />
+        {/* <Map3D positionData={data ?? null} /> */}
+        
+        <CesiumViewer3D positionData={data?? []}/>
       </PhaseContextProvider>
     </>
   );
