@@ -1,37 +1,55 @@
-import { ReactNode, useState } from "react";
-
-interface DroneState {
-  time: number;
-  state: string;
-}
+import { ReactNode, useState, useContext } from "react";
+import { PhaseContext } from "@/contexts/PhaseContext";
 
 interface ProgressProps {
   children: ReactNode;
   startTime: string;
   endTime: string;
+  stateData: {
+    timestamp: Date;
+    payload: {
+      text: string;
+    };
+  }[] | null;
 }
-const ProgressBar = ({ children, startTime, endTime }: ProgressProps) => {
+
+const ProgressBar = ({ children, startTime, endTime, stateData }: ProgressProps) => {
   const [hoverTime, setHoverTime] = useState<number | null>(null);
-  const [droneState, setDroneState] = useState<string | null>(null);
+  const [hoverState, setHoverState] = useState<string | null>(null);
+  const { phase } = useContext(PhaseContext);
 
-  // TODO: 임시 데이터, 향후 백엔드 API콜을 통해 실제 데이터 사용.
-  const droneStates: DroneState[] = [
-    { time: 10, state: "Drone 1: Ready" },
-    { time: 20, state: "Drone 2: Flying" },
-    { time: 30, state: "Drone 3: Landed" },
-  ];
+  // 상태 메시지 타임라인 정렬
+  const sortedStates = stateData
+    ? [...stateData].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())
+    : [];
 
-  const handleHover = (time: number) => {
-    const state = droneStates.find((state) => state.time === time);
-    if (state) {
-      setHoverTime(time);
-      setDroneState(state.state);
-    }
+  // 타임스탬프 범위 설정
+  const startTimestamp = sortedStates.length > 0 ? sortedStates[0].timestamp.getTime() : 0;
+  const endTimestamp = sortedStates.length > 0 ? sortedStates[sortedStates.length - 1].timestamp.getTime() : 1;
+  const totalDuration = endTimestamp - startTimestamp || 1; // 0으로 나누는 것 방지
+
+  // 현재 phase에 맞는 상태 메시지 찾기
+  const currentIndex = Math.floor(phase * (sortedStates.length - 1));
+  const currentState = sortedStates[currentIndex] || null;
+  console.log(currentState)
+
+  // 프로그레스 바 상의 표시 위치 계산 (백분율 기반)
+  const progressDots = sortedStates.map((state) => {
+    const progressPercentage = ((state.timestamp.getTime() - startTimestamp) / totalDuration) * 100;
+    return {
+      progress: progressPercentage,
+      state: state.payload.text,
+    };
+  });
+
+  const handleHover = (time: number, state: string) => {
+    setHoverTime(time);
+    setHoverState(state);
   };
 
   const handleMouseLeave = () => {
     setHoverTime(null);
-    setDroneState(null);
+    setHoverState(null);
   };
 
   return (
@@ -39,17 +57,19 @@ const ProgressBar = ({ children, startTime, endTime }: ProgressProps) => {
       <div className="progress-bar relative mb-[50px] h-[8px] w-full rounded-[5px] bg-[#504D4D]">
         <div className="progress transition-width absolute h-full w-0 bg-[#D7D7D7] duration-200 ease-linear"></div>
 
-        {droneStates.map((state, index) => (
+        {/* 상태 메시지 존재하는 위치에 점 표시 */}
+        {progressDots.map((dot, index) => (
           <div
             key={index}
             className="drone-dot absolute top-1/2 h-[5px] w-[5px] -translate-y-1/2 transform cursor-pointer rounded-full bg-white"
-            style={{ left: `${(state.time / 60) * 100}%` }}
-            onMouseEnter={() => handleHover(state.time)}
+            style={{ left: `${dot.progress}%` }}
+            onMouseEnter={() => handleHover(dot.progress, dot.state)}
             onMouseLeave={handleMouseLeave}
           >
-            {hoverTime === state.time && (
+            {/* 호버 시 상태 메시지 표시 */}
+            {hoverTime === dot.progress && (
               <div className="absolute left-1/2 top-[20px] z-10 -translate-x-1/2 transform whitespace-nowrap rounded-[10px] bg-white bg-opacity-80 px-2 py-1 text-[12px] font-semibold text-[#28282C]">
-                {droneState} at {hoverTime}s
+                {hoverState}
               </div>
             )}
           </div>
@@ -69,7 +89,4 @@ const ProgressBar = ({ children, startTime, endTime }: ProgressProps) => {
   );
 };
 
-
-
-
-export default ProgressBar
+export default ProgressBar;
