@@ -5,6 +5,7 @@ import Map, { MapRef } from "react-map-gl";
 import { PhaseContext } from "@/contexts/PhaseContext";
 import { LatLonAlt } from "@/types/latLonAlt";
 import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
+import calculateMarkerHeading from "@/utils/calculateMarkerHeading";
 import { formatTime } from "@/utils/formatTime";
 
 import ProgressBar from "../map/ProgressBar";
@@ -39,6 +40,7 @@ export default function Map2D({ positionData, stateData }: Props) {
   const elapsedTimeRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
+  const [headings, setHeadings] = useState<number[]>();
 
   // 경로, 운행시간 셋팅
   useEffect(() => {
@@ -70,11 +72,14 @@ export default function Map2D({ positionData, stateData }: Props) {
     const totalFlightTime = (flightEndTime - flightStartTime)/1000;
     setTotalDuration(totalFlightTime/speed);
 
+    const calculatedHeadings = calculateMarkerHeading(payloadData);
+    setHeadings(calculatedHeadings);
+
   }, [positionData, setPhase, speed]);
 
 
   const updateCamera = useCallback((phase: number )=> {
-    if (!mapRef.current || !latLonAlt || !markerRef.current) return;
+    if (!mapRef.current || !latLonAlt || !markerRef.current || !headings) return;
     const map = mapRef.current.getMap();
 
     const index = Math.min(
@@ -82,15 +87,17 @@ export default function Map2D({ positionData, stateData }: Props) {
       latLonAlt.length - 1,
     );
     const currentItem = latLonAlt[index];
+    const currentHeading = headings[index] || 0;
 
     const markerLngLat: [number, number] = [currentItem.lon, currentItem.lat];
     markerRef.current.setLngLat(markerLngLat);
+    markerRef.current.setRotation(currentHeading);
     
     map.flyTo({
       center: markerLngLat,
       essential: true,
     });
-  },[latLonAlt])
+  },[headings, latLonAlt])
 
 
   //playhead 조작한 경우 elapsedTimeRef 변경
