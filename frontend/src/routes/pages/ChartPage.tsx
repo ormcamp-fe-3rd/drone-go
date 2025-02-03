@@ -1,9 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
 import { useContext, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-
-import {AuthContext} from "@/contexts/AuthContext";
-
+import { useQuery } from "@tanstack/react-query";
+import { AuthContext } from "@/contexts/AuthContext";
 import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
 import AltAndSpeedChart from "../../components/charts/AltAndSpeedChart";
 import BatteryChart from "../../components/charts/BatteryChart";
@@ -11,7 +9,9 @@ import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
 import FlightTimeDataComponenet from "../../components/charts/FilghtTimeDataComponent";
 import SatellitesChart from "../../components/charts/SatellitesChart";
 import StateDataComponent from "../../components/charts/StateDataComponent";
+import exportToExcel from "../../components/charts/ExportToExcel";
 import { Robot } from "../../types/selectOptionsTypes";
+
 
 const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   children,
@@ -21,31 +21,24 @@ const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
   </div>
 );
 
-
 const ChartPage: React.FC = () => {
   const location = useLocation();
   const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
   const [selectedOperationAndDate, setSelectedOperationAndDate] = useState<{
     operationId: string;
-    date: string;
+    timestamp: string;
     name: string;
   } | null>(null);
-  const { isAuth }  = useContext(AuthContext);
+  const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
-  
+
   useEffect(()=>{
     if(isAuth === null) return;
     if(!isAuth){
       alert("Signing in is required");
       navigate("/");
     }
-  },[isAuth, navigate])
-  
-  const droneImages: { [key: string]: string } = {
-    M1_1: "/images/chart/drone1.svg",
-    M1_2: "/images/chart/drone2.svg",
-    M1_3: "/images/chart/drone1.svg",
-  };
+  }, [isAuth, navigate]);
 
   // location에서 robot_id 가져오기
   const robotId = location.state?.robot_id;
@@ -111,8 +104,8 @@ const ChartPage: React.FC = () => {
     window.location.href = "/";
     return null;
   }
-  const { batteryData, textData, satellitesData, altAndSpeedData } = telemetryData;
-
+  const { batteryData, textData, satellitesData, altAndSpeedData } =
+    telemetryData;
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F3F2F9]">
@@ -123,8 +116,18 @@ const ChartPage: React.FC = () => {
         setSelectedDrone={setSelectedDrone}
         selectedOperationAndDate={selectedOperationAndDate}
         setSelectedOperationAndDate={setSelectedOperationAndDate}
+        exportToExcel={() =>
+          exportToExcel(
+            batteryData,
+            textData,
+            satellitesData,
+            altAndSpeedData,
+            selectedDrone?.name ?? null,
+            selectedOperationAndDate?.name ?? null,
+          )
+        } // 엑셀 익스포트 함수 전달
       />
-      <div className="mx-10 mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
+      <div className="grid grid-cols-1 gap-3 mx-10 mb-4 lg:grid-cols-2">
         {/* 드론 정보 카드 */}
         <div className="flex h-[380px] gap-3">
           <div className="flex w-3/5 flex-col rounded-[10px] border border-[#B2B2B7] bg-white">
@@ -134,9 +137,9 @@ const ChartPage: React.FC = () => {
             <div className="mx-5 h-[300px]">
               {selectedDrone ? (
                 <img
-                  src={`/images/chart/${selectedDrone._id}.svg`}
+                  src={`/images/chart/${selectedDrone.name}.svg`}
                   alt={selectedDrone.name}
-                  className="h-full w-full object-contain"
+                  className="object-contain w-full h-full"
                 />
               ) : (
                 <p className="text-xl text-gray-500">Select a drone</p>
@@ -179,18 +182,40 @@ const ChartPage: React.FC = () => {
             </div>
           </div>
         </div>
-        {/* 차트 */}
         {isLoading ? (
-          <p>Loading chart data...</p>
-        ) : error ? (
-          <p>Error loading data</p>
-        ) : (
-          <>
+          <ChartCard title="">
+            <p className="text-center">Loading chart data...</p>
+          </ChartCard>
+        ) : error instanceof Error ? (
+          <p className="text-center">Error loading data: {error.message}</p>
+        ) : altAndSpeedData.length > 0 ? (
+          <ChartCard title="">
             <BatteryChart data={batteryData} />
-            <SatellitesChart data={satellitesData} />
-          </>
+          </ChartCard>
+        ) : (
+          <ChartCard title="">
+            <p className="text-center">
+              <strong> Select a drone and operation to view the chart.</strong>
+            </p>
+          </ChartCard>
         )}
-
+        {isLoading ? (
+          <ChartCard title="">
+            <p className="text-center">Loading chart data...</p>
+          </ChartCard>
+        ) : error instanceof Error ? (
+          <p className="text-center">Error loading data: {error.message}</p>
+        ) : altAndSpeedData.length > 0 ? (
+          <ChartCard title="">
+            <SatellitesChart data={satellitesData} />
+          </ChartCard>
+        ) : (
+          <ChartCard title="">
+            <p className="text-center">
+              <strong> Select a drone and operation to view the chart.</strong>
+            </p>
+          </ChartCard>
+        )}
         {isLoading ? (
           <ChartCard title="">
             <p className="text-center">Loading chart data...</p>
@@ -208,7 +233,6 @@ const ChartPage: React.FC = () => {
             </p>
           </ChartCard>
         )}
-
       </div>
     </div>
   );
