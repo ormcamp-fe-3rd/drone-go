@@ -36,12 +36,6 @@ export default function MapPage() {
   const { data, error, isPending } = useTelemetry2D(selectedDrone, selectedOperationAndDate);
 
   if (error) {
-    if (error.message === "Unauthorized user") {
-      localStorage.removeItem("token");
-      alert("Your session has expired. Please log in again.");
-      window.location.href = "/";
-      return null;
-    }
     return "An error has occurred: " + error.message;
   }
 

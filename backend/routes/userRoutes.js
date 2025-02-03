@@ -7,7 +7,7 @@ router.post('/login', async (req, res, next) => {
   // 테스트 아이디 로그인 로직
   if (id === 'test' && password === '1234') {
     // 토큰 발급
-    const token = jwt.sign({ id }, 'my-secret-key', { expiresIn: '30m' })
+    const token = jwt.sign({ id }, 'my-secret-key', { expiresIn: '24h' })
     res.json(token)
   } else {
     next(Error('Invalid id or password'))

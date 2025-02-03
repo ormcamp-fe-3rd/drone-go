@@ -4,12 +4,6 @@ import { ProcessedTelemetrySatellitesData } from "../types/telemetrySatellitesDa
 import { ProcessedTelemetryTextData } from "../types/telemetryTextData";
 import { AltAndSpeedData } from "@/types/altAndspeedDataType";
 
-interface TimestampedData {
-  //msgId: number;
-  timestamp: Date;
-  payload: Record<string, any>;
-}
-
 export const fetchTelemetriesByRobotAndOperation = async (
   robotId: string,
   operationId: string,
@@ -33,10 +27,15 @@ export const fetchTelemetriesByRobotAndOperation = async (
   };
 
   try {
-    const response = await fetch(url, {headers});
+    const response = await fetch(url, { headers });
     if (!response.ok) {
-      if(response.status === 401){
+      if (response.status === 401) {
         // 로그인 토큰이 유효하지 않음
+        localStorage.removeItem("token");
+        alert("Your session has expired. Please log in again.");
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 100);
         throw new Error("Unauthorized user")
       }
       throw new Error(`Failed to fetch telemetries: ${response.statusText}`);
@@ -82,58 +81,192 @@ export const fetchTelemetriesByRobotAndOperation = async (
       }));
 
     // msgId가 74(groundspeed: 속도), 33(alt: 고도) 인 데이터만 필터링하고 필요한 값만 반환
-    const GROUNDSPEED_MSG_ID = 74; // msgId: 74
-    const ALTITUDE_MSG_ID = 33; // msgId: 33
+    const processAltAndSpeedData = (data: any[]): AltAndSpeedData[] => {
+      const GROUNDSPEED_MSG_ID = 74;
+      const ALTITUDE_MSG_ID = 33;
 
-    const altAndSpeedData: AltAndSpeedData[] = data
-      .filter(
-        (telemetry) =>
-          telemetry.msgId === GROUNDSPEED_MSG_ID ||
-          telemetry.msgId === ALTITUDE_MSG_ID,
-      )
-      .map((telemetry) => ({
-        // msgId: telemetry.msgId,
-        timestamp: new Date(telemetry.timestamp),
+      // 타임스탬프별로 데이터 정리
+      const timestampMap = new Map<string, AltAndSpeedData>();
+
+      data
+        .filter(
+          (telemetry) =>
+            telemetry.msgId === GROUNDSPEED_MSG_ID ||
+            telemetry.msgId === ALTITUDE_MSG_ID,
+        )
+        .forEach((telemetry) => {
+          const timestamp = new Date(telemetry.timestamp).toISOString();
+          const existing = timestampMap.get(timestamp);
+
+          if (existing) {
+            if (telemetry.msgId === GROUNDSPEED_MSG_ID) {
+              existing.payload.groundspeed = telemetry.payload.groundspeed;
+            } else {
+              existing.payload.alt = telemetry.payload.alt;
+            }
+          } else {
+            timestampMap.set(timestamp, {
+              timestamp: new Date(telemetry.timestamp),
+              payload: {
+                groundspeed:
+                  telemetry.msgId === GROUNDSPEED_MSG_ID
+                    ? telemetry.payload.groundspeed
+                    : undefined,
+                alt:
+                  telemetry.msgId === ALTITUDE_MSG_ID
+                    ? telemetry.payload.alt
+                    : undefined,
+              },
+            });
+          }
+        });
+
+      // 시간순으로 정렬된 배열로 변환
+      const sortedData = Array.from(timestampMap.values()).sort(
+        (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
+      );
+
+      // 선형 보간 함수
+      const interpolateValue = (
+        value1: number,
+        value2: number,
+        ratio: number,
+      ): number => {
+        return value1 + (value2 - value1) * ratio;
+      };
+
+      // 데이터 보간 처리
+      const interpolatedData: AltAndSpeedData[] = [];
+
+      for (let i = 0; i < sortedData.length; i++) {
+        const current = sortedData[i];
+        interpolatedData.push({ ...current }); // 현재 데이터 추가
+
+        // groundspeed 보간
+        if (current.payload.groundspeed === undefined) {
+          let prevIndex = i - 1;
+          let nextIndex = i + 1;
+
+          // 이전 값 찾기
+          while (
+            prevIndex >= 0 &&
+            sortedData[prevIndex].payload.groundspeed === undefined
+          ) {
+            prevIndex--;
+          }
+
+          // 다음 값 찾기
+          while (
+            nextIndex < sortedData.length &&
+            sortedData[nextIndex].payload.groundspeed === undefined
+          ) {
+            nextIndex++;
+          }
+
+          // 이전과 다음 값이 모두 존재하면 보간
+          if (prevIndex >= 0 && nextIndex < sortedData.length) {
+            const prevValue = sortedData[prevIndex].payload.groundspeed!;
+            const nextValue = sortedData[nextIndex].payload.groundspeed!;
+            const timeRange =
+              sortedData[nextIndex].timestamp.getTime() -
+              sortedData[prevIndex].timestamp.getTime();
+            const timeFromPrev =
+              current.timestamp.getTime() -
+              sortedData[prevIndex].timestamp.getTime();
+            const ratio = timeFromPrev / timeRange;
+
+            interpolatedData[i].payload.groundspeed = interpolateValue(
+              prevValue,
+              nextValue,
+              ratio,
+            );
+          }
+        }
+
+        // altitude 보간
+        if (current.payload.alt === undefined) {
+          let prevIndex = i - 1;
+          let nextIndex = i + 1;
+
+          // 이전 값 찾기
+          while (
+            prevIndex >= 0 &&
+            sortedData[prevIndex].payload.alt === undefined
+          ) {
+            prevIndex--;
+          }
+
+          // 다음 값 찾기
+          while (
+            nextIndex < sortedData.length &&
+            sortedData[nextIndex].payload.alt === undefined
+          ) {
+            nextIndex++;
+          }
+
+          // 이전과 다음 값이 모두 존재하면 보간
+          if (prevIndex >= 0 && nextIndex < sortedData.length) {
+            const prevValue = sortedData[prevIndex].payload.alt!;
+            const nextValue = sortedData[nextIndex].payload.alt!;
+            const timeRange =
+              sortedData[nextIndex].timestamp.getTime() -
+              sortedData[prevIndex].timestamp.getTime();
+            const timeFromPrev =
+              current.timestamp.getTime() -
+              sortedData[prevIndex].timestamp.getTime();
+            const ratio = timeFromPrev / timeRange;
+
+            interpolatedData[i].payload.alt = interpolateValue(
+              prevValue,
+              nextValue,
+              ratio,
+            );
+          }
+        }
+      }
+
+      // undefined 값을 가장 가까운 실제 값으로 채우기
+      return interpolatedData.map((data) => ({
+        timestamp: data.timestamp,
         payload: {
-          groundspeed: telemetry.payload.groundspeed, // groundspeed 추가
-          alt: telemetry.payload.alt, // alt 추가
+          groundspeed:
+            data.payload.groundspeed ??
+            findNearestValue(interpolatedData, data.timestamp, "groundspeed"),
+          alt:
+            data.payload.alt ??
+            findNearestValue(interpolatedData, data.timestamp, "alt"),
         },
       }));
-
-    // timestamp 기준으로 데이터 합치기
-    const mergeDataByTimestamp = <T extends TimestampedData>(
-      data: T[],
-    ): T[] => {
-      const mergedData: T[] = [];
-
-      data.forEach((current) => {
-        const existingData = mergedData.find(
-          (item) =>
-            item.timestamp.toISOString() === current.timestamp.toISOString(),
-        );
-
-        if (existingData) {
-          // 동일한 timestamp인 경우, payload 병합
-          existingData.payload.groundspeed =
-            existingData.payload.groundspeed ?? current.payload.groundspeed;
-          existingData.payload.alt =
-            existingData.payload.alt ?? current.payload.alt;
-        } else {
-          // timestamp가 다르면 새로운 항목 추가
-          mergedData.push(current);
-        }
-      });
-
-      return mergedData;
     };
 
-    const mergedAltAndSpeedData = mergeDataByTimestamp(altAndSpeedData);
+    // 가장 가까운 값 찾기 헬퍼 함수
+    const findNearestValue = (
+      data: AltAndSpeedData[],
+      timestamp: Date,
+      key: "groundspeed" | "alt",
+    ): number => {
+      const targetTime = timestamp.getTime();
+      let nearestValue = 0;
+      let minTimeDiff = Infinity;
+
+      for (const item of data) {
+        if (item.payload[key] !== undefined) {
+          const timeDiff = Math.abs(item.timestamp.getTime() - targetTime);
+          if (timeDiff < minTimeDiff) {
+            minTimeDiff = timeDiff;
+            nearestValue = item.payload[key]!;
+          }
+        }
+      }
+
+      return nearestValue;
+    };
 
     return {
       batteryData,
       textData,
       satellitesData,
-      altAndSpeedData: mergedAltAndSpeedData,
+      altAndSpeedData: processAltAndSpeedData(data),
     };
   } catch (error) {
     console.error("Error fetching telemetries:", error);

@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { fetchPositionDataByOperation } from "@/api/mapApi";
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
 import AltitudeWidget from "@/components/map3d/AltitudeWidget";
-import Map3D from "@/components/map3d/Map3D";
+import CesiumViewer3D from "@/components/map3d/CesiumViewer3D";
 import MapSwitchButton from "@/components/map3d/MapSwitchButton";
 import MiniMapWidget from "@/components/map3d/MiniMapWidget";
 import SpeedWidget from "@/components/map3d/SpeedWidget";
@@ -36,7 +36,7 @@ export default function Map3dPage() {
   },[isAuth, navigate])
 
 
-  const { error, data, isPending } = useQuery({
+  const { error, data } = useQuery({
     queryKey: ["position", selectedDrone, selectedOperationAndDate],
     queryFn: async () => {
       if (!selectedDrone || !selectedOperationAndDate) return;
@@ -49,14 +49,7 @@ export default function Map3dPage() {
     enabled: !!selectedOperationAndDate,
   });
 
-  // if (isPending) return "Loading...";
   if (error) {
-    if (error.message === "Unauthorized user") {
-      localStorage.removeItem("token");
-      alert("Your session has expired. Please log in again.");
-      window.location.href="/";
-      return null;
-    }
     return "An error has occurred: " + error.message;
   }
 
@@ -95,7 +88,9 @@ export default function Map3dPage() {
             values={toolbarWidgetData[3].stateValues!}
           />
         </div>
-        <Map3D positionData={data ?? null} />
+        {/* <Map3D positionData={data ?? null} /> */}
+        
+        <CesiumViewer3D positionData={data?? []}/>
       </PhaseContextProvider>
     </>
   );
