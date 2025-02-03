@@ -284,16 +284,18 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
 
   return (
     <>
-      <div
-        ref={cesiumContainerRef}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-        }}
-      />
+      <div className="fixed inset-0 w-screen h-screen">
+        <div
+          ref={cesiumContainerRef}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+          }}
+        />
+      </div>
       <div className="fixed bottom-0 w-screen">
         <ProgressBar
           startTime={startEndTime.startTime}

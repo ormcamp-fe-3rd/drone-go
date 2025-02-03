@@ -19,9 +19,9 @@ const ProgressBarBtns = ({
 
   return (
     <div className="absolute left-1/2 mt-4 -translate-x-1/2 transform">
-      <div className="flex items-center justify-center rounded-xl bg-white bg-opacity-50 h-7 w-28">
+      <div className="flex h-7 w-28 items-center justify-center rounded-xl bg-white bg-opacity-50">
         <button className="flex w-8 justify-center" onClick={onClickStop}>
-          <img src="/images/stopBtn.svg" alt="stop" className="w-4 h-4"/>
+          <img src="/images/stopBtn.svg" alt="stop" className="h-4 w-4" />
         </button>
 
         {isPlaying ? (
@@ -39,7 +39,10 @@ const ProgressBarBtns = ({
             <SelectTrigger className="w-8 text-center">
               <SelectValue placeholder={`${speed}x`}>{speed}x</SelectValue>
             </SelectTrigger>
-            <SelectContent position="popper" className="w-10 text-center">
+            <SelectContent
+              position="popper"
+              className="mb-1 w-10 cursor-pointer rounded-xl bg-white bg-opacity-50 text-center"
+            >
               <SelectItem value="1">1x</SelectItem>
               <SelectItem value="2">2x</SelectItem>
               <SelectItem value="5">5x</SelectItem>
