@@ -273,6 +273,15 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
     setSpeed(Number(value));
   };
 
+  const handleStop = () => {
+    setIsPlaying(false);
+    setPhase(0);
+    if(animationRef.current){
+      cancelAnimationFrame(animationRef.current);
+      lastTimeRef.current = 0;
+    }
+  }
+
   return (
     <>
       <div
@@ -300,6 +309,7 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
             onClickPlay={handlePlay}
             onClickPause={handlePause}
             onChangeSpeed={handlePlaySpeed}
+            onClickStop={handleStop}
             speed={speed}
           />
         </ProgressBar>
