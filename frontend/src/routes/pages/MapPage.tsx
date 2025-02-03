@@ -47,6 +47,10 @@ export default function MapPage() {
   const rawSpeedData = data?.filter((entry) => entry.msgId === 74) ?? [];
   const speedData = rawSpeedData.length > 0 ? rawSpeedData : null;
 
+  //헤딩 데이터
+  const rawHeadingData = data?.filter((entry) => entry.msgId === 74) ?? [];
+  const headingData = rawHeadingData.length > 0 ? rawHeadingData : null;
+
   // 위치데이터
   const rawPositionData = data?.filter((entry) => entry.msgId === 33) ?? [];
   const positionData =
@@ -74,7 +78,7 @@ export default function MapPage() {
         <MapSwitchButton />
       </div>
       <div className="fixed left-4 top-[10rem] z-10">
-        <AttitudeWidget heading={0} />
+        <AttitudeWidget headingData={headingData ?? null} />
         <WeatherWidget positionData={positionData ?? null} />
 
         <SpeedWidget speedData={speedData ?? null} />

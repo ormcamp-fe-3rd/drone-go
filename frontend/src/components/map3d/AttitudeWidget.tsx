@@ -1,11 +1,25 @@
-import { Suspense } from "react";
+import { Suspense, useContext } from "react";
 import Drone from "../home/Drone";
+import { PhaseContext } from "@/contexts/PhaseContext";
 
 interface AttitudeWidgetProp {
-  heading: number;
+  headingData:
+    | {
+        payload: {
+          heading: number;
+        };
+      }[]
+    | null;
 }
 
-const AttitudeWidget = ({ heading }: AttitudeWidgetProp) => {
+const AttitudeWidget = ({ headingData }: AttitudeWidgetProp) => {
+  const { phase } = useContext(PhaseContext);
+
+  const currentHeading = headingData
+    ? (headingData[Math.floor(phase * (headingData.length - 1))]?.payload
+        .heading ?? 0)
+    : 0;
+
   return (
     <div className="toolbar-attitude mx-6 my-0 hidden h-[27vh] w-[20vw] grid-cols-[1fr_1fr] grid-rows-[33%_1fr] rounded-[10px] bg-white bg-opacity-60 md:block">
       {/* 배터리 및 헤딩을 가로로 정렬 */}
@@ -23,7 +37,7 @@ const AttitudeWidget = ({ heading }: AttitudeWidgetProp) => {
         {/* 헤딩 */}
         <div className="flex items-start">
           <div className="angle mr-2 inline-block w-[35px] rounded-[30px] border-2 border-black text-center text-[12px]">
-            90°
+            {currentHeading}°
           </div>
           <div>
             <img src="/images/Frame 69.svg" alt="Heading" />
@@ -37,7 +51,7 @@ const AttitudeWidget = ({ heading }: AttitudeWidgetProp) => {
           <Suspense fallback={<div>Loading drone...</div>}>
             <Drone
               scale={100}
-              rotation={[0, heading, 0]}
+              rotation={[0, currentHeading, 0]} // 최신 헤딩 반영
               yAnimationHeight={0}
               height={"30vh"}
               width={"20vw"}
