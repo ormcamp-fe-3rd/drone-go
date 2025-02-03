@@ -26,7 +26,7 @@ const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
 
 const ChartPage: React.FC = () => {
   const location = useLocation();
-  const { selectedDrone, selectedOperationAndDate, setSelectedDrone, setSelectedOperationAndDate } = useContext(SelectedDataContext);
+  const { selectedDrone, selectedOperationAndDate, setSelectedDrone } = useContext(SelectedDataContext);
   const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -106,10 +106,6 @@ const ChartPage: React.FC = () => {
       <DetailedDataHeader
         backgroundOpacity={100}
         isMapPage={location.pathname === "/map"}
-        selectedDrone={selectedDrone}
-        setSelectedDrone={setSelectedDrone}
-        selectedOperationAndDate={selectedOperationAndDate}
-        setSelectedOperationAndDate={setSelectedOperationAndDate}
         exportToExcel={() =>
           exportToExcel(
             batteryData,

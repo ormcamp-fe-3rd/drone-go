@@ -21,8 +21,6 @@ export default function Map3dPage() {
   const {
     selectedDrone,
     selectedOperationAndDate,
-    setSelectedDrone,
-    setSelectedOperationAndDate,
   } = useContext(SelectedDataContext);
   const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -72,10 +70,6 @@ export default function Map3dPage() {
           <DetailedDataHeader
             backgroundOpacity={60}
             isMapPage={true}
-            selectedDrone={selectedDrone}
-            setSelectedDrone={setSelectedDrone}
-            selectedOperationAndDate={selectedOperationAndDate}
-            setSelectedOperationAndDate={setSelectedOperationAndDate} 
             //TODO: 지도에서 export 기능, 버튼 삭제
             exportToExcel={()=>null} />
         </div>
