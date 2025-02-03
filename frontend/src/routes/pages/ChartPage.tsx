@@ -98,14 +98,9 @@ const ChartPage: React.FC = () => {
     staleTime: 60000, // 데이터 캐싱 시간 (1분)
   });
 
-  if (error?.message === "Unauthorized user") {
-    localStorage.removeItem("token");
-    alert("Your session has expired. Please log in again.");
-    window.location.href = "/";
-    return null;
-  }
-  const { batteryData, textData, satellitesData, altAndSpeedData } =
-    telemetryData;
+
+  const { batteryData, textData, satellitesData, altAndSpeedData } = telemetryData;
+
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F3F2F9]">

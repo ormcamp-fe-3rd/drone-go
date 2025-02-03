@@ -10,6 +10,11 @@ export const fetchRobots = async () => {
   if (!response.ok) {
     if (response.status === 401) {
       // 로그인 토큰이 유효하지 않음
+      localStorage.removeItem("token");
+      alert("Your session has expired. Please log in again.");
+      setTimeout(()=>{
+        window.location.href = "/";
+      },100)
       throw new Error("Unauthorized user");
     }
     throw new Error("Failed to fetch robots");
@@ -35,6 +40,11 @@ export const fetchOperationsByRobot = async (robotId: string) => {
     if (!operationsResponse.ok) {
       if (operationsResponse.status === 401) {
         // 로그인 토큰이 유효하지 않음
+        localStorage.removeItem("token");
+        alert("Your session has expired. Please log in again.");
+        setTimeout(()=>{
+          window.location.href = "/";
+        },100)
         throw new Error("Unauthorized user");
       }
       throw new Error(
@@ -57,6 +67,11 @@ export const fetchOperationsByRobot = async (robotId: string) => {
         if (!telemetriesResponse.ok) {
           if (telemetriesResponse.status === 401) {
             // 로그인 토큰이 유효하지 않음
+            localStorage.removeItem("token");
+            alert("Your session has expired. Please log in again.");
+            setTimeout(() => {
+              window.location.href = "/";
+            }, 100);
             throw new Error("Unauthorized user");
           }
           throw new Error(
