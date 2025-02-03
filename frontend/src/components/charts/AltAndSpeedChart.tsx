@@ -92,9 +92,9 @@ const AltAndSpeedChart: React.FC<ChartProps> = ({ data }) => {
       labels: {
         show: true,
         datetimeUTC: false,
-        format: "HH:mm:ss.SSS", // 밀리초까지 표시
+        format: "HH:mm:ss", // 밀리초까지 표시
         formatter: function (value: string) {
-          return format(new Date(value), "HH:mm:ss.SSS");
+          return format(new Date(value), "HH:mm:ss");
         },
       },
     },
@@ -146,7 +146,7 @@ const AltAndSpeedChart: React.FC<ChartProps> = ({ data }) => {
       intersect: false,
       x: {
         formatter: function (value: number) {
-          return format(new Date(value), "yyyy-MM-dd HH:mm:ss.SSS");
+          return format(new Date(value), "yyyy-MM-dd HH:mm:ss");
         },
       },
     },
