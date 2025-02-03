@@ -10,14 +10,30 @@ interface AttitudeWidgetProp {
         };
       }[]
     | null;
+  batteryRemainingData:
+    | {
+        payload: {
+          batteryRemaining: number;
+        };
+      }[]
+    | null;
 }
 
-const AttitudeWidget = ({ headingData }: AttitudeWidgetProp) => {
+const AttitudeWidget = ({
+  headingData,
+  batteryRemainingData,
+}: AttitudeWidgetProp) => {
   const { phase } = useContext(PhaseContext);
 
   const currentHeading = headingData
     ? (headingData[Math.floor(phase * (headingData.length - 1))]?.payload
         .heading ?? 0)
+    : 0;
+
+  const currentbattery = batteryRemainingData
+    ? (batteryRemainingData[
+        Math.floor(phase * (batteryRemainingData.length - 1))
+      ]?.payload.batteryRemaining ?? 0)
     : 0;
 
   return (
@@ -31,7 +47,9 @@ const AttitudeWidget = ({ headingData }: AttitudeWidgetProp) => {
             alt="Battery"
             className="mr-2"
           />
-          <div className="battery-percentage text-[16px]">: 100%</div>
+          <div className="battery-percentage text-[16px]">
+            : {currentbattery}%
+          </div>
         </div>
 
         {/* 헤딩 */}
