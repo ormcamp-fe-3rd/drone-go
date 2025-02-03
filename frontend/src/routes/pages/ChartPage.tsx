@@ -1,15 +1,18 @@
-import { useContext, useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useContext, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+
 import { AuthContext } from "@/contexts/AuthContext";
+import SelectedDataContext from "@/contexts/SelectedDataContext";
+
 import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
 import AltAndSpeedChart from "../../components/charts/AltAndSpeedChart";
 import BatteryChart from "../../components/charts/BatteryChart";
 import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
+import exportToExcel from "../../components/charts/ExportToExcel";
 import FlightTimeDataComponenet from "../../components/charts/FilghtTimeDataComponent";
 import SatellitesChart from "../../components/charts/SatellitesChart";
 import StateDataComponent from "../../components/charts/StateDataComponent";
-import exportToExcel from "../../components/charts/ExportToExcel";
 import { Robot } from "../../types/selectOptionsTypes";
 
 
@@ -23,12 +26,7 @@ const ChartCard: React.FC<{ title: string; children: React.ReactNode }> = ({
 
 const ChartPage: React.FC = () => {
   const location = useLocation();
-  const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
-  const [selectedOperationAndDate, setSelectedOperationAndDate] = useState<{
-    operationId: string;
-    timestamp: string;
-    name: string;
-  } | null>(null);
+  const { selectedDrone, selectedOperationAndDate, setSelectedDrone, setSelectedOperationAndDate } = useContext(SelectedDataContext);
   const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -55,14 +53,14 @@ const ChartPage: React.FC = () => {
         name: name,
         robot_id: robotId,
       };
-      setSelectedDrone(drone);
+      setSelectedDrone(drone)
 
       //data 확인용용
       /*console.log("Selected Drone:", drone);
       console.log("선택된 드론:", drone);
       console.log("Selected Operation:", selectedOperation);*/
     }
-  }, [robotId, name, _id]);
+  }, [robotId, name, _id, setSelectedDrone]);
 
   // 데이터 요청
   const {
@@ -79,6 +77,7 @@ const ChartPage: React.FC = () => {
       "telemetry",
       selectedDrone?._id,
       selectedOperationAndDate?.operationId,
+      
     ],
     queryFn: () => {
       if (!selectedDrone || !selectedOperationAndDate) {
