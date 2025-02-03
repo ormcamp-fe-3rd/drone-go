@@ -5,6 +5,7 @@ interface ProgressBarBtnProps {
   onClickPlay: () => void;
   onClickPause: () => void;
   onChangeSpeed: (value:string) => void;
+  onClickStop: () => void;
   speed: number;
 }
 const ProgressBarBtns = ({
@@ -12,14 +13,14 @@ const ProgressBarBtns = ({
   onClickPlay,
   onClickPause,
   onChangeSpeed,
+  onClickStop,
   speed,
 }: ProgressBarBtnProps) => {
 
   return (
     <div className="absolute left-1/2 mt-4 -translate-x-1/2 transform">
       <div className="flex items-center justify-center rounded-xl bg-white bg-opacity-50 h-7 w-28">
-        {/* TODO: 정지 기능 추가 */}
-        <button className="flex w-8 justify-center">
+        <button className="flex w-8 justify-center" onClick={onClickStop}>
           <img src="/images/stopBtn.svg" alt="stop" className="w-4 h-4"/>
         </button>
 
