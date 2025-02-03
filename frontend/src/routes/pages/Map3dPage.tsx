@@ -13,6 +13,7 @@ import StateWidget from "@/components/map3d/StateWidget";
 import WeatherWidget from "@/components/map3d/WeatherWidget";
 import { MSG_ID } from "@/constants";
 import { AuthContext } from "@/contexts/AuthContext";
+import { CurrentTimeProvider } from "@/contexts/CurrentTimeContext";
 import PhaseContextProvider from "@/contexts/PhaseContext";
 import SelectedDataContext from "@/contexts/SelectedDataContext";
 import { useTelemetry2D } from "@/hooks/useTelemetry2D";
@@ -66,45 +67,48 @@ export default function Map3dPage() {
   //TODO: 라우트 수정("/map-3d" 삭제, "/map" 으로 연결)
   return (
     <>
+      <div className="fixed z-10 w-full">
+        <DetailedDataHeader
+          backgroundOpacity={60}
+          isMapPage={true}
+          //TODO: 지도에서 export 기능, 버튼 삭제
+          exportToExcel={() => null}
+        />
+      </div>
+      <div className="fixed right-10 top-[10rem] z-10">
+        <MapSwitchButton is2d={is2dMap} switchMap={switchMap} />
+      </div>
+      
       <PhaseContextProvider>
-        <div className="fixed z-10 w-full">
-          <DetailedDataHeader
-            backgroundOpacity={60}
-            isMapPage={true}
-            //TODO: 지도에서 export 기능, 버튼 삭제
-            exportToExcel={()=>null} />
-        </div>
-        <div className="fixed right-10 top-[10rem] z-10">
-          <MapSwitchButton is2d={is2dMap} switchMap={switchMap} />
-        </div>
-        <div className="fixed left-4 top-[10rem] z-10">
-          {is2dMap ? 
-            <AttitudeWidget></AttitudeWidget>
-          : <MiniMapWidget positionData={positionData} />
-          }
-          <WeatherWidget positionData={positionData} />
+        <CurrentTimeProvider>
+          <div className="fixed left-4 top-[10rem] z-10">
+            {is2dMap ? (
+              <AttitudeWidget></AttitudeWidget>
+            ) : (
+              <MiniMapWidget positionData={positionData} />
+            )}
+            <WeatherWidget positionData={positionData} />
 
-          <SpeedWidget speedData={speedData} />
+            <SpeedWidget speedData={speedData} />
 
-          <AltitudeWidget positionData={positionData} />
+            <AltitudeWidget positionData={positionData} />
 
-          <StateWidget
-            stateData={stateData}
-            selectedDrone={selectedDrone ? selectedDrone._id : null}
-            selectedOperationAndDate={
-              selectedOperationAndDate
-                ? selectedOperationAndDate.operationId
-                : null
-            }
-          />
-        </div>
-        {is2dMap? 
-          <Map2D 
-            positionData={positionData} 
-            stateData={stateData}/>
-          :
-          <CesiumViewer3D positionData={positionData} stateData={stateData}/>
-        }
+            <StateWidget
+              stateData={stateData}
+              selectedDrone={selectedDrone ? selectedDrone._id : null}
+              selectedOperationAndDate={
+                selectedOperationAndDate
+                  ? selectedOperationAndDate.operationId
+                  : null
+              }
+            />
+          </div>
+          {is2dMap ? (
+            <Map2D positionData={positionData} stateData={stateData} />
+          ) : (
+            <CesiumViewer3D positionData={positionData} stateData={stateData} />
+          )}
+        </CurrentTimeProvider>
       </PhaseContextProvider>
     </>
   );
