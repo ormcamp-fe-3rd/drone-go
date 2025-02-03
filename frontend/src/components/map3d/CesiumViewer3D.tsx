@@ -7,15 +7,16 @@ import { formatTime } from "@/utils/formatTime";
 
 import PlayHead from "../map/PlayHead";
 import ProgressBar from "../map/ProgressBar";
-import ProgressBarBtn from "../map/ProgressBarBtn";
+import ProgressBarBtns from "../map/ProgressBarBtns";
 
 interface CesiumViewerProps {
   positionData: FormattedTelemetryPositionData[] | null;
-  stateData:{
-    timestamp: Date;
-    payload: 
-    {text: string;}
-  }[] | null;
+  stateData:
+    | {
+        timestamp: Date;
+        payload: { text: string };
+      }[]
+    | null;
 }
 
 const CesiumViewer: React.FC<CesiumViewerProps> = ({
@@ -220,8 +221,9 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
 
   // phase 변경 시 드론 위치 업데이트
   useEffect(() => {
+    elapsedTimeRef.current = phase * totalDuration * 1000;
     updateDronePosition(phase);
-  }, [phase, updateDronePosition]);
+  }, [phase, totalDuration, updateDronePosition]);
 
   // 애니메이션 프레임 처리
   const animate = useCallback(
@@ -267,8 +269,8 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
     }
   };
 
-  const handlePlaySpeed = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSpeed(Number(e.target.value));
+  const handlePlaySpeed = (value: string) => {
+    setSpeed(Number(value));
   };
 
   return (
@@ -287,24 +289,20 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
         <ProgressBar
           startTime={startEndTime.startTime}
           endTime={startEndTime.endTime}
-          stateData={stateData}          
+          stateData={stateData}
         >
           <PlayHead
             duration={totalDuration}
             flightStartTime={flightStartTime}
           />
-          <ProgressBarBtn
+          <ProgressBarBtns
             isPlaying={isPlaying}
             onClickPlay={handlePlay}
             onClickPause={handlePause}
+            onChangeSpeed={handlePlaySpeed}
+            speed={speed}
           />
         </ProgressBar>
-        <select className="w-24" onChange={handlePlaySpeed}>
-          <option value="1">1x speed</option>
-          <option value="2">2x speed</option>
-          <option value="5">5x speed</option>
-          <option value="10">10x speed</option>
-        </select>
       </div>
     </>
   );
