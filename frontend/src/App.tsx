@@ -4,8 +4,6 @@ import 'mapbox-gl/dist/mapbox-gl.css';
 import { Outlet } from "react-router-dom";
 
 import AuthProvider from "./contexts/AuthProvider";
-import { CurrentTimeProvider } from "./contexts/CurrentTimeContext";
-import PhaseContextProvider from "./contexts/PhaseContext";
 import SelectedDataContextProvider from "./contexts/SelectedDataContextProvider";
 import { useScrollReset } from "./hooks/useScrollReset";
 
@@ -15,11 +13,7 @@ function App() {
     <>
       <AuthProvider>
         <SelectedDataContextProvider>
-          <CurrentTimeProvider>
-            <PhaseContextProvider>
-              <Outlet />
-            </PhaseContextProvider>
-          </CurrentTimeProvider>
+          <Outlet />
         </SelectedDataContextProvider>
       </AuthProvider>
     </>
