@@ -11,7 +11,6 @@ import SpeedWidget from "@/components/map3d/SpeedWidget";
 import StateWidget from "@/components/map3d/StateWidget";
 import WeatherWidget from "@/components/map3d/WeatherWidget";
 import { BatteryState, HeadingState } from "@/components/map3d/Widget";
-import toolbarWidgetData from "@/data/toolbarWidgetData.json";
 import { useTelemetry2D } from "@/hooks/useTelemetry2D";
 import { formatAndSortPositionData } from "@/utils/formatPositionData";
 
@@ -75,11 +74,8 @@ export default function MapPage() {
         <MapSwitchButton />
       </div>
       <div className="fixed left-4 top-[10rem] z-10">
-        <WeatherWidget
-          icon={toolbarWidgetData[0].icon}
-          title={toolbarWidgetData[0].title}
-          values={toolbarWidgetData[0].dataValues as string[]}
-        />
+        <WeatherWidget positionData={positionData ?? null} />
+          
         <SpeedWidget speedData={speedData ?? null} />
       
         <AltitudeWidget positionData={positionData ?? null} />
