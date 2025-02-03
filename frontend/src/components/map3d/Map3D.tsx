@@ -13,7 +13,7 @@ import { formatTime } from "@/utils/formatTime";
 
 import PlayHead from "../map/PlayHead";
 import ProgressBar from "../map/ProgressBar";
-import ProgressBarBtn from "../map/ProgressBarBtn";
+import ProgressBarBtn from "../map/ProgressBarBtns";
 
 interface Props {
   positionData: FormattedTelemetryPositionData[] | null;
@@ -76,12 +76,13 @@ export default function Map3D({ positionData }: Props) {
     }
 
     //마커 추가
-    if(!markerRef.current){
+    if (!markerRef.current) {
       markerRef.current = new mapboxgl.Marker({
         element: createMarkerElement("/images/droneMarker.svg"),
-        rotationAlignment: "map"
-      }).setLngLat(mapRef.current.getCenter())
-      .addTo(mapRef.current.getMap());
+        rotationAlignment: "map",
+      })
+        .setLngLat(mapRef.current.getCenter())
+        .addTo(mapRef.current.getMap());
     }
   }, [positionData, speed, setPhase]);
 
@@ -134,8 +135,9 @@ export default function Map3D({ positionData }: Props) {
           "line-color": "#007cbf",
         },
       });
-  }}
-  
+    }
+  }
+
   function createMarkerElement(imageUrl: string) {
     const element = document.createElement("img");
     element.src = imageUrl;
@@ -146,7 +148,8 @@ export default function Map3D({ positionData }: Props) {
   }
 
   const updateCamera = useCallback(() => {
-    if (!totalDuration || !dronePath || !mapRef.current || !markerRef.current) return;
+    if (!totalDuration || !dronePath || !mapRef.current || !markerRef.current)
+      return;
     const map = mapRef.current!.getMap();
     const routeDistance = calculateDistance(dronePath);
 
@@ -155,11 +158,10 @@ export default function Map3D({ positionData }: Props) {
       dronePath,
       routeDistance * phase || 0.001,
     );
-    
+
     map.setCenter([alongPoint.lon, alongPoint.lat]);
     const markerLngLat: [number, number] = [alongPoint.lon, alongPoint.lat];
     markerRef.current.setLngLat(markerLngLat);
-
   }, [totalDuration, dronePath, phase]);
 
   useEffect(() => {
@@ -241,8 +243,7 @@ export default function Map3D({ positionData }: Props) {
           touchPitch={false}
           touchZoomRotate={false}
           dragRotate={true} //드래그로 회전만 가능
-        >
-        </Map>
+        ></Map>
       </div>
       <div className="fixed bottom-0 w-screen">
         <ProgressBar
