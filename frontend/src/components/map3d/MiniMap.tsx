@@ -16,10 +16,14 @@ export default function MiniMap({ positionData }: Props) {
   const markerRef = useRef<mapboxgl.Marker | null>(null);
   const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>();
   const { phase } = useContext(PhaseContext);
-
+  const [mapLoaded, setMapLoaded] = useState(false);
 
   useEffect(()=>{
-    if (!positionData) return;
+    if (!positionData) {
+      setLatLonAlt(null);
+      return;
+    }
+
     setLatLonAlt(
       positionData.map((item) => ({
         lat: item.payload.lat,
@@ -68,71 +72,84 @@ export default function MiniMap({ positionData }: Props) {
 
 
   useEffect(() => {
-    updateCamera(); // phase가 변경될 때마다 카메라 업데이트
+    updateCamera();// phase가 변경될 때마다 카메라 업데이트
   }, [phase, updateCamera]);
 
+  
+const addRouteSourceAndLayer = useCallback(() => {
+  if(!mapRef.current || !latLonAlt) return;
+
+  const map = mapRef.current.getMap();
+  const pathCoordinates = latLonAlt.map((point) => [point.lon, point.lat]);
+
+  if (map.getSource("route")) {
+    map.removeLayer("route-line");
+    map.removeSource("route");
+  }
+
+  map.addSource("route", {
+    type: "geojson",
+    data: {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: pathCoordinates,
+          },
+          properties: {},
+        },
+      ],
+    },
+  });
+  
+  map.addLayer({
+    id: "route-line",
+    type: "line",
+    source: "route",
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-width": 4,
+      "line-color": "#007cbf",
+    },
+  });
+
+  setTimeout(() => {
+    const source = map.getSource("route") as mapboxgl.GeoJSONSource | undefined;
+    if (source) {
+      source.setData({
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates: pathCoordinates,
+            },
+            properties: {},
+          },
+        ],
+      });
+    }
+  }, 500);
+},[latLonAlt])
 
   // // 지도 및 마커 
   useEffect(() => {
-    if (mapRef.current && latLonAlt) {
-      const map = mapRef.current.getMap();
+    if (!mapRef.current || !latLonAlt ) return;
+    if(!mapLoaded) return;
+    
+    const map = mapRef.current.getMap();
 
-      const pathCoordinates = latLonAlt.map((point) => [point.lon, point.lat]);
-
-      const addRouteSourceAndLayer = () => {
-        if (map.getSource("route")) {
-        (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
-          type: "FeatureCollection",
-          features: [
-            {
-              type: "Feature",
-              geometry: {
-                type: "LineString",
-                coordinates: pathCoordinates,
-              },
-              properties: {},
-            },
-          ],
-        });
-      } else {
-        map.addSource("route", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "LineString",
-                  coordinates: pathCoordinates,
-                },
-                properties: {},
-              },
-            ],
-          },
-        });
-
-        map.addLayer({
-          id: "route-line",
-          type: "line",
-          source: "route",
-          layout: {
-            "line-cap": "round",
-            "line-join": "round",
-          },
-          paint: {
-            "line-width": 4,
-            "line-color": "#007cbf",
-          },
-        });
-      }}
-
-      // 스타일 로드 완료 후 source와 layer 추가
-      if (map.isStyleLoaded()) {
-        addRouteSourceAndLayer();
-      } else {
-        map.once("styledata", addRouteSourceAndLayer);
-      }
+    try{
+      addRouteSourceAndLayer()
+    } catch (error){
+      console.error("Failed to add route: ", error)
+    }
 
       if (!markerRef.current) {
         const initialPoint =
@@ -148,8 +165,21 @@ export default function MiniMap({ positionData }: Props) {
           .setLngLat(markerLngLat)
           .addTo(map);
       }
+      
+    return () => {
+      if(!mapLoaded) return;
+      if (map.getLayer("route-line")) {
+        map.removeLayer("route-line");
+      }
+      if (map.getSource("route")) {
+        map.removeSource("route");
+      }
     };
-  }, [latLonAlt]);
+  }, [addRouteSourceAndLayer, latLonAlt, mapLoaded]);
+
+  const handleMapLoad = useCallback(() => {
+    setMapLoaded(true)
+  },[])
 
   return (
     <>
@@ -173,6 +203,7 @@ export default function MiniMap({ positionData }: Props) {
         touchPitch={false}
         touchZoomRotate={false}
         dragRotate={false}
+        onLoad={handleMapLoad}
       />
     </>
   );
