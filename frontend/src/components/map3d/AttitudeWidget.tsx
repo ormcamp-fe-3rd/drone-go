@@ -17,11 +17,38 @@ interface AttitudeWidgetProp {
         };
       }[]
     | null;
+  rollData:
+    | {
+        payload: {
+          roll: number;
+        };
+      }[]
+    | null;
+  pitchData:
+    | {
+        payload: {
+          pitch: number;
+        };
+      }[]
+    | null;
+  yawData:
+    | {
+        payload: {
+          yaw: number;
+        };
+      }[]
+    | null;
 }
+
+// 라디안 -> 도 변환 함수
+const radToDeg = (radian: number) => radian * (180 / Math.PI);
 
 const AttitudeWidget = ({
   headingData,
   batteryRemainingData,
+  rollData,
+  pitchData,
+  yawData,
 }: AttitudeWidgetProp) => {
   const { phase } = useContext(PhaseContext);
 
@@ -30,11 +57,29 @@ const AttitudeWidget = ({
         .heading ?? 0)
     : 0;
 
-  const currentbattery = batteryRemainingData
+  const currentBattery = batteryRemainingData
     ? (batteryRemainingData[
         Math.floor(phase * (batteryRemainingData.length - 1))
       ]?.payload.batteryRemaining ?? 0)
     : 0;
+
+  const currentRoll = rollData
+    ? (rollData[Math.floor(phase * (rollData.length - 1))]?.payload.roll ?? 0)
+    : 0;
+
+  const currentPitch = pitchData
+    ? (pitchData[Math.floor(phase * (pitchData.length - 1))]?.payload.pitch ??
+      0)
+    : 0;
+
+  const currentYaw = yawData
+    ? (yawData[Math.floor(phase * (yawData.length - 1))]?.payload.yaw ?? 0)
+    : 0;
+
+  // 라디안에서 도로 변환
+  const currentRollInDegrees = radToDeg(currentRoll);
+  const currentPitchInDegrees = radToDeg(currentPitch);
+  const currentYawInDegrees = radToDeg(currentYaw);
 
   return (
     <div className="toolbar-attitude mx-6 my-0 hidden h-[27vh] w-[20vw] grid-cols-[1fr_1fr] grid-rows-[33%_1fr] rounded-[10px] bg-white bg-opacity-60 md:block">
@@ -48,7 +93,7 @@ const AttitudeWidget = ({
             className="mr-2"
           />
           <div className="battery-percentage text-[16px]">
-            : {currentbattery}%
+            : {currentBattery}%
           </div>
         </div>
 
@@ -57,19 +102,30 @@ const AttitudeWidget = ({
           <div className="angle mr-2 inline-block w-[35px] rounded-[30px] border-2 border-black text-center text-[12px]">
             {currentHeading}°
           </div>
+          <br />
           <div>
             <img src="/images/Frame 69.svg" alt="Heading" />
           </div>
         </div>
       </div>
-
+      {/* 데이터 전달 값 확인용
+      <div>
+        <p>Yaw 값: {currentYawInDegrees}°</p>
+        <p>롤 값: {currentRollInDegrees}°</p>
+        <p>피치 값: {currentPitchInDegrees}°</p>
+      </div>
+*/}
       {/* 드론 3D 모델 */}
       <div className="attitude-3d relative col-span-2 row-start-2 flex items-center justify-center p-2">
         <div className="flex h-[10vh] w-[20vw] items-center justify-center">
           <Suspense fallback={<div>Loading drone...</div>}>
             <Drone
               scale={100}
-              rotation={[0, currentHeading, 0]} // 최신 헤딩 반영
+              rotation={[
+                currentRollInDegrees,
+                currentYawInDegrees,
+                currentPitchInDegrees,
+              ]} // 도 단위로 변환된 값 사용
               yAnimationHeight={0}
               height={"30vh"}
               width={"20vw"}

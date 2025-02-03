@@ -51,6 +51,16 @@ export default function MapPage() {
   const rawHeadingData = data?.filter((entry) => entry.msgId === 74) ?? [];
   const headingData = rawHeadingData.length > 0 ? rawHeadingData : null;
 
+  //드론 모습 상세 데이터"roll", "pitch", "yaw"
+  const rawRollData = data?.filter((entry) => entry.msgId === 30) ?? [];
+  const rollData = rawRollData.length > 0 ? rawRollData : null;
+
+  const rawpitchData = data?.filter((entry) => entry.msgId === 30) ?? [];
+  const pitchData = rawpitchData.length > 0 ? rawpitchData : null;
+
+  const rawyawData = data?.filter((entry) => entry.msgId === 30) ?? [];
+  const yawData = rawRollData.length > 0 ? rawRollData : null;
+
   //배터리리 데이터
   const rawbatteryRemainingData =
     data?.filter((entry) => entry.msgId === 147) ?? [];
@@ -87,6 +97,9 @@ export default function MapPage() {
         <AttitudeWidget
           headingData={headingData ?? null}
           batteryRemainingData={batteryRemainingData ?? null}
+          rollData={rollData ?? null}
+          pitchData={pitchData ?? null}
+          yawData={yawData ?? null}
         />
         <WeatherWidget positionData={positionData ?? null} />
 
