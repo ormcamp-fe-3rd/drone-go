@@ -11,6 +11,7 @@ import MiniMapWidget from "@/components/map3d/MiniMapWidget";
 import SpeedWidget from "@/components/map3d/SpeedWidget";
 import StateWidget from "@/components/map3d/StateWidget";
 import WeatherWidget from "@/components/map3d/WeatherWidget";
+import { MSG_ID } from "@/constants";
 import { AuthContext } from "@/contexts/AuthContext";
 import PhaseContextProvider from "@/contexts/PhaseContext";
 import SelectedDataContext from "@/contexts/SelectedDataContext";
@@ -44,18 +45,18 @@ export default function Map3dPage() {
   }
 
   // 속도데이터
-  const rawSpeedData = data?.filter((entry) => entry.msgId === 74) ?? [];
+  const rawSpeedData = data?.filter((entry) => entry.msgId === MSG_ID.VFR_HUD) ?? [];
   const speedData = rawSpeedData.length > 0 ? rawSpeedData : null;
 
   // 위치데이터
-  const rawPositionData = data?.filter((entry) => entry.msgId === 33) ?? [];
+  const rawPositionData = data?.filter((entry) => entry.msgId === MSG_ID.GLOBAL_POSITION) ?? [];
   const positionData =
     rawPositionData.length > 0
       ? formatAndSortPositionData(rawPositionData)
       : null;
       
   // 상태데이터
-  const rawStateData = data?.filter((entry) => entry.msgId === 253) ?? [];
+  const rawStateData = data?.filter((entry) => entry.msgId === MSG_ID.STATUSTEXT) ?? [];
   const stateData = rawStateData.length > 0 ? rawStateData : null;
 
   const switchMap = () =>{
