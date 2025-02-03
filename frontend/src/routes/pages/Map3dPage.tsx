@@ -64,6 +64,7 @@ export default function Map3dPage() {
     setIs2dMap(!is2dMap);
   }
 
+  //TODO: 라우트 수정("/map-3d" 삭제, "/map" 으로 연결)
   return (
     <>
       <PhaseContextProvider>
@@ -75,6 +76,7 @@ export default function Map3dPage() {
             setSelectedDrone={setSelectedDrone}
             selectedOperationAndDate={selectedOperationAndDate}
             setSelectedOperationAndDate={setSelectedOperationAndDate} 
+            //TODO: 지도에서 export 기능, 버튼 삭제
             exportToExcel={()=>null} />
         </div>
         <div className="fixed right-10 top-[10rem] z-10">
