@@ -34,6 +34,7 @@ DB_URI='mongodb+srv://<username>:<password>@cluster-<clustername>.uqzc3.mongodb.
 >`/frontend/.env` 파일 생성 및 token 입력
 ```
 VITE_MAPBOX_ACCESS_TOKEN=<token>
+VITE_CESIUM_ION_API_KEY=<key>
 ```
 
 #### backend 실행
@@ -46,6 +47,11 @@ npm run dev
 ```
 cd frontend
 npm run dev
+```
+
+#### 로그인
+```
+ID: test PW: 1234
 ```
 
 ## 팀원 소개
