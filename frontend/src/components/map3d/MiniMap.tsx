@@ -55,7 +55,9 @@ export default function MiniMap({ positionData }: Props) {
 
     // 마커 업데이트
     if (!markerRef.current) {
-      markerRef.current = new mapboxgl.Marker()
+      markerRef.current = new mapboxgl.Marker({
+        element: createMarkerElement("/images/droneMarker.svg"),
+      })
         .setLngLat(markerLngLat)
         .addTo(map);
     } else {
@@ -74,9 +76,18 @@ export default function MiniMap({ positionData }: Props) {
   useEffect(() => {
     updateCamera();// phase가 변경될 때마다 카메라 업데이트
   }, [phase, updateCamera]);
-
   
-const addRouteSourceAndLayer = useCallback(() => {
+  
+  function createMarkerElement(imageUrl: string) {
+    const element = document.createElement("img");
+    element.src = imageUrl;
+    element.style.width = "20px";
+    element.style.height = "20px";
+    element.style.objectFit = "contain";
+    return element;
+  }
+  
+  const addRouteSourceAndLayer = useCallback(() => {
   if(!mapRef.current || !latLonAlt) return;
 
   const map = mapRef.current.getMap();
