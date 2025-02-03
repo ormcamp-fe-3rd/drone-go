@@ -5,6 +5,7 @@ import Map, { MapRef } from "react-map-gl";
 import { PhaseContext } from "@/contexts/PhaseContext";
 import { LatLonAlt } from "@/types/latLonAlt";
 import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
+import calculateMarkerHeading from "@/utils/calculateMarkerHeading";
 
 
 interface Props {
@@ -17,20 +18,23 @@ export default function MiniMap({ positionData }: Props) {
   const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>();
   const { phase } = useContext(PhaseContext);
   const [mapLoaded, setMapLoaded] = useState(false);
+  const [headings, setHeadings] = useState<number[]>();
 
   useEffect(()=>{
     if (!positionData) {
       setLatLonAlt(null);
       return;
     }
+    
+    const paylodData = positionData.map((item) => ({
+      lat: item.payload.lat,
+      lon: item.payload.lon,
+      alt: item.payload.alt,
+    }));
+    setLatLonAlt(paylodData);
 
-    setLatLonAlt(
-      positionData.map((item) => ({
-        lat: item.payload.lat,
-        lon: item.payload.lon,
-        alt: item.payload.alt,
-      })),
-    );
+    const calculatedHeadings = calculateMarkerHeading(paylodData);
+    setHeadings(calculatedHeadings);
 
     // 맵 초기화
     if (mapRef.current) {
@@ -39,50 +43,49 @@ export default function MiniMap({ positionData }: Props) {
         center: [positionData[0].payload.lon, positionData[0].payload.lat],
         zoom: 12,
       });
+
+      markerRef.current = new mapboxgl.Marker({
+        element: createMarkerElement("/images/droneMarker.svg"),
+      })
+        .setLngLat([positionData[0].payload.lon, positionData[0].payload.lat])
+        .addTo(map);
     }
   },[positionData])
 
 
   const updateCamera = useCallback(() => {
-    if (!mapRef.current || !latLonAlt || latLonAlt.length === 0) return;
+    if (!mapRef.current || !latLonAlt || !headings ||!markerRef.current) return;
 
     const map = mapRef.current.getMap();
 
     const currentIndex = Math.floor(phase * (latLonAlt.length - 1));
     const currentPoint = latLonAlt[currentIndex];
 
-    const markerLngLat: [number, number] = [currentPoint.lon, currentPoint.lat];
+    // const currentItem = latLonAlt[currentIndex];
+    const currentHeading = headings[currentIndex] || 0;
 
-    // 마커 업데이트
-    if (!markerRef.current) {
-      markerRef.current = new mapboxgl.Marker({
-        element: createMarkerElement("/images/droneMarker.svg"),
-      })
-        .setLngLat(markerLngLat)
-        .addTo(map);
-    } else {
-      markerRef.current.setLngLat(markerLngLat);
-    }
+    const markerLngLat: [number, number] = [currentPoint.lon, currentPoint.lat];
+    markerRef.current.setLngLat(markerLngLat);
+    markerRef.current.setRotation(currentHeading);
 
     // 지도 카메라 업데이트
     map.flyTo({
       center: markerLngLat,
-      zoom: 12,
       essential: true,
     });
-  }, [latLonAlt, phase]);
+  }, [headings, latLonAlt, phase]);
 
 
   useEffect(() => {
     updateCamera();// phase가 변경될 때마다 카메라 업데이트
   }, [phase, updateCamera]);
   
-  
+
   function createMarkerElement(imageUrl: string) {
     const element = document.createElement("img");
     element.src = imageUrl;
-    element.style.width = "20px";
-    element.style.height = "20px";
+    element.style.width = "40px";
+    element.style.height = "40px";
     element.style.objectFit = "contain";
     return element;
   }
