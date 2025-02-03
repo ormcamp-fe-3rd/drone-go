@@ -18,6 +18,7 @@ const ProgressBarBtns = ({
   return (
     <div className="absolute left-1/2 mt-4 -translate-x-1/2 transform">
       <div className="flex items-center justify-center rounded-xl bg-white bg-opacity-50 h-7 w-28">
+        {/* TODO: 정지 기능 추가 */}
         <button className="flex w-8 justify-center">
           <img src="/images/stopBtn.svg" alt="stop" className="w-4 h-4"/>
         </button>
@@ -35,7 +36,7 @@ const ProgressBarBtns = ({
         <div>
           <Select onValueChange={onChangeSpeed}>
             <SelectTrigger className="w-8 text-center">
-              <SelectValue>{speed}x</SelectValue>
+              <SelectValue placeholder={`${speed}x`}>{speed}x</SelectValue>
             </SelectTrigger>
             <SelectContent position="popper" className="w-10 text-center">
               <SelectItem value="1">1x</SelectItem>
