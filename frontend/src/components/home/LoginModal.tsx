@@ -75,7 +75,7 @@ export function LoginModal({ onClose }: LoginModalProps) {
         >
           <img
             className="cursor-pointer"
-            src="../../public/icons/close.svg"
+            src="/icons/close.svg"
             alt="Close"
           />
         </button>
