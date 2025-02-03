@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
@@ -20,8 +20,6 @@ export default function MapPage() {
   const {
     selectedDrone,
     selectedOperationAndDate,
-    setSelectedDrone,
-    setSelectedOperationAndDate,
   } = useContext(SelectedDataContext);
   const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -85,14 +83,11 @@ export default function MapPage() {
         <DetailedDataHeader
           backgroundOpacity={60}
           isMapPage={true}
-          selectedDrone={selectedDrone}
-          setSelectedDrone={setSelectedDrone}
-          selectedOperationAndDate={selectedOperationAndDate}
-          setSelectedOperationAndDate={setSelectedOperationAndDate}
+          exportToExcel={() => null}
         />
       </div>
       <div className="fixed right-10 top-[10rem] z-10">
-        <MapSwitchButton />
+        {/* <MapSwitchButton /> */}
       </div>
       <div className="fixed left-4 top-[10rem] z-10">
         <AttitudeWidget
