@@ -106,7 +106,7 @@ export default function Map3dPage() {
             positionData={positionData} 
             stateData={stateData}/>
           :
-          <CesiumViewer3D positionData={positionData} />
+          <CesiumViewer3D positionData={positionData} stateData={stateData}/>
         }
       </PhaseContextProvider>
     </>
