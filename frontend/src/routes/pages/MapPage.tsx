@@ -1,7 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "@/contexts/AuthContext";
-import { Robot } from "@/types/selectOptionsTypes";
+
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
 import Map2D from "@/components/map/Map2D";
 import AltitudeWidget from "@/components/map3d/AltitudeWidget";
@@ -10,18 +9,20 @@ import MapSwitchButton from "@/components/map3d/MapSwitchButton";
 import SpeedWidget from "@/components/map3d/SpeedWidget";
 import StateWidget from "@/components/map3d/StateWidget";
 import WeatherWidget from "@/components/map3d/WeatherWidget";
-
+import { BatteryState, HeadingState } from "@/components/map3d/Widget";
+import { AuthContext } from "@/contexts/AuthContext";
+import SelectedDataContext from "@/contexts/SelectedDataContext";
 import { useTelemetry2D } from "@/hooks/useTelemetry2D";
 import { formatAndSortPositionData } from "@/utils/formatPositionData";
 import AttitudeWidget from "@/components/map3d/AttitudeWidget";
 
 export default function MapPage() {
-  const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
-  const [selectedOperationAndDate, setSelectedOperationAndDate] = useState<{
-    operationId: string;
-    date: string;
-    name: string;
-  } | null>(null);
+  const {
+    selectedDrone,
+    selectedOperationAndDate,
+    setSelectedDrone,
+    setSelectedOperationAndDate,
+  } = useContext(SelectedDataContext);
   const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
 

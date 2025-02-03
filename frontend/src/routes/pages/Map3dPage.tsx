@@ -13,17 +13,17 @@ import StateWidget from "@/components/map3d/StateWidget";
 import WeatherWidget from "@/components/map3d/WeatherWidget";
 import { AuthContext } from "@/contexts/AuthContext";
 import PhaseContextProvider from "@/contexts/PhaseContext";
+import SelectedDataContext from "@/contexts/SelectedDataContext";
 import { useTelemetry2D } from "@/hooks/useTelemetry2D";
-import { Robot } from "@/types/selectOptionsTypes";
 import { formatAndSortPositionData } from "@/utils/formatPositionData";
 
 export default function Map3dPage() {
-  const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
-  const [selectedOperationAndDate, setSelectedOperationAndDate] = useState<{
-    operationId: string;
-    timestamp: string;
-    name: string;
-  } | null>(null);
+  const {
+    selectedDrone,
+    selectedOperationAndDate,
+    setSelectedDrone,
+    setSelectedOperationAndDate,
+  } = useContext(SelectedDataContext);
   const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
   const [is2dMap, setIs2dMap] = useState(true);
