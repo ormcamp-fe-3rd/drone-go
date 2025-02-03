@@ -205,7 +205,7 @@ export default function Map2D({ positionData }: Props) {
         ];
 
         markerRef.current = new mapboxgl.Marker({
-          element: createMarkerElement("/images/Group 906.svg"),
+          element: createMarkerElement("/images/droneMarker.svg"),
         })
           .setLngLat(markerLngLat)
           .addTo(map);
