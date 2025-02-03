@@ -1,8 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-
-import { fetchPositionDataByOperation } from "@/api/mapApi";
+import { AuthContext } from "@/contexts/AuthContext";
+import { Robot } from "@/types/selectOptionsTypes";
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
 import Map2D from "@/components/map/Map2D";
 import AltitudeWidget from "@/components/map3d/AltitudeWidget";
@@ -12,9 +11,7 @@ import SpeedWidget from "@/components/map3d/SpeedWidget";
 import StateWidget from "@/components/map3d/StateWidget";
 import WeatherWidget from "@/components/map3d/WeatherWidget";
 import { BatteryState, HeadingState } from "@/components/map3d/Widget";
-import {AuthContext} from "@/contexts/AuthContext";
-import toolbarWidgetData from "@/data/toolbarWidgetData.json"
-import { Robot } from "@/types/selectOptionsTypes";
+import { useTelemetry2D } from "@/hooks/useTelemetry2D";
 import { formatAndSortPositionData } from "@/utils/formatPositionData";
 
 export default function MapPage() {
@@ -24,42 +21,36 @@ export default function MapPage() {
     date: string;
     name: string;
   } | null>(null);
-  const { isAuth }  = useContext(AuthContext);
+  const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
 
-
-  useEffect(()=>{
-    if(isAuth === null) return;
-    if(!isAuth){
+  useEffect(() => {
+    if (isAuth === null) return;
+    if (!isAuth) {
       alert("Signing in is required");
       navigate("/");
     }
-  },[isAuth, navigate])
-  
+  }, [isAuth, navigate]);
 
-  const { error, data } = useQuery({
-    queryKey: ["position", selectedDrone, selectedOperationAndDate],
-    queryFn: async () => {
-      if (!selectedDrone || !selectedOperationAndDate) return;
-      const rawData = await fetchPositionDataByOperation(
-        selectedDrone!._id,
-        selectedOperationAndDate.operationId,
-      );
-      return formatAndSortPositionData(rawData);
-    },
-    enabled: !!selectedOperationAndDate,
-  });
+  // useTelemetry2D 훅을 사용하여 데이터 가져오기
+  const { data, error, isPending } = useTelemetry2D(selectedDrone, selectedOperationAndDate);
 
   if (error) {
     return "An error has occurred: " + error.message;
   }
 
-  // // 데이터가 있을 경우, heading을 기준으로 정렬, 없으면 0으로 설정
-  // const sortedData = data?.filter((item) => item?.heading != null); // heading이 null인 값은 필터링
-  // const currentHeading =
-  //   sortedData && sortedData.length > 0
-  //     ? (sortedData[sortedData.length - 1].heading ?? 0) // null이면 0으로 설정
-  //     : 0; // sortedData가 없거나 비어있을 경우 0으로 설정
+  // 속도데이터
+  const rawSpeedData = data?.filter((entry) => entry.msgId === 74) ?? [];
+  const speedData = rawSpeedData.length > 0 ? rawSpeedData : null; 
+
+  // 위치데이터
+  const rawPositionData = data?.filter((entry) => entry.msgId === 33) ?? [];
+  const positionData =
+    rawPositionData.length > 0 ? formatAndSortPositionData(rawPositionData) : null;
+
+  // 상태데이터
+  const rawStateData = data?.filter((entry) => entry.msgId === 253) ?? [];
+  const stateData = rawStateData.length > 0 ? rawStateData : null; 
 
   return (
     <>
@@ -77,29 +68,24 @@ export default function MapPage() {
         <MapSwitchButton />
       </div>
       <div className="fixed left-4 top-[10rem] z-10">
-        {/* 위젯 props들 API 데이터로 수정 */}
-        {/* <AttitudeWidget>
-          <BatteryState />
-          <HeadingState />
-        </AttitudeWidget> */}
-        <WeatherWidget
-          icon={toolbarWidgetData[0].icon}
-          title={toolbarWidgetData[0].title}
-          values={toolbarWidgetData[0].dataValues as string[]}
-        />
-        <SpeedWidget
-          icon={toolbarWidgetData[1].icon}
-          title={toolbarWidgetData[1].title}
-          value={toolbarWidgetData[1].dataValues![0]}
-        />
-        <AltitudeWidget positionData={data ?? null} />
+        <WeatherWidget positionData={positionData ?? null} />
+          
+        <SpeedWidget speedData={speedData ?? null} />
+      
+        <AltitudeWidget positionData={positionData ?? null} />
+
         <StateWidget
-          icon={toolbarWidgetData[3].icon}
-          title={toolbarWidgetData[3].title}
-          values={toolbarWidgetData[3].stateValues!}
+          stateData={stateData ?? null}
+          selectedDrone={selectedDrone ? selectedDrone._id : null}
+          selectedOperationAndDate={selectedOperationAndDate ? selectedOperationAndDate.operationId : null}
         />
+          
       </div>
-      <Map2D positionData={data ?? null} />
+
+      <Map2D
+        positionData={positionData ?? null}
+        stateData={stateData ?? null}
+      />
     </>
   );
 }

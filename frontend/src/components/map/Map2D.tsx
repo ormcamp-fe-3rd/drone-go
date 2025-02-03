@@ -14,9 +14,15 @@ import ProgressBarBtn from "./ProgressBarBtn";
 
 interface Props {
   positionData: FormattedTelemetryPositionData[] | null;
+  stateData: {
+    timestamp: Date;
+    payload: {
+      text: string
+    }
+  }[] | null;
 }
 
-export default function Map2D({ positionData }: Props) {
+export default function Map2D({ positionData, stateData }: Props) {
   const mapRef = useRef<MapRef>(null); // 맵 인스턴스 접근
   const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>();
   const [totalDuration, setTotalDuration] = useState<number>(0);
@@ -47,7 +53,7 @@ export default function Map2D({ positionData }: Props) {
       alt: item.payload.alt,
     }));
     setLatLonAlt(payloadData);
-  
+
     mapRef.current.setCenter([
       positionData[0].payload.lon,
       positionData[0].payload.lat,
@@ -272,6 +278,7 @@ export default function Map2D({ positionData }: Props) {
         <ProgressBar
           startTime={startEndTime.startTime}
           endTime={startEndTime.endTime}
+          stateData={stateData ?? null}
         >
           <PlayHead
             duration={totalDuration}
@@ -293,4 +300,3 @@ export default function Map2D({ positionData }: Props) {
     </>
   );
 }
-

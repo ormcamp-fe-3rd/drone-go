@@ -5,6 +5,7 @@ import { Outlet } from "react-router-dom";
 
 import AuthProvider from "./contexts/AuthProvider";
 import PhaseContextProvider from "./contexts/PhaseContext";
+import { CurrentTimeProvider } from "./contexts/CurrentTimeContext";
 import { useScrollReset } from "./hooks/useScrollReset";
 
 function App() {
@@ -12,9 +13,11 @@ function App() {
   return (
     <>
       <AuthProvider>
-        <PhaseContextProvider>
-          <Outlet />
-        </PhaseContextProvider>
+        <CurrentTimeProvider>
+          <PhaseContextProvider>
+            <Outlet />
+          </PhaseContextProvider>
+        </CurrentTimeProvider>
       </AuthProvider>
     </>
   );

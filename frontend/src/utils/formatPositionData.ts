@@ -30,4 +30,3 @@ export function formatAndSortPositionData(dataArray: TelemetryPositionData[]) {
     }))
     .sort((a, b) => a.timestamp - b.timestamp);
 }
-
