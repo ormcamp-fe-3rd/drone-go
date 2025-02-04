@@ -1,22 +1,32 @@
-import { useState } from "react";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
+
+import { AuthContext } from "@/contexts/AuthContext";
+
 import { SignButton } from "./SignButton";
-import { LoginModal } from "./LoginModal"; // LoginModal 컴포넌트 임포트
 
 export function HomeHeader() {
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false); // 로그인 모달 상태 관리
+  const { isAuth, setIsAuth } = useContext(AuthContext);
+
 
   const handleSignUpClick = () => {
     alert("The SIGN UP feature is not available yet.🔧");
   };
 
   const handleSignInClick = () => {
-    setIsLoginModalOpen(true); // SIGN IN 클릭 시 모달을 열기
+    if(isAuth){ // SIGN OUT 클릭 시 로그아웃
+      setIsAuth(false);
+      localStorage.removeItem("token");
+      alert("Successfully Signed Out")
+    }else{
+      handleScroll()
+    }
   };
 
-  const handleCloseLoginModal = () => {
-    setIsLoginModalOpen(false); // 로그인 모달 닫기
-  };
+  const handleScroll = () => {
+    const section = document.getElementById("unlogged-data-list");
+    section?.scrollIntoView({behavior: "smooth"})
+  }
 
   return (
     <div className="mx-auto flex max-w-screen-xl">
@@ -29,10 +39,9 @@ export function HomeHeader() {
               src="../public/icons/drone.svg"
               alt="Drone Icon"
             />
-            <p className="text-3xl font-bold text-[#0800A1]">DronGo</p>
+            <p className="text-3xl font-bold text-[#0800A1]">DroneGo</p>
           </Link>
           <Link to={"/about"} className="ml-6 text-sm text-[#353740]">
-            {/* //TODO: 소개페이지 링크 연결해야함*/}
             about
           </Link>
         </div>
@@ -42,17 +51,13 @@ export function HomeHeader() {
             bgColor="white"
             onClick={handleSignUpClick}
           />
-          {/* 클릭 시 알럿 */}
           <SignButton
-            text="SIGN IN"
+            text={isAuth ? "SIGN OUT" : "SIGN IN" }
             bgColor="black"
-            onClick={handleSignInClick} // SIGN IN 클릭 시 모달을 열기
+            onClick={handleSignInClick} 
           />
         </div>
       </div>
-
-      {/* LoginModal이 열릴 때 렌더링 */}
-      {isLoginModalOpen && <LoginModal onClose={handleCloseLoginModal} />}
     </div>
   );
 }

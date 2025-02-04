@@ -1,83 +1,128 @@
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+// import { useContext, useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
 
-import { fetchPositionDataByOperation } from "@/api/mapApi";
-import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
-import Map2D from "@/components/map/Map2D";
-import MapSwitchButton from "@/components/map3d/MapSwitchButton";
-import { AttitudeWidget, BatteryState, HeadingState, SpeedAltitudeWidget, StateAlertWidget, WeatherWidget } from "@/components/map3d/Widget";
-import toolbarWidgetData from "@/data/toolbarWidgetData.json"
-import { Operation,Robot } from "@/types/selectOptionsTypes";
-import formatPositionData from "@/utils/formatPositionData";
+// import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
+// import Map2D from "@/components/map/Map2D";
+// import AltitudeWidget from "@/components/map3d/AltitudeWidget";
 
+// import MapSwitchButton from "@/components/map3d/MapSwitchButton";
+// import SpeedWidget from "@/components/map3d/SpeedWidget";
+// import StateWidget from "@/components/map3d/StateWidget";
+// import WeatherWidget from "@/components/map3d/WeatherWidget";
 
-export default function MapPage(){
-  const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
-  const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
-      null,
-  );
+// import { BatteryState, HeadingState } from "@/components/map3d/Widget";
+// import { AuthContext } from "@/contexts/AuthContext";
+// import SelectedDataContext from "@/contexts/SelectedDataContext";
 
-  //TODO: drone id, operation id -> 사용자가 선택한 값으로 변경 
-  const { isPending, error, data } = useQuery({
-    queryKey: ["position", selectedDrone, selectedOperation],
-    queryFn: async () => {
-      const rawData = await fetchPositionDataByOperation(
-        // selectedDrone!._id,
-        // selectedOperation!._id,
-        "67773116e8f8dd840dd35155",
-        "677730f8e8f8dd840dd35153",
-      );
-      return rawData.map(formatPositionData);
-    },
-    // enabled: !!selectedDrone && !!selectedOperation,
-  });
-  if (isPending) return "Loading...";
-  if (error) return "An error has occurred: " + error.message;
+// import { useTelemetry2D } from "@/hooks/useTelemetry2D";
+// import { formatAndSortPositionData } from "@/utils/formatPositionData";
+// import AttitudeWidget from "@/components/map3d/AttitudeWidget";
+// import { MSG_ID } from "@/constants";
 
-  return (
-    <>
-      <div className="fixed z-10 w-full">
-        <DetailedDataHeader
-          backgroundOpacity={60}
-          isMapPage={true}
-          selectedDrone={selectedDrone}
-          setSelectedDrone={setSelectedDrone}
-          selectedOperation={selectedOperation}
-          setSelectedOperation={setSelectedOperation}
-        />
-      </div>
-      <div className="fixed right-10 top-[10rem] z-10">
-        <MapSwitchButton />
-      </div>
-      <div className="fixed left-4 top-[10rem] z-10">
+// export default function MapPage() {
+//   const {
+//     selectedDrone,
+//     selectedOperationAndDate,
+//   } = useContext(SelectedDataContext);
+//   const { isAuth } = useContext(AuthContext);
+//   const navigate = useNavigate();
 
-        {/* TODO: 위젯 props들 api 데이터로 수정 */}
-        <AttitudeWidget>
-          <BatteryState />
-          <HeadingState />
-        </AttitudeWidget>
-        <WeatherWidget
-          icon={toolbarWidgetData[0].icon}
-          title={toolbarWidgetData[0].title}
-          values={toolbarWidgetData[0].dataValues as string[]}
-        />
-        <SpeedAltitudeWidget
-          icon={toolbarWidgetData[1].icon}
-          title={toolbarWidgetData[1].title}
-          value={toolbarWidgetData[1].dataValues![0]}
-        />
-        <SpeedAltitudeWidget
-          icon={toolbarWidgetData[2].icon}
-          title={toolbarWidgetData[2].title}
-          value={toolbarWidgetData[2].dataValues![0]}
-        />
-        <StateAlertWidget
-          icon={toolbarWidgetData[3].icon}
-          title={toolbarWidgetData[3].title}
-          values={toolbarWidgetData[3].stateValues!}
-        />
-      </div>
-      <Map2D latLonAltData={data} />
-    </>
-  );
-}
+//   useEffect(() => {
+//     if (isAuth === null) return;
+//     if (!isAuth) {
+//       alert("Signing in is required");
+//       navigate("/");
+//     }
+//   }, [isAuth, navigate]);
+
+//   // useTelemetry2D 훅을 사용하여 데이터 가져오기
+//   const { data, error, isPending } = useTelemetry2D(
+//     selectedDrone,
+//     selectedOperationAndDate,
+//   );
+
+//   if (error) {
+//     return "An error has occurred: " + error.message;
+//   }
+
+//   // 속도데이터
+//   const rawSpeedData = data?.filter((entry) => entry.msgId === 74) ?? [];
+//   const speedData = rawSpeedData.length > 0 ? rawSpeedData : null;
+
+//   //헤딩 데이터
+//   const rawHeadingData = data?.filter((entry) => entry.msgId === 74) ?? [];
+//   const headingData = rawHeadingData.length > 0 ? rawHeadingData : null;
+
+//   //드론 모습 상세 데이터"roll", "pitch", "yaw"
+//   const rawRollData = data?.filter((entry) => entry.msgId === MSG_ID.ATTITUDE) ?? [];
+//   const rollData = rawRollData.length > 0 ? rawRollData : null;
+
+//   const rawPitchData =
+//     data?.filter((entry) => entry.msgId === MSG_ID.ATTITUDE) ?? [];
+//   const pitchData = rawPitchData.length > 0 ? rawPitchData : null;
+
+//   const rawYawData =
+//     data?.filter((entry) => entry.msgId === MSG_ID.ATTITUDE) ?? [];
+//   const yawData = rawYawData.length > 0 ? rawYawData : null;
+
+//   //배터리리 데이터
+//   const rawbatteryRemainingData =
+//     data?.filter((entry) => entry.msgId === MSG_ID.BATTERY_STATUS) ?? [];
+//   const batteryRemainingData =
+//     rawbatteryRemainingData.length > 0 ? rawbatteryRemainingData : null;
+
+//   // 위치데이터
+//   const rawPositionData = data?.filter((entry) => entry.msgId === 33) ?? [];
+//   const positionData =
+//     rawPositionData.length > 0
+//       ? formatAndSortPositionData(rawPositionData)
+//       : null;
+
+//   // 상태데이터
+//   const rawStateData = data?.filter((entry) => entry.msgId === 253) ?? [];
+//   const stateData = rawStateData.length > 0 ? rawStateData : null;
+
+//   return (
+//     <>
+//       <div className="fixed z-10 w-full">
+//         <DetailedDataHeader
+//           backgroundOpacity={60}
+//           isMapPage={true}
+//           exportToExcel={() => null}
+//         />
+//       </div>
+//       <div className="fixed right-10 top-[10rem] z-10">
+//         {/* <MapSwitchButton /> */}
+//       </div>
+//       <div className="fixed left-4 top-[10rem] z-10">
+//         <AttitudeWidget
+//           headingData={headingData ?? null}
+//           batteryRemainingData={batteryRemainingData ?? null}
+//           rollData={rollData ?? null}
+//           pitchData={pitchData ?? null}
+//           yawData={yawData ?? null}
+//         />
+//         <WeatherWidget positionData={positionData ?? null} />
+
+//         <SpeedWidget speedData={speedData ?? null} />
+
+//         <AltitudeWidget positionData={positionData ?? null} />
+
+//         <StateWidget
+//           stateData={stateData ?? null}
+//           selectedDrone={selectedDrone ? selectedDrone._id : null}
+//           selectedOperationAndDate={
+//             selectedOperationAndDate
+//               ? selectedOperationAndDate.operationId
+//               : null
+//           }
+//         />
+//       </div>
+
+//       <Map2D
+//         positionData={positionData ?? null}
+//         stateData={stateData ?? null}
+//       />
+//     </>
+//   );
+// }

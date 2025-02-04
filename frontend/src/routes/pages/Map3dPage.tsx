@@ -1,83 +1,144 @@
-import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-import { fetchPositionDataByOperation } from "@/api/mapApi";
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
-import Map3D from "@/components/map3d/Map3D";
+import Map2D from "@/components/map/Map2D";
+import AltitudeWidget from "@/components/map3d/AltitudeWidget";
+import AttitudeWidget from "@/components/map3d/AttitudeWidget";
+import CesiumViewer3D from "@/components/map3d/CesiumViewer3D";
 import MapSwitchButton from "@/components/map3d/MapSwitchButton";
-import { AttitudeWidget, BatteryState, HeadingState, SpeedAltitudeWidget, StateAlertWidget, WeatherWidget } from "@/components/map3d/Widget";
-import toolbarWidgetData from "@/data/toolbarWidgetData.json"
-import { Operation,Robot } from "@/types/selectOptionsTypes";
-import formatPositionData from "@/utils/formatPositionData";
+import MiniMapWidget from "@/components/map3d/MiniMapWidget";
+import SpeedWidget from "@/components/map3d/SpeedWidget";
+import StateWidget from "@/components/map3d/StateWidget";
+import WeatherWidget from "@/components/map3d/WeatherWidget";
+import { MSG_ID } from "@/constants";
+import { AuthContext } from "@/contexts/AuthContext";
+import { CurrentTimeProvider } from "@/contexts/CurrentTimeContext";
+import PhaseContextProvider from "@/contexts/PhaseContext";
+import SelectedDataContext from "@/contexts/SelectedDataContext";
+import { useTelemetry2D } from "@/hooks/useTelemetry2D";
+import { formatAndSortPositionData } from "@/utils/formatPositionData";
 
+export default function Map3dPage() {
+  const { selectedDrone, selectedOperationAndDate } =
+    useContext(SelectedDataContext);
+  const { isAuth } = useContext(AuthContext);
+  const navigate = useNavigate();
+  const [is2dMap, setIs2dMap] = useState(true);
 
-export default function Map3dPage(){
-  const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
-  const [selectedOperation, setSelectedOperation] = useState<Operation | null>(
-      null,
+  useEffect(() => {
+    if (isAuth === null) return;
+    if (!isAuth) {
+      alert("Signing in is required");
+      navigate("/");
+    }
+  }, [isAuth, navigate]);
+
+  const { data, error } = useTelemetry2D(
+    selectedDrone,
+    selectedOperationAndDate,
   );
 
-  //TODO: drone id, operation id -> 사용자가 선택한 값으로 변경 
-  const { isPending, error, data } = useQuery({
-    queryKey: ["position", selectedDrone, selectedOperation],
-    queryFn: async () => {
-      const rawData = await fetchPositionDataByOperation(
-        // selectedDrone!._id,
-        // selectedOperation!._id,
-        "67773116e8f8dd840dd35155",
-        "677730f8e8f8dd840dd35153",
-      );
-      return rawData.map(formatPositionData);
-    },
-    // enabled: !!selectedDrone && !!selectedOperation,
-  });
-  if (isPending) return "Loading...";
-  if (error) return "An error has occurred: " + error.message;
+  if (error) {
+    return "An error has occurred: " + error.message;
+  }
 
+  // 위치데이터
+  const rawPositionData =
+    data?.filter((entry) => entry.msgId === MSG_ID.GLOBAL_POSITION) ?? [];
+  const positionData =
+    rawPositionData.length > 0
+      ? formatAndSortPositionData(rawPositionData)
+      : null;
+
+  // 속도데이터
+  const rawSpeedData = data?.filter((entry) => entry.msgId === MSG_ID.VFR_HUD) ?? [];
+  const speedData = rawSpeedData.length > 0 ? rawSpeedData : null;
+
+  //헤딩 데이터
+  const rawHeadingData = data?.filter((entry) => entry.msgId === MSG_ID.VFR_HUD) ?? [];
+  const headingData = rawHeadingData.length > 0 ? rawHeadingData : null;
+
+  // 상태데이터
+  const rawStateData =
+    data?.filter((entry) => entry.msgId === MSG_ID.STATUSTEXT) ?? [];
+  const stateData = rawStateData.length > 0 ? rawStateData : null;
+
+  //드론 모습 상세 데이터"roll", "pitch", "yaw"
+  const rawRollData =
+    data?.filter((entry) => entry.msgId === MSG_ID.ATTITUDE) ?? [];
+  const rollData = rawRollData.length > 0 ? rawRollData : null;
+
+  const rawPitchData =
+    data?.filter((entry) => entry.msgId === MSG_ID.ATTITUDE) ?? [];
+  const pitchData = rawPitchData.length > 0 ? rawPitchData : null;
+
+  const rawYawData =
+    data?.filter((entry) => entry.msgId === MSG_ID.ATTITUDE) ?? [];
+  const yawData = rawYawData.length > 0 ? rawYawData : null;
+
+  //배터리 데이터
+  const rawbatteryRemainingData =
+    data?.filter((entry) => entry.msgId === MSG_ID.BATTERY_STATUS) ?? [];
+  const batteryRemainingData =
+    rawbatteryRemainingData.length > 0 ? rawbatteryRemainingData : null;
+
+  const switchMap = () => {
+    setIs2dMap(!is2dMap);
+  };
+
+  //TODO: 라우트 수정("/map-3d" 삭제, "/map" 으로 연결)
   return (
     <>
       <div className="fixed z-10 w-full">
         <DetailedDataHeader
           backgroundOpacity={60}
           isMapPage={true}
-          selectedDrone={selectedDrone}
-          setSelectedDrone={setSelectedDrone}
-          selectedOperation={selectedOperation}
-          setSelectedOperation={setSelectedOperation}
+          //TODO: 지도에서 export 기능, 버튼 삭제
+          exportToExcel={() => null}
         />
       </div>
       <div className="fixed right-10 top-[10rem] z-10">
-        <MapSwitchButton />
+        <MapSwitchButton is2d={is2dMap} switchMap={switchMap} />
       </div>
-      <div className="fixed left-4 top-[10rem] z-10">
 
-        {/* TODO: 위젯 props들 api 데이터로 수정 */}
-        <AttitudeWidget>
-          <BatteryState />
-          <HeadingState />
-        </AttitudeWidget>
-        <WeatherWidget
-          icon={toolbarWidgetData[0].icon}
-          title={toolbarWidgetData[0].title}
-          values={toolbarWidgetData[0].dataValues as string[]}
-        />
-        <SpeedAltitudeWidget
-          icon={toolbarWidgetData[1].icon}
-          title={toolbarWidgetData[1].title}
-          value={toolbarWidgetData[1].dataValues![0]}
-        />
-        <SpeedAltitudeWidget
-          icon={toolbarWidgetData[2].icon}
-          title={toolbarWidgetData[2].title}
-          value={toolbarWidgetData[2].dataValues![0]}
-        />
-        <StateAlertWidget
-          icon={toolbarWidgetData[3].icon}
-          title={toolbarWidgetData[3].title}
-          values={toolbarWidgetData[3].stateValues!}
-        />
-      </div>
-      <Map3D latLonAltData={data}/>
+      <PhaseContextProvider>
+        <CurrentTimeProvider>
+          <div className="fixed left-4 top-[10rem] z-10">
+            {is2dMap ? (
+              <AttitudeWidget
+                headingData={headingData}
+                batteryRemainingData={batteryRemainingData}
+                rollData={rollData}
+                pitchData={pitchData}
+                yawData={yawData}
+              />
+            ) : (
+              <MiniMapWidget positionData={positionData} />
+            )}
+            <WeatherWidget positionData={positionData} />
+
+            <SpeedWidget speedData={speedData} />
+
+            <AltitudeWidget positionData={positionData} />
+
+            <StateWidget
+              stateData={stateData}
+              selectedDrone={selectedDrone ? selectedDrone._id : null}
+              selectedOperationAndDate={
+                selectedOperationAndDate
+                  ? selectedOperationAndDate.operationId
+                  : null
+              }
+            />
+          </div>
+          {is2dMap ? (
+            <Map2D positionData={positionData} stateData={stateData} />
+          ) : (
+            <CesiumViewer3D positionData={positionData} stateData={stateData} />
+          )}
+        </CurrentTimeProvider>
+      </PhaseContextProvider>
     </>
   );
 }

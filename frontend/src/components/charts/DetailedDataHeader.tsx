@@ -1,25 +1,36 @@
-import { Button } from "@/components/ui/button";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
+
+import { Button } from "@/components/ui/button";
+import SelectedDataContext from "@/contexts/SelectedDataContext";
+
 import DropdownSection from "./DropdownSection";
-import { Robot, Operation } from "../../types/selectOptionsTypes";
 
 interface Props {
   isMapPage: boolean;
-  selectedDrone: Robot | null;
-  setSelectedDrone: React.Dispatch<React.SetStateAction<Robot | null>>;
-  selectedOperation: Operation | null;
-  setSelectedOperation: React.Dispatch<React.SetStateAction<Operation | null>>;
   backgroundOpacity: number;
+  exportToExcel: () => void;
 }
 
 const DetailedDataHeader: React.FC<Props> = ({
   isMapPage,
-  selectedDrone,
-  setSelectedDrone,
-  selectedOperation,
-  setSelectedOperation,
   backgroundOpacity,
+  exportToExcel,
 }) => {
+  const {
+    selectedDrone,
+    selectedOperationAndDate,
+    setSelectedDrone,
+    setSelectedOperationAndDate,
+  } = useContext(SelectedDataContext);
+  const handleExportClick = () => {
+    if (!selectedDrone || !selectedOperationAndDate) {
+      alert("드론과 오퍼레이션 날짜를 선택해야 합니다.");
+      return;
+    }
+    exportToExcel();
+  };
+
   return (
     <div
       className={`mx-10 my-5 flex flex-wrap items-center justify-evenly gap-1 rounded-[10px] border bg-white px-5 py-4 sm:justify-between md:flex-nowrap md:justify-evenly md:gap-4 md:px-5 bg-opacity-${backgroundOpacity}`}
@@ -44,13 +55,16 @@ const DetailedDataHeader: React.FC<Props> = ({
         <DropdownSection
           selectedDrone={selectedDrone} // 상태 전달
           setSelectedDrone={setSelectedDrone} // 상태 전달
-          selectedOperation={selectedOperation} // 상태 전달
-          setSelectedOperation={setSelectedOperation} // 상태 전달
+          selectedOperationAndDate={selectedOperationAndDate} // 상태 전달
+          setSelectedOperationAndDate={setSelectedOperationAndDate} // 상태 전달
           className="flex-1"
         />
       </div>
       <div className="flex gap-4">
-        <Button className="h-16 w-16 min-w-[64px] rounded-[10px] bg-white">
+        <Button
+          className="h-16 w-16 min-w-[64px] rounded-[10px] bg-white"
+          onClick={handleExportClick}
+        >
           <img
             src="/icons/download.svg"
             alt="Button Icon"

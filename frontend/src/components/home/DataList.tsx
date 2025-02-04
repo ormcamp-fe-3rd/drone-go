@@ -1,11 +1,22 @@
+import { useQuery } from "@tanstack/react-query";
+
+import { fetchRobots } from "../../api/dropdownApi"; // API 함수 가져오기
 import { FlightDataCard } from "./FlightDataCard";
 
-export function DataList() {
-  const data = [
-    { name: "M1_1", img: "/images/drone-01.svg" },
-    { name: "M1_2", img: "/images/drone-02.svg" },
-    { name: "M1_3", img: "/images/drone-01.svg" },
-  ];
+const DroneList = () => {
+
+
+  const {
+    data: drones = [],
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["robots"], // Query 캐싱 키
+    queryFn: fetchRobots, // API 호출 함수
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error instanceof Error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="mx-auto mb-10 flex h-[1024px] flex-col items-center justify-center text-center">
@@ -16,10 +27,24 @@ export function DataList() {
         Select a drone and view its data visualization.
       </p>
       <div className="mt-10 flex h-auto min-h-[37.5rem] w-[75rem] flex-wrap items-center justify-center">
-        {data.map((item, index) => (
-          <FlightDataCard key={index} name={item.name} img={item.img} />
-        ))}
+        {drones.map(
+          (
+            drone: { robot_id: string; name: string; img: string; _id: string },
+            op: { robot: string },
+          ) => (
+            <FlightDataCard
+              key={drone._id}
+              name={drone.name}
+              img={drone.img}
+              robot_id={drone.robot_id}
+              _id={drone._id}
+              robot={op.robot}
+            />
+          ),
+        )}
       </div>
     </div>
   );
-}
+};
+
+export default DroneList;

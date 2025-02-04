@@ -1,14 +1,34 @@
 import { Link } from "react-router-dom";
 
 interface FlightDataCardProps {
+  robot_id: string;
   name: string;
   img: string;
+  _id: string;
+  robot: string;
 }
 
-export function FlightDataCard({ name, img }: FlightDataCardProps) {
+export function FlightDataCard({
+  name,
+  img,
+  robot_id,
+  _id,
+  robot,
+}: FlightDataCardProps) {
   return (
-    <Link to={"/chart"}>
-      <div className="group relative mx-auto h-[300px] w-[300px] flex-col items-center justify-center rounded border-2 border-[#B2B7B7] bg-white py-16 hover:bg-click hover:text-white">
+    <Link
+      to={"/chart"}
+      state={{ robot_id, name, _id, robot, message: "값을 전달함" }}
+    >
+      <div
+        onClick={() => {
+          // 상태 변경
+          /*   handleData({ robot_id }); // robot_id 전달*/
+          console.log(robot_id); // 확인용 로그
+          console.log(_id);
+        }}
+        className="group relative mx-auto h-[300px] w-[300px] flex-col items-center justify-center rounded border-2 border-[#B2B7B7] bg-white py-16 hover:bg-click hover:text-white"
+      >
         <div>
           <img
             className="absolute left-9 top-10 transition-all duration-300 ease-in-out group-hover:left-4 group-hover:top-5 group-active:left-4 group-active:top-5"

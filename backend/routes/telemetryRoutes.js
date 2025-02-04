@@ -4,7 +4,9 @@ const router = express.Router()
 
 const Telemetry = require("../models/telemetryModel")
 const { getTelemetriesByRobotAndOperation } = require('../services/telemetryService');
+const authorizer = require("../middleware/authorizer");
 
+const { getDistinctDates } = require('../controllers/telemetryController');
 
 /**
  * Telemetry 데이터를 가져옵니다.
@@ -16,7 +18,7 @@ const { getTelemetriesByRobotAndOperation } = require('../services/telemetryServ
  * @returns {Promise<void>} - JSON 형식으로 Telemetries 데이터를 응답
  * @throws {Error} - 서버 에러 발생 시 500 상태 코드와 에러 메시지 반환
  */
-router.get('/', async (req, res) => {
+router.get('/', authorizer, async (req, res) => {
     try {
         const { robot, operation } = req.query;
 
@@ -50,5 +52,7 @@ router.get('/', async (req, res) => {
     }
 });
 
+// distinctDates 데이터 가져오기
+router.get('/distinctDates', getDistinctDates);
 
 module.exports = router
