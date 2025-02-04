@@ -15,7 +15,7 @@ export default function Drone({
   scale,
   rotation,
   yAnimationHeight,
-  height, // Three 캔버스 기본 높이값
+  height,
   width,
 }: DroneProp) {
   const glb = useLoader(GLTFLoader, "../../public/objects/drone.glb");
