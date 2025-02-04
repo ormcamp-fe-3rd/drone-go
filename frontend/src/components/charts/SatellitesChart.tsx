@@ -108,12 +108,12 @@ const SatellitesChart: React.FC<ChartProps> = ({ data }) => {
   };
 
   return (
-    <div className="mr-2">
+    <div className="h-full mr-2">
       <ReactApexChart
         options={chartOptions}
         series={chartSeries}
         type="line"
-        height={350}
+        height="100%"
       />
     </div>
   );
