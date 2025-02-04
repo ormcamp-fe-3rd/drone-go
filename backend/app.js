@@ -1,19 +1,17 @@
-require('dotenv').config();  
-
-
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
-const fetch = globalThis.fetch;
 const app = express();
-
+const fetch = globalThis.fetch;
 const NASA_API_KEY = process.env.NASA_API_KEY;
 
 console.log("🔑 NASA API Key Loaded:", NASA_API_KEY); // 확인용 (배포 시 제거)
 
-// ✅ 미들웨어 설정
-app.use(cors());
+// ✅ CORS 설정 (프론트엔드 요청 허용)
+app.use(cors({ origin: "http://localhost:5173" })); // 필요 시 '*' 로 변경 가능
 app.use(express.json());
 
+// ✅ MongoDB 연결
 const run = require('./db');
 run();
 
@@ -21,7 +19,7 @@ app.get('/', (req, res) => {
   res.json({ success: true });
 });
 
-// 🚀 NASA API 요청 엔드포인트 수정
+// 🚀 NASA API 요청 프록시 엔드포인트
 app.get('/weather', async (req, res) => {
   try {
     let { latitude, longitude, date } = req.query;
@@ -40,9 +38,8 @@ app.get('/weather', async (req, res) => {
     const response = await fetch(nasaUrl, {
       method: "GET",
       headers: {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
         "Accept": "application/json"
-      }
+      },
     });
 
     if (!response.ok) {
@@ -50,7 +47,8 @@ app.get('/weather', async (req, res) => {
     }
 
     const data = await response.json();
-    res.json(data);  // NASA 데이터를 그대로 프론트에 전달
+    res.setHeader("Access-Control-Allow-Origin", "*"); // CORS 허용
+    res.json(data); // NASA 데이터를 그대로 프론트에 전달
   } catch (error) {
     console.error("❌ NASA API 요청 실패:", error.message);
     res.status(500).json({ error: error.message });
@@ -66,6 +64,7 @@ app.use((req, res) => {
 });
 
 // ✅ 서버 실행
-app.listen(3000, () => {
-  console.log('✅ 서버 실행 중: http://localhost:3000');
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`✅ 서버 실행 중: http://localhost:${PORT}`);
 });
