@@ -1,6 +1,8 @@
 import { Suspense, useContext } from "react";
-import Drone from "../home/Drone";
+
 import { PhaseContext } from "@/contexts/PhaseContext";
+
+import Drone from "../home/Drone";
 
 interface AttitudeWidgetProp {
   headingSpeedData:
@@ -34,7 +36,7 @@ const radToDeg = (radian: number) => radian * (180 / Math.PI);
 const AttitudeWidget = ({
   headingSpeedData,
   batteryRemainingData,
-  attitudeData
+  attitudeData,
 }: AttitudeWidgetProp) => {
   const { phase } = useContext(PhaseContext);
 
@@ -94,13 +96,7 @@ const AttitudeWidget = ({
           </div>
         </div>
       </div>
-      {/* 데이터 전달 값 확인용
-      <div>
-        <p>Yaw 값: {currentYawInDegrees}°</p>
-        <p>롤 값: {currentRollInDegrees}°</p>
-        <p>피치 값: {currentPitchInDegrees}°</p>
-      </div>
-*/}
+
       {/* 드론 3D 모델 */}
       <div className="attitude-3d relative col-span-2 row-start-2 flex items-center justify-center p-2">
         <div className="flex h-[10vh] w-[20vw] items-center justify-center">

@@ -2,11 +2,12 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
+import HeaderMapBtns from "@/components/charts/HeaderMapBtns";
 import Map2D from "@/components/map/Map2D";
 import AltitudeWidget from "@/components/map3d/AltitudeWidget";
 import AttitudeWidget from "@/components/map3d/AttitudeWidget";
 import CesiumViewer3D from "@/components/map3d/CesiumViewer3D";
-import MapSwitchButton from "@/components/map3d/MapSwitchButton";
+import LoadingMessage from "@/components/map3d/LoadingMessage";
 import MiniMapWidget from "@/components/map3d/MiniMapWidget";
 import SpeedWidget from "@/components/map3d/SpeedWidget";
 import StateWidget from "@/components/map3d/StateWidget";
@@ -16,6 +17,10 @@ import { CurrentTimeProvider } from "@/contexts/CurrentTimeContext";
 import PhaseContextProvider from "@/contexts/PhaseContext";
 import SelectedDataContext from "@/contexts/SelectedDataContext";
 import { useTelemetry2D, useFormattedPositionData } from "@/hooks/useTelemetry2D";
+import { Telemetry2dData } from "@/types/telemetry2dDataTypes";
+import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
+import { formatAndSortPositionData } from "@/utils/formatPositionData";
+
 
 export default function Map3dPage() {
   const { selectedDrone, selectedOperationAndDate } =
@@ -23,6 +28,8 @@ export default function Map3dPage() {
   const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
   const [is2dMap, setIs2dMap] = useState(true);
+  const [ positionData, setPositionData ] = useState<FormattedTelemetryPositionData[] | null>(null);
+  const [ stateData, setStateData ] = useState<Telemetry2dData[] | null>(null);
 
   useEffect(() => {
     if (isAuth === null) return;
@@ -54,19 +61,12 @@ export default function Map3dPage() {
     setIs2dMap(!is2dMap);
   };
 
-  //TODO: 라우트 수정("/map-3d" 삭제, "/map" 으로 연결)
   return (
     <>
       <div className="fixed z-10 w-full">
-        <DetailedDataHeader
-          backgroundOpacity={60}
-          isMapPage={true}
-          //TODO: 지도에서 export 기능, 버튼 삭제
-          exportToExcel={() => null}
-        />
-      </div>
-      <div className="fixed right-10 top-[10rem] z-10">
-        <MapSwitchButton is2d={is2dMap} switchMap={switchMap} />
+        <DetailedDataHeader backgroundOpacity={60}>
+          <HeaderMapBtns is2d={is2dMap} switchMap={switchMap} />
+        </DetailedDataHeader>
       </div>
 
       <CurrentTimeProvider>
@@ -102,6 +102,17 @@ export default function Map3dPage() {
           ) : (
             <CesiumViewer3D positionData={positionData} stateData={stateData} />
           )}
+          {!selectedOperationAndDate && 
+            <div className="fixed flex h-screen w-screen items-center justify-center">
+              <div className="pointer-events-none flex h-20 w-56 items-center rounded-2xl bg-white bg-opacity-90 drop-shadow-md">
+                <p className="w-full text-center">
+                  Please select an operation.
+                </p>
+              </div>
+            </div>
+          }
+          {isLoading && 
+            <LoadingMessage/>}
         </PhaseContextProvider>
       </CurrentTimeProvider>
     </>

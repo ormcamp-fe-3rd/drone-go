@@ -12,7 +12,7 @@ const StateDataComponent: React.FC<FlightTextDataProps> = ({ data }) => {
   );
 
   return (
-    <div className="scrollbar- h-[170px] scroll-m-0 overflow-y-auto pr-3">
+    <div className="max-h-full pr-3 overflow-y-auto scrollbar- scroll-m-0">
       <ul>
         {sortedData.map((item, index) => (
           <li key={index} className="mt-2">
