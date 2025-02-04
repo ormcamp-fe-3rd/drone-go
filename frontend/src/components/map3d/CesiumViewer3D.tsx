@@ -82,7 +82,19 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
           },
         );
 
+        const initialPosition = Cesium.Cartesian3.fromDegrees(
+          126.976944, // 경도 (Longitude)
+          37.562498, // 위도 (Latitude)
+          1000, // 고도 (Altitude)
+        );
+
         viewerRef.current.scene.primitives.add(buildingTileset);
+        viewerRef.current.camera.setView({
+          destination: initialPosition,
+          orientation: {
+            pitch: Cesium.Math.toRadians(-40),
+          },
+        });
         setIsInitialized(true);
       } catch (error) {
         console.error("Failed to initialize Cesium:", error);
