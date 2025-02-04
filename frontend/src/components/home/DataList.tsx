@@ -4,8 +4,6 @@ import { fetchRobots } from "../../api/dropdownApi"; // API 함수 가져오기
 import { FlightDataCard } from "./FlightDataCard";
 
 const DroneList = () => {
-
-
   const {
     data: drones = [],
     isLoading,
@@ -35,7 +33,7 @@ const DroneList = () => {
             <FlightDataCard
               key={drone._id}
               name={drone.name}
-              img={drone.img}
+              img={`/images/chart/${drone.name}.svg`}
               robot_id={drone.robot_id}
               _id={drone._id}
               robot={op.robot}

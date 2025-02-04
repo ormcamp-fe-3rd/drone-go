@@ -15,7 +15,7 @@ export default function Drone({
   scale,
   rotation,
   yAnimationHeight,
-  height, // Three 캔버스 기본 높이값
+  height,
   width,
 }: DroneProp) {
   const glb = useLoader(GLTFLoader, "../../public/objects/drone.glb");
@@ -93,7 +93,7 @@ export default function Drone({
 
   return (
     <div
-      className="absolute right-0 z-30"
+      className="absolute right-0"
       style={{ height, width }} // 부모에서 전달된 크기로 설정
     >
       <Canvas camera={{ position: [0, 50, 100], fov: 75 }}>
