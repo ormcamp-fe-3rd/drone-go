@@ -278,7 +278,7 @@ export default function Map2D({ positionData, stateData }: Props) {
         <ProgressBar
           startTime={startEndTime.startTime}
           endTime={startEndTime.endTime}
-          stateData={stateData ?? null}
+          stateData={stateData}
         >
           <PlayHead
             duration={totalDuration}
