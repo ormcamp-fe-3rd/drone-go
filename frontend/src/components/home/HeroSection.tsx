@@ -88,7 +88,7 @@ export function HeroSection() {
         </div>
 
         <img
-          className="absolute bottom-20 left-0 z-10 h-full w-full object-cover"
+          className="absolute bottom-20 left-0 h-full w-full object-cover"
           src="../public/images/cloud.svg"
           alt="cloud 이미지"
         />
