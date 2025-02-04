@@ -7,13 +7,22 @@ import { formatTime } from "@/utils/formatTime";
 
 import PlayHead from "../map/PlayHead";
 import ProgressBar from "../map/ProgressBar";
-import ProgressBarBtn from "../map/ProgressBarBtn";
+import ProgressBarBtns from "../map/ProgressBarBtns";
 
 interface CesiumViewerProps {
   positionData: FormattedTelemetryPositionData[] | null;
+  stateData:
+    | {
+        timestamp: Date;
+        payload: { text: string };
+      }[]
+    | null;
 }
 
-const CesiumViewer: React.FC<CesiumViewerProps> = ({ positionData }) => {
+const CesiumViewer: React.FC<CesiumViewerProps> = ({
+  positionData,
+  stateData,
+}) => {
   const cesiumContainerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const modelEntityRef = useRef<Cesium.Entity | null>(null);
@@ -212,8 +221,9 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({ positionData }) => {
 
   // phase 변경 시 드론 위치 업데이트
   useEffect(() => {
+    elapsedTimeRef.current = phase * totalDuration * 1000;
     updateDronePosition(phase);
-  }, [phase, updateDronePosition]);
+  }, [phase, totalDuration, updateDronePosition]);
 
   // 애니메이션 프레임 처리
   const animate = useCallback(
@@ -259,43 +269,52 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({ positionData }) => {
     }
   };
 
-  const handlePlaySpeed = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSpeed(Number(e.target.value));
+  const handlePlaySpeed = (value: string) => {
+    setSpeed(Number(value));
   };
+
+  const handleStop = () => {
+    setIsPlaying(false);
+    setPhase(0);
+    if(animationRef.current){
+      cancelAnimationFrame(animationRef.current);
+      lastTimeRef.current = 0;
+    }
+  }
 
   return (
     <>
-      <div
-        ref={cesiumContainerRef}
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-        }}
-      />
+      <div className="fixed inset-0 w-screen h-screen">
+        <div
+          ref={cesiumContainerRef}
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            width: "100%",
+            height: "100%",
+          }}
+        />
+      </div>
       <div className="fixed bottom-0 w-screen">
         <ProgressBar
           startTime={startEndTime.startTime}
           endTime={startEndTime.endTime}
+          stateData={stateData}
         >
           <PlayHead
             duration={totalDuration}
             flightStartTime={flightStartTime}
           />
-          <ProgressBarBtn
+          <ProgressBarBtns
             isPlaying={isPlaying}
             onClickPlay={handlePlay}
             onClickPause={handlePause}
+            onChangeSpeed={handlePlaySpeed}
+            onClickStop={handleStop}
+            speed={speed}
           />
         </ProgressBar>
-        <select className="w-24" onChange={handlePlaySpeed}>
-          <option value="1">1x speed</option>
-          <option value="2">2x speed</option>
-          <option value="5">5x speed</option>
-          <option value="10">10x speed</option>
-        </select>
       </div>
     </>
   );

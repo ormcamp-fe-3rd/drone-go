@@ -1,7 +1,6 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AuthContext } from "@/contexts/AuthContext";
-import { Robot } from "@/types/selectOptionsTypes";
+
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
 import Map2D from "@/components/map/Map2D";
 import AltitudeWidget from "@/components/map3d/AltitudeWidget";
@@ -11,16 +10,16 @@ import SpeedWidget from "@/components/map3d/SpeedWidget";
 import StateWidget from "@/components/map3d/StateWidget";
 import WeatherWidget from "@/components/map3d/WeatherWidget";
 import { BatteryState, HeadingState } from "@/components/map3d/Widget";
+import { AuthContext } from "@/contexts/AuthContext";
+import SelectedDataContext from "@/contexts/SelectedDataContext";
 import { useTelemetry2D } from "@/hooks/useTelemetry2D";
 import { formatAndSortPositionData } from "@/utils/formatPositionData";
 
 export default function MapPage() {
-  const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
-  const [selectedOperationAndDate, setSelectedOperationAndDate] = useState<{
-    operationId: string;
-    date: string;
-    name: string;
-  } | null>(null);
+  const {
+    selectedDrone,
+    selectedOperationAndDate,
+  } = useContext(SelectedDataContext);
   const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -59,18 +58,15 @@ export default function MapPage() {
         <DetailedDataHeader
           backgroundOpacity={60}
           isMapPage={true}
-          selectedDrone={selectedDrone}
-          setSelectedDrone={setSelectedDrone}
-          selectedOperationAndDate={selectedOperationAndDate}
-          setSelectedOperationAndDate={setSelectedOperationAndDate}
+          exportToExcel={() => null}
         />
       </div>
       <div className="fixed right-10 top-[10rem] z-10">
-        <MapSwitchButton />
+        {/* <MapSwitchButton /> */}
       </div>
       <div className="fixed left-4 top-[10rem] z-10">
         <WeatherWidget positionData={positionData ?? null} />
-          
+
         <SpeedWidget speedData={speedData ?? null} />
 
         <AltitudeWidget positionData={positionData ?? null} />
@@ -78,11 +74,12 @@ export default function MapPage() {
         <StateWidget
           stateData={stateData ?? null}
           selectedDrone={selectedDrone ? selectedDrone._id : null}
-
-          selectedOperationAndDate={selectedOperationAndDate ? selectedOperationAndDate.operationId : null}
-
+          selectedOperationAndDate={
+            selectedOperationAndDate
+              ? selectedOperationAndDate.operationId
+              : null
+          }
         />
-          
       </div>
 
       <Map2D
