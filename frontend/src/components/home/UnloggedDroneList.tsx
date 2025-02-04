@@ -3,7 +3,7 @@ import { LoginForm } from "./LoginForm";
 export default function UnloggedDroneList(){
   return (
     <>
-      <div className="absolute h-full w-full bg-black bg-opacity-50 backdrop-blur-[2px]"></div>
+      <div className="absolute h-full w-full bg-black bg-opacity-50 backdrop-blur-[2px]" id="unlogged-data-list"></div>
       <div className="mx-auto mb-10 mt-10 flex h-[1024px] flex-col items-center gap-10 text-center">
         <p className="title" id="DataList">
           Select the Drone
@@ -22,13 +22,13 @@ export default function UnloggedDroneList(){
             aria-hidden="false"
             tabIndex={-1}
           >
-            <button tabIndex={0} className="absolute right-10 top-10 h-6 w-6">
+            {/* <button tabIndex={0} className="absolute right-10 top-10 h-6 w-6">
               <img
                 className="cursor-pointer"
                 src="/icons/close.svg"
                 alt="Close"
               />
-            </button>
+            </button> */}
             <p id="login-modal-title" className="mb-12 text-2xl font-bold">
               Login required to continue
             </p>
