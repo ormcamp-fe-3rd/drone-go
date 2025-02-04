@@ -7,6 +7,7 @@ import Drone from "@/components/home/Drone";
 import { HeroSection } from "@/components/home/HeroSection";
 import UnloggedDroneList from "@/components/home/UnloggedDroneList";
 import { AuthContext } from "@/contexts/AuthContext";
+import LoadingScreen from "@/components/common/LoadingScreen";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -16,6 +17,7 @@ export function HomePage() {
   const [rotation, setRotation] = useState<[number, number, number]>([
     0, -110, 0,
   ]);
+  const [loading, setLoading] = useState(true); // 로딩 상태 관리
   const { isAuth } = useContext(AuthContext);
 
   useEffect(() => {
@@ -38,18 +40,30 @@ export function HomePage() {
               110,
               self.progress,
             );
-
             setRotation([0, rotationValue, 0]);
           },
         },
       });
     }
+
+    // 데이터 로딩 완료 후 로딩 상태 변경
+    const timeout = setTimeout(() => {
+      setLoading(false); // 2초 뒤에 로딩 상태를 false로 변경 (예시)
+    }, 2000);
+
+    return () => clearTimeout(timeout); // cleanup
   }, []);
 
   return (
     <div className="relative">
+      {/* 로딩 중일 때 LoadingScreen 표시 */}
+      {loading && <LoadingScreen />}
+
+      {/* Main Content */}
+      <HeroSection />
+      {isAuth ? <DroneList /> : <UnloggedDroneList />}
       <div
-        className="absolute right-0 top-56 z-50 h-[25vh] w-[25vw]" // z-50을 추가하여 드론이 최상위에 배치
+        className="absolute right-0 top-56 h-[25vh] w-[25vw]" // z-50을 추가하여 드론이 최상위에 배치
         ref={droneRef}
       >
         <Drone
@@ -60,9 +74,6 @@ export function HomePage() {
           width={"70vw"}
         />
       </div>
-      {/* Main Content */}
-      <HeroSection />
-      {isAuth ? <DroneList /> : <UnloggedDroneList />}
     </div>
   );
 }
