@@ -9,9 +9,11 @@ import MapSwitchButton from "@/components/map3d/MapSwitchButton";
 import SpeedWidget from "@/components/map3d/SpeedWidget";
 import StateWidget from "@/components/map3d/StateWidget";
 import WeatherWidget from "@/components/map3d/WeatherWidget";
+
 import { BatteryState, HeadingState } from "@/components/map3d/Widget";
 import { AuthContext } from "@/contexts/AuthContext";
 import SelectedDataContext from "@/contexts/SelectedDataContext";
+
 import { useTelemetry2D } from "@/hooks/useTelemetry2D";
 import { formatAndSortPositionData } from "@/utils/formatPositionData";
 import AttitudeWidget from "@/components/map3d/AttitudeWidget";

@@ -85,6 +85,7 @@ export const fetchTelemetriesByRobotAndOperation = async (
 
     // msgId가 74(groundspeed: 속도), 33(alt: 고도) 인 데이터만 필터링하고 필요한 값만 반환
     const processAltAndSpeedData = (data: any[]): AltAndSpeedData[] => {
+
       // 타임스탬프별로 데이터 정리
       const timestampMap = new Map<string, AltAndSpeedData>();
 
