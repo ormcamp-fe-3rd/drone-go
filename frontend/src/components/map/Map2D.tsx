@@ -26,6 +26,10 @@ interface Props {
 
 export default function Map2D({ positionData, stateData }: Props) {
   const mapRef = useRef<MapRef>(null); // 맵 인스턴스 접근
+  const markerRef = useRef<mapboxgl.Marker | null>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+
+  // 데이터 관련
   const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>();
   const [totalDuration, setTotalDuration] = useState<number>(0);
   const [startEndTime, setStartEndTime] = useState<{
@@ -33,20 +37,23 @@ export default function Map2D({ positionData, stateData }: Props) {
     endTime: string;
   }>({ startTime: "", endTime: "" });
   const [flightStartTime, setFlightStartTime] = useState(0);
-  const { phase, setPhase } = useContext(PhaseContext);
-  const [speed, setSpeed] = useState(1);
-
+  
   // 애니메이션 관련 변수
   const [isPlaying, setIsPlaying] = useState(false);
   const animationRef = useRef<number>();
   const elapsedTimeRef = useRef<number>(0);
   const lastTimeRef = useRef<number>(0);
-  const markerRef = useRef<mapboxgl.Marker | null>(null);
+  const { phase, setPhase } = useContext(PhaseContext);
+  const [speed, setSpeed] = useState(1);
   const [headings, setHeadings] = useState<number[]>();
+  
 
   // 경로, 운행시간 셋팅
   useEffect(() => {
-    if (!mapRef.current || !positionData) return;
+    if (!positionData) {
+      setLatLonAlt(null);
+      return;
+    }
     setPhase(0);
 
     const payloadData: LatLonAlt[] = positionData.map((item) => ({
@@ -56,10 +63,9 @@ export default function Map2D({ positionData, stateData }: Props) {
     }));
     setLatLonAlt(payloadData);
 
-    mapRef.current.setCenter([
-      positionData[0].payload.lon,
-      positionData[0].payload.lat,
-    ]);
+    const calculatedHeadings = calculateMarkerHeading(payloadData);
+    setHeadings(calculatedHeadings);
+
 
     const flightStartTime = positionData[0].timestamp; // Unix 타임스탬프
     const flightEndTime = positionData[positionData.length - 1].timestamp;
@@ -73,8 +79,22 @@ export default function Map2D({ positionData, stateData }: Props) {
 
     setTotalDuration((flightEndTime - flightStartTime) / 1000);
 
-    const calculatedHeadings = calculateMarkerHeading(payloadData);
-    setHeadings(calculatedHeadings);
+    // 맵 초기화
+    if (mapRef.current) {
+      const map = mapRef.current.getMap();
+      map.jumpTo({
+        center: [positionData[0].payload.lon, positionData[0].payload.lat],
+        zoom: 12,
+      });
+
+      if (!markerRef.current) {
+        markerRef.current = new mapboxgl.Marker({
+          element: createMarkerElement("/images/droneMarker.svg"),
+        })
+          .setLngLat([positionData[0].payload.lon, positionData[0].payload.lat])
+          .addTo(map);
+      }
+    }
   }, [positionData, setPhase, speed]);
 
   const updateCamera = useCallback(
@@ -83,12 +103,12 @@ export default function Map2D({ positionData, stateData }: Props) {
         return;
       const map = mapRef.current.getMap();
 
-      const index = Math.min(
+      const currentIndex = Math.min(
         Math.floor(phase * (latLonAlt.length - 1)),
         latLonAlt.length - 1,
       );
-      const currentItem = latLonAlt[index];
-      const currentHeading = headings[index] || 0;
+      const currentItem = latLonAlt[currentIndex];
+      const currentHeading = headings[currentIndex] || 0;
 
       const markerLngLat: [number, number] = [currentItem.lon, currentItem.lat];
       markerRef.current.setLngLat(markerLngLat);
@@ -136,13 +156,21 @@ export default function Map2D({ positionData, stateData }: Props) {
     }
     animationRef.current = window.requestAnimationFrame(animate);
   };
-
-  const addMapSource = useCallback((map: mapboxgl.Map) => {
-    const pathCoordinates = latLonAlt?.map((point) => [point.lon, point.lat]);
-
-    if(!pathCoordinates) return;
+  
+  const addRouteSourceAndLayer = useCallback(() => {
+    if (!mapRef.current || !latLonAlt) return;
+    
+    const map = mapRef.current.getMap();
+    const pathCoordinates = latLonAlt.map((point) => [point.lon, point.lat]);
+    
     if (map.getSource("route")) {
-      (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
+      map.removeLayer("route-line");
+      map.removeSource("route");
+    }
+
+    map.addSource("route", {
+      type: "geojson",
+      data: {
         type: "FeatureCollection",
         features: [
           {
@@ -154,11 +182,29 @@ export default function Map2D({ positionData, stateData }: Props) {
             properties: {},
           },
         ],
-      });
-    } else {
-      map.addSource("route", {
-        type: "geojson",
-        data: {
+      },
+    });
+
+    map.addLayer({
+      id: "route-line",
+      type: "line",
+      source: "route",
+      layout: {
+        "line-cap": "round",
+        "line-join": "round",
+      },
+      paint: {
+        "line-width": 4,
+        "line-color": "#007cbf",
+      },
+    });
+
+    setTimeout(() => {
+      const source = map.getSource("route") as
+        | mapboxgl.GeoJSONSource
+        | undefined;
+      if (source) {
+        source.setData({
           type: "FeatureCollection",
           features: [
             {
@@ -170,64 +216,49 @@ export default function Map2D({ positionData, stateData }: Props) {
               properties: {},
             },
           ],
-        },
-      });
+        });
+      }
+    }, 500);
+  }, [latLonAlt]);
 
-      map.addLayer({
-        id: "route-line",
-        type: "line",
-        source: "route",
-        layout: {
-          "line-cap": "round",
-          "line-join": "round",
-        },
-        paint: {
-          "line-width": 4,
-          "line-color": "#007cbf",
-        },
-      });
-    }
-  },[latLonAlt])
   // 지도 및 마커 초기화
   useEffect(() => {
-    if (mapRef.current && latLonAlt) {
-      const map = mapRef.current.getMap();
+    if (!mapRef.current || !latLonAlt) return;
+    if (!mapLoaded) return;
 
+    const map = mapRef.current.getMap();
+
+    try {
+      addRouteSourceAndLayer();
+    } catch (error) {
+      console.error("Failed to add route: ", error);
+    }
+
+    if (!markerRef.current) {
       const initialPoint =
         latLonAlt.length > 0
           ? latLonAlt[0]
-          : { lat: 37.572398, lon: 126.976944 }; // 서울 기본값
+          : { lat: 37.572398, lon: 126.976944 };
+      const markerLngLat: [number, number] = [
+        initialPoint.lon,
+        initialPoint.lat,
+      ];
 
-      // 초기 맵 위치 설정
-      map.jumpTo({
-        center: [initialPoint.lon, initialPoint.lat],
-        zoom: 14,
-      });
-
-      if (map.isStyleLoaded()) {
-        addMapSource(map);
-      } else {
-        map.once("style.load", () => addMapSource(map));
-      }
-
-      if (!markerRef.current) {
-        const initialPoint =
-          latLonAlt.length > 0
-            ? latLonAlt[0]
-            : { lat: 37.572398, lon: 126.976944 };
-        const markerLngLat: [number, number] = [
-          initialPoint.lon,
-          initialPoint.lat,
-        ];
-
-        markerRef.current = new mapboxgl.Marker({
-          element: createMarkerElement("/images/droneMarker.svg"),
-        })
-          .setLngLat(markerLngLat)
-          .addTo(map);
-      }
+      markerRef.current = new mapboxgl.Marker()
+        .setLngLat(markerLngLat)
+        .addTo(map);
     }
-  }, [addMapSource, latLonAlt]);
+
+    return () => {
+      if (!mapLoaded) return;
+      if (map.getLayer("route-line")) {
+        map.removeLayer("route-line");
+      }
+      if (map.getSource("route")) {
+        map.removeSource("route");
+      }
+    };
+  }, [addRouteSourceAndLayer, latLonAlt, mapLoaded]);
 
   function createMarkerElement(imageUrl: string) {
     const element = document.createElement("img");
@@ -255,6 +286,7 @@ export default function Map2D({ positionData, stateData }: Props) {
   const handlePlaySpeed = (value: string) => {
     setSpeed(Number(value));
   };
+
   const handleStop = () => {
     setIsPlaying(false);
     setPhase(0);
@@ -263,6 +295,10 @@ export default function Map2D({ positionData, stateData }: Props) {
       lastTimeRef.current = 0;
     }
   };
+
+  const handleMapLoad = useCallback(() => {
+    setMapLoaded(true);
+  }, []);
 
   return (
     <>
@@ -279,6 +315,7 @@ export default function Map2D({ positionData, stateData }: Props) {
           }}
           style={{ width: "100%", height: "100%" }}
           mapStyle="mapbox://styles/mapbox/streets-v11"
+          onLoad={handleMapLoad}
         />
       </div>
 
