@@ -5,9 +5,9 @@ export const filterTelemetryData = <T>(data: Telemetry[], pageKey: TelemetryFilt
   const config = telemetryFilterConfig[pageKey];
 
   return data
-    .filter((entry) => config?.[entry.msgId as keyof typeof config]) // ✅ msgId 접근 방식 수정
+    .filter((entry) => config?.[entry.msgId as keyof typeof config])
     .map((entry) => {
-      // ✅ readonly 배열을 일반 배열로 변환
+      // readonly 배열을 일반 배열로 변환
       const allowedKeys = [...(config?.[entry.msgId as keyof typeof config] ?? [])]; 
 
       return {

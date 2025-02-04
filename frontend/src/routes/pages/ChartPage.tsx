@@ -1,11 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
 import { useContext, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import { AuthContext } from "@/contexts/AuthContext";
 import SelectedDataContext from "@/contexts/SelectedDataContext";
 
-import { fetchTelemetriesByRobotAndOperation } from "../../api/chartApi";
+import { useTelemetryChart } from "@/hooks/useTelemetryChart";
 import AltAndSpeedChart from "../../components/charts/AltAndSpeedChart";
 import BatteryChart from "../../components/charts/BatteryChart";
 import DetailedDataHeader from "../../components/charts/DetailedDataHeader";
@@ -42,61 +41,32 @@ const ChartPage: React.FC = () => {
   const name = location.state?.name;
   const _id = location.state?._id;
 
-  //TODO:operation 값 최신 데이터 선택해야함
   // robot_id를 기반으로 selectedDrone 설정
   useEffect(() => {
     if (robotId) {
-      // robotId로부터 Robot 객체 생성
       const drone: Robot = {
         _id: _id,
         name: name,
         robot_id: robotId,
       };
-      setSelectedDrone(drone)
-
-      //data 확인용용
-      /*console.log("Selected Drone:", drone);
-      console.log("선택된 드론:", drone);
-      console.log("Selected Operation:", selectedOperation);*/
+      setSelectedDrone(drone);
     }
   }, [robotId, name, _id, setSelectedDrone]);
 
   // 데이터 요청
-  const {
-    data: telemetryData = {
-      batteryData: [],
-      textData: [],
-      satellitesData: [],
-      altAndSpeedData: [],
-    },
-    isLoading,
-    error,
-  } = useQuery({
-    queryKey: [
-      "telemetry",
-      selectedDrone?._id,
-      selectedOperationAndDate?.operationId,
-      
-    ],
-    queryFn: () => {
-      if (!selectedDrone || !selectedOperationAndDate) {
-        return {
-          batteryData: [],
-          textData: [],
-          satellitesData: [],
-          altAndSpeedData: [],
-        };
-      }
-      return fetchTelemetriesByRobotAndOperation(
-        selectedDrone._id,
-        selectedOperationAndDate.operationId,
-      );
-    },
-    enabled: !!selectedDrone && !!selectedOperationAndDate, // 선택된 드론과 오퍼레이션 값이 있을 때만 API 호출
-    staleTime: 60000, // 데이터 캐싱 시간 (1분)
-  });
+  const { data, error } = useTelemetryChart(selectedDrone, selectedOperationAndDate);
+  
+  if (error) {
+    return "An error has occurred: " + error.message;
+  }
 
-  const { batteryData, textData, satellitesData, altAndSpeedData } = telemetryData;
+  // msgId 별 데이터 할당
+  const {
+    GPS_RAW_INT: satellitesData, // 위성 수
+    BATTERY_STATUS: batteryData, // 배터리 정보
+    STATUSTEXT: textData, // 상태 메시지
+    altAndSpeedData, // 고도, 속도 합산
+  } = data ?? {};
 
   return (
     <div className="flex min-h-screen flex-col bg-[#F3F2F9]">
@@ -105,14 +75,14 @@ const ChartPage: React.FC = () => {
         isMapPage={location.pathname === "/map"}
         exportToExcel={() =>
           exportToExcel(
-            batteryData,
-            textData,
-            satellitesData,
+            batteryData ?? [],
+            textData ?? [],
+            satellitesData ?? [],
             altAndSpeedData,
             selectedDrone?.name ?? null,
             selectedOperationAndDate?.name ?? null,
           )
-        } // 엑셀 익스포트 함수 전달
+        }
       />
       <div className="mx-10 mb-4 grid grid-cols-1 gap-3 lg:grid-cols-2">
         {/* 드론 정보 카드 */}
@@ -147,9 +117,11 @@ const ChartPage: React.FC = () => {
                 <h2 className="text-[16px] font-bold">Flight time</h2>
               </div>
               <div className="h-[100px]">
-                {batteryData.length > 0 && (
-                  <FlightTimeDataComponenet data={batteryData} />
-                )}
+              {batteryData && batteryData.length > 0 ? (
+                <FlightTimeDataComponenet data={batteryData} />
+              ) : (
+                <p>No battery data available.</p> // 배터리 데이터가 없을 때 표시할 메시지
+              )}
               </div>
             </div>
             <div className="flex h-3/5 flex-col justify-around gap-1 rounded-[10px] border border-[#B2B2B7] bg-white">
@@ -164,59 +136,31 @@ const ChartPage: React.FC = () => {
                 <h2 className="text-[16px] font-bold">State</h2>
               </div>
               <div className="mb-2 ml-3 h-[170px]">
-                <StateDataComponent data={textData} />
+                <StateDataComponent data={textData ?? []} />
               </div>
             </div>
           </div>
         </div>
-        {isLoading ? (
-          <ChartCard title="">
-            <p className="text-center">Loading chart data...</p>
-          </ChartCard>
-        ) : error instanceof Error ? (
-          <p className="text-center">Error loading data: {error.message}</p>
-        ) : altAndSpeedData.length > 0 ? (
-          <ChartCard title="">
-            <BatteryChart data={batteryData} />
-          </ChartCard>
-        ) : (
-          <ChartCard title="">
-            <p className="text-center">
-              <strong> Select a drone and operation to view the chart.</strong>
-            </p>
-          </ChartCard>
+
+        {/* 차트들 */}
+        {altAndSpeedData?.length > 0 && (
+          <>
+            <ChartCard title="Alt and Speed Data">
+              <AltAndSpeedChart data={altAndSpeedData} />
+            </ChartCard>
+            <ChartCard title="Battery Data">
+              <BatteryChart data={batteryData ?? []} />
+            </ChartCard>
+            <ChartCard title="Satellites Data">
+              <SatellitesChart data={satellitesData ?? []} />
+            </ChartCard>
+          </>
         )}
-        {isLoading ? (
-          <ChartCard title="">
-            <p className="text-center">Loading chart data...</p>
-          </ChartCard>
-        ) : error instanceof Error ? (
-          <p className="text-center">Error loading data: {error.message}</p>
-        ) : altAndSpeedData.length > 0 ? (
-          <ChartCard title="">
-            <SatellitesChart data={satellitesData} />
-          </ChartCard>
-        ) : (
+        {/* 데이터를 선택하지 않았거나 로딩 중일 때 표시 */}
+        {(!altAndSpeedData || altAndSpeedData.length === 0) && (
           <ChartCard title="">
             <p className="text-center">
-              <strong> Select a drone and operation to view the chart.</strong>
-            </p>
-          </ChartCard>
-        )}
-        {isLoading ? (
-          <ChartCard title="">
-            <p className="text-center">Loading chart data...</p>
-          </ChartCard>
-        ) : error instanceof Error ? (
-          <p className="text-center">Error loading data: {error.message}</p>
-        ) : altAndSpeedData.length > 0 ? (
-          <ChartCard title="">
-            <AltAndSpeedChart data={altAndSpeedData} />
-          </ChartCard>
-        ) : (
-          <ChartCard title="">
-            <p className="text-center">
-              <strong> Select a drone and operation to view the chart.</strong>
+              <strong>Select a drone and operation to view the chart.</strong>
             </p>
           </ChartCard>
         )}

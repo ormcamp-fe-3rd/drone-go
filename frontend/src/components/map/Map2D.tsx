@@ -249,6 +249,15 @@ export default function Map2D({ positionData, stateData }: Props) {
     setSpeed(Number(value));
   };
 
+  const handleStop = () => {
+    setIsPlaying(false);
+    setPhase(0);
+    if(animationRef.current){
+      cancelAnimationFrame(animationRef.current);
+      lastTimeRef.current = 0;
+    }
+  }
+
   return (
     <>
       <div className="fixed inset-0">
@@ -282,6 +291,7 @@ export default function Map2D({ positionData, stateData }: Props) {
             onClickPlay={handlePlay}
             onClickPause={handlePause}
             onChangeSpeed={handlePlaySpeed}
+            onClickStop={handleStop}
             speed={speed}
           />
         </ProgressBar>

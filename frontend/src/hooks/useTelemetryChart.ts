@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchTelemetryData } from "@/api/fetchTelemetryData";
-import { Telemetry2dData } from "@/types/telemetry2dDataTypes";
+import { TelemetryChartData } from "@/types/telemetryChartDataTypes";
 import { Robot } from "@/types/selectOptionsTypes";
 import { MSG_ID } from "@/constants";
-import { formatAndSortPositionData } from "@/utils/formatPositionData";
+import { processAltAndSpeedData } from "@/utils/processAltAndSpeedData";
 
 type OperationInfo = {
   operationId: string;
@@ -13,21 +13,21 @@ type OperationInfo = {
 
 // 메시지 ID별 데이터를 자동 매핑할 객체 타입 정의
 export type TelemetryDataByMsgId = {
-  [key in keyof typeof MSG_ID]: Telemetry2dData[] | null;
+  [key in keyof typeof MSG_ID]: TelemetryChartData[] | null;
 };
 
-export const useTelemetry2D = (
+export const useTelemetryChart = (
   selectedDrone: Robot | null,
   selectedOperationAndDate: OperationInfo | null
 ) => {
-  return useQuery<TelemetryDataByMsgId>({
-    queryKey: ["telemetry2D", selectedDrone?._id, selectedOperationAndDate?.operationId],
+  return useQuery<TelemetryDataByMsgId & { altAndSpeedData: any }>({
+    queryKey: ["telemetryChart", selectedDrone?._id, selectedOperationAndDate?.operationId],
     queryFn: async () => {
       if (!selectedDrone || !selectedOperationAndDate) {
         return Object.keys(MSG_ID).reduce((acc, key) => {
           acc[key as keyof typeof MSG_ID] = null;
           return acc;
-        }, {} as TelemetryDataByMsgId);
+        }, { altAndSpeedData: null } as TelemetryDataByMsgId & { altAndSpeedData: any });
       }
 
       console.log("fetchTelemetryData 실행:", {
@@ -35,8 +35,8 @@ export const useTelemetry2D = (
         operationId: selectedOperationAndDate.operationId,
       });
 
-      const rawData = await fetchTelemetryData<Telemetry2dData>(
-        "2D_MAP",
+      const rawData = await fetchTelemetryData<TelemetryChartData>(
+        "CHART",
         selectedOperationAndDate.operationId,
         selectedDrone._id
       );
@@ -60,19 +60,16 @@ export const useTelemetry2D = (
         return acc;
       }, {} as TelemetryDataByMsgId);
 
-      return categorizedData ?? [];
+      // alt와 speed 데이터를 합쳐서 새로운 데이터 만들기
+      const altAndSpeedData = processAltAndSpeedData(processedData);
+
+      return {
+        ...categorizedData,
+        altAndSpeedData,
+      };
     },
     enabled: !!selectedDrone && !!selectedOperationAndDate,
     staleTime: 1000 * 60 * 8,
     retry: 1,
   });
-};
-
-// GLOBAL_POSITION 데이터는 따로 포맷팅 후 엑스포트
-export const useFormattedPositionData = (
-  selectedDrone: Robot | null,
-  selectedOperationAndDate: OperationInfo | null
-) => {
-  const { data } = useTelemetry2D(selectedDrone, selectedOperationAndDate);
-  return data?.GLOBAL_POSITION ? formatAndSortPositionData(data.GLOBAL_POSITION) : null;
 };

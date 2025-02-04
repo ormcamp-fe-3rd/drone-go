@@ -1,8 +1,9 @@
+const { getFilteredTelemetries } = require("../services/telemetryService");
 const mongoose = require('mongoose');
 const Telemetry = require('../models/telemetryModel');
 
 /**
- * 특정 robot ID와 operation ID에 해당하는 Telemetry 데이터를 가져오고 후처리하여 반환합니다.
+ * 특정 robot ID와 operation ID에 해당하는 필터링된 Telemetry 데이터를 가져오고 후처리하여 반환합니다.
  * @async
  * @function getAllTelemetries
  * @param {object} req - Express 요청 객체
@@ -12,47 +13,27 @@ const Telemetry = require('../models/telemetryModel');
  */
 const getAllTelemetries = async (req, res) => {
     try {
-        const { robot, operation } = req.query;
+        const { robot, operation, pageKey } = req.query;
 
-        // robot과 operation이 제공되지 않으면 400 에러
-        if (!robot || !operation) {
-            return res.status(400).json({ message: 'Both robot and operation must be provided' });
+        if (!robot || !operation || !pageKey) {
+            return res.status(400).json({ message: "Both robot, operation, and pageKey must be provided." });
         }
 
-        // ID 유효성 검사
-        if (![robot, operation].every(mongoose.Types.ObjectId.isValid)) {
-            return res.status(400).json({ message: 'Invalid robot or operation ID format' });
+        if (!mongoose.Types.ObjectId.isValid(robot) || !mongoose.Types.ObjectId.isValid(operation)) {
+            return res.status(400).json({ message: "Invalid robot or operation ID format." });
         }
 
-        // MongoDB에서 해당 로봇과 오퍼레이션의 텔레메트리 데이터 검색
-        const telemetries = await Telemetry.find({ robot, operation });
+        // MongoDB에서 필터링된 데이터 가져오기
+        const filteredData = await getFilteredTelemetries(robot, operation, pageKey);
 
-        if (!telemetries.length) {
-            return res.status(404).json({ message: 'No matching telemetries found' });
+        if (!filteredData || filteredData.length === 0) {
+            return res.status(404).json({ message: "No matching telemetry data found." });
         }
 
-        // 데이터 후처리 (모든 필드의 undefined → null 변환)
-        const processUndefinedToNull = (obj) => {
-            return Object.fromEntries(
-                Object.entries(obj).map(([key, value]) => [
-                    key,
-                    value !== undefined
-                        ? typeof value === 'object' && value !== null
-                            ? processUndefinedToNull(value) // 재귀적으로 처리
-                            : value
-                        : null
-                ])
-            );
-        };
-
-        const processedTelemetries = telemetries.map((telemetry) =>
-            processUndefinedToNull(telemetry.toObject())
-        );
-
-        res.json(processedTelemetries);
+        res.json(filteredData);
     } catch (error) {
-        console.error('Error in getAllTelemetries:', error);
-        res.status(500).json({ message: 'Server error', error: error.message });
+        console.error("Error in getAllTelemetries:", error);
+        res.status(500).json({ message: "Server error", error: error.message });
     }
 };
 
@@ -68,23 +49,23 @@ const getAllTelemetries = async (req, res) => {
 const getDistinctDates = async (req, res) => {
     try {
         const { robot, operations } = req.query;
-        // robot 또는 operations가 없으면 400 에러 반환
+        
         if (!robot) {
             return res.status(400).json({ message: 'Robot parameter is required' });
         }
         if (!operations) {
             return res.status(400).json({ message: 'Operations parameter is required' });
         }
-        // operations가 빈 문자열이거나 undefined일 경우 에러 처리
+        
         if (!operations || operations.trim() === '') {
             return res.status(400).json({ message: 'Operations must be a non-empty string' });
         }
-        // operations 값이 존재하면 split을 사용해 배열로 변환
+        
         const operationIds = operations.split(',');
 
-        // `robot`과 `operationIds` 값을 ObjectId로 변환
-        const robotObjectId = new mongoose.Types.ObjectId(robot); // 문자열로 변환
-        const operationObjectIds = operationIds.map(id => new mongoose.Types.ObjectId(id)); // 배열의 각 항목을 ObjectId로 변환
+        
+        const robotObjectId = new mongoose.Types.ObjectId(robot); 
+        const operationObjectIds = operationIds.map(id => new mongoose.Types.ObjectId(id)); 
 
         // MongoDB에서 distinctDates를 가져오기 위한 집계
         const result = await Telemetry.aggregate([
@@ -99,8 +80,8 @@ const getDistinctDates = async (req, res) => {
                     formattedDate: {
                         $cond: {
                             if: { $eq: [{ $type: "$timestamp" }, "string"] },
-                            then: { $toDate: "$timestamp" }, // string을 Date로 변환
-                            else: "$timestamp" // 이미 Date 형식이면 그대로 사용
+                            then: { $toDate: "$timestamp" }, 
+                            else: "$timestamp"
                         }
                     }
                 }
@@ -144,7 +125,7 @@ const getDistinctDates = async (req, res) => {
 
         //결과를 operationId를 키로 하는 객체로 변환
         const formattedResult = result.reduce((acc, item) => {
-            // operation을 문자열로 변환
+            
             const operationId = item.operation.toString();
 
             if (operationId === undefined) {

@@ -11,13 +11,11 @@ import MiniMapWidget from "@/components/map3d/MiniMapWidget";
 import SpeedWidget from "@/components/map3d/SpeedWidget";
 import StateWidget from "@/components/map3d/StateWidget";
 import WeatherWidget from "@/components/map3d/WeatherWidget";
-import { MSG_ID } from "@/constants";
 import { AuthContext } from "@/contexts/AuthContext";
 import { CurrentTimeProvider } from "@/contexts/CurrentTimeContext";
 import PhaseContextProvider from "@/contexts/PhaseContext";
 import SelectedDataContext from "@/contexts/SelectedDataContext";
-import { useTelemetry2D } from "@/hooks/useTelemetry2D";
-import { formatAndSortPositionData } from "@/utils/formatPositionData";
+import { useTelemetry2D, useFormattedPositionData } from "@/hooks/useTelemetry2D";
 
 export default function Map3dPage() {
   const { selectedDrone, selectedOperationAndDate } =
@@ -34,54 +32,23 @@ export default function Map3dPage() {
     }
   }, [isAuth, navigate]);
 
-  const { data, error } = useTelemetry2D(
-    selectedDrone,
-    selectedOperationAndDate,
-  );
+  // 데이터 요청청
+  const { data, error } = useTelemetry2D(selectedDrone, selectedOperationAndDate);
 
+  // 위치 데이터(포맷팅팅)
+  const positionData = useFormattedPositionData(selectedDrone, selectedOperationAndDate);
+ 
   if (error) {
     return "An error has occurred: " + error.message;
   }
-
-  // 위치데이터
-  const rawPositionData =
-    data?.filter((entry) => entry.msgId === MSG_ID.GLOBAL_POSITION) ?? [];
-  const positionData =
-    rawPositionData.length > 0
-      ? formatAndSortPositionData(rawPositionData)
-      : null;
-
-  // 속도데이터
-  const rawSpeedData = data?.filter((entry) => entry.msgId === MSG_ID.VFR_HUD) ?? [];
-  const speedData = rawSpeedData.length > 0 ? rawSpeedData : null;
-
-  //헤딩 데이터
-  const rawHeadingData = data?.filter((entry) => entry.msgId === MSG_ID.VFR_HUD) ?? [];
-  const headingData = rawHeadingData.length > 0 ? rawHeadingData : null;
-
-  // 상태데이터
-  const rawStateData =
-    data?.filter((entry) => entry.msgId === MSG_ID.STATUSTEXT) ?? [];
-  const stateData = rawStateData.length > 0 ? rawStateData : null;
-
-  //드론 모습 상세 데이터"roll", "pitch", "yaw"
-  const rawRollData =
-    data?.filter((entry) => entry.msgId === MSG_ID.ATTITUDE) ?? [];
-  const rollData = rawRollData.length > 0 ? rawRollData : null;
-
-  const rawPitchData =
-    data?.filter((entry) => entry.msgId === MSG_ID.ATTITUDE) ?? [];
-  const pitchData = rawPitchData.length > 0 ? rawPitchData : null;
-
-  const rawYawData =
-    data?.filter((entry) => entry.msgId === MSG_ID.ATTITUDE) ?? [];
-  const yawData = rawYawData.length > 0 ? rawYawData : null;
-
-  //배터리 데이터
-  const rawbatteryRemainingData =
-    data?.filter((entry) => entry.msgId === MSG_ID.BATTERY_STATUS) ?? [];
-  const batteryRemainingData =
-    rawbatteryRemainingData.length > 0 ? rawbatteryRemainingData : null;
+ 
+  // ✅ msgId 별 데이터 할당
+  const {
+    ATTITUDE: attitudeData = null, // 드론 자세 정보 (roll, pitch, yaw)
+    VFR_HUD: headingSpeedData = null, // 헤딩, 속도
+    BATTERY_STATUS: batteryRemainingData = null, // 배터리 정보
+    STATUSTEXT: stateData = null, // 상태 메시지
+  } = data ?? {};
 
   const switchMap = () => {
     setIs2dMap(!is2dMap);
@@ -102,23 +69,21 @@ export default function Map3dPage() {
         <MapSwitchButton is2d={is2dMap} switchMap={switchMap} />
       </div>
 
-      <PhaseContextProvider>
-        <CurrentTimeProvider>
+      <CurrentTimeProvider>
+        <PhaseContextProvider>
           <div className="fixed left-4 top-[10rem] z-10">
             {is2dMap ? (
               <AttitudeWidget
-                headingData={headingData}
+                headingSpeedData={headingSpeedData}
                 batteryRemainingData={batteryRemainingData}
-                rollData={rollData}
-                pitchData={pitchData}
-                yawData={yawData}
+                attitudeData={attitudeData}
               />
             ) : (
               <MiniMapWidget positionData={positionData} />
             )}
             <WeatherWidget positionData={positionData} />
 
-            <SpeedWidget speedData={speedData} />
+            <SpeedWidget headingSpeedData={headingSpeedData} />
 
             <AltitudeWidget positionData={positionData} />
 
@@ -137,8 +102,8 @@ export default function Map3dPage() {
           ) : (
             <CesiumViewer3D positionData={positionData} stateData={stateData} />
           )}
-        </CurrentTimeProvider>
-      </PhaseContextProvider>
+        </PhaseContextProvider>
+      </CurrentTimeProvider>
     </>
   );
 }

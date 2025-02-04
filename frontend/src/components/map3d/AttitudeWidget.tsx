@@ -3,57 +3,43 @@ import Drone from "../home/Drone";
 import { PhaseContext } from "@/contexts/PhaseContext";
 
 interface AttitudeWidgetProp {
-  headingData:
+  headingSpeedData:
     | {
         payload: {
           heading: number;
         };
       }[]
-    | null;
+      | null;
   batteryRemainingData:
     | {
         payload: {
           batteryRemaining: number;
         };
       }[]
-    | null;
-  rollData:
+      | null;
+  attitudeData:
     | {
         payload: {
           roll: number;
-        };
-      }[]
-    | null;
-  pitchData:
-    | {
-        payload: {
           pitch: number;
-        };
-      }[]
-    | null;
-  yawData:
-    | {
-        payload: {
           yaw: number;
         };
       }[]
-    | null;
+      | null;
 }
 
 // 라디안 -> 도 변환 함수
 const radToDeg = (radian: number) => radian * (180 / Math.PI);
 
 const AttitudeWidget = ({
-  headingData,
+  headingSpeedData,
   batteryRemainingData,
-  rollData,
-  pitchData,
-  yawData,
+  attitudeData
 }: AttitudeWidgetProp) => {
   const { phase } = useContext(PhaseContext);
 
-  const currentHeading = headingData
-    ? (headingData[Math.floor(phase * (headingData.length - 1))]?.payload
+  const currentHeading = headingSpeedData
+    ? (headingSpeedData[Math.floor(phase * (headingSpeedData.length - 1))]?.payload
         .heading ?? 0)
     : 0;
 
@@ -63,17 +49,17 @@ const AttitudeWidget = ({
       ]?.payload.batteryRemaining ?? 0)
     : 0;
 
-  const currentRoll = rollData
-    ? (rollData[Math.floor(phase * (rollData.length - 1))]?.payload.roll ?? 0)
+  const currentRoll = attitudeData
+    ? (attitudeData[Math.floor(phase * (attitudeData.length - 1))]?.payload.roll ?? 0)
     : 0;
 
-  const currentPitch = pitchData
-    ? (pitchData[Math.floor(phase * (pitchData.length - 1))]?.payload.pitch ??
+  const currentPitch = attitudeData
+    ? (attitudeData[Math.floor(phase * (attitudeData.length - 1))]?.payload.pitch ??
       0)
     : 0;
 
-  const currentYaw = yawData
-    ? (yawData[Math.floor(phase * (yawData.length - 1))]?.payload.yaw ?? 0)
+  const currentYaw = attitudeData
+    ? (attitudeData[Math.floor(phase * (attitudeData.length - 1))]?.payload.yaw ?? 0)
     : 0;
 
   // 라디안에서 도로 변환
