@@ -16,14 +16,14 @@ const pendingRequests = new Map<string, Promise<WeatherData | null>>();
  * @param date 조회할 날짜 (YYYY-MM-DD 형식)
  * @returns WeatherData | null
  */
-
 export const fetchWeatherData = async (
   latitude: number,
   longitude: number,
   date: string
 ): Promise<WeatherData | null> => {
   try {
-    const cacheKey = `${latitude}-${longitude}-${date}`;
+    const formattedDate = date.replace(/-/g, ""); // YYYYMMDD 형식으로 변환
+    const cacheKey = `${latitude}-${longitude}-${formattedDate}`;
 
     const cachedData = sessionStorage.getItem(cacheKey);
     if (cachedData) {
@@ -37,11 +37,17 @@ export const fetchWeatherData = async (
       return pendingRequests.get(cacheKey)!;
     }
 
-    console.log(`🔍 날씨 데이터 요청: lat=${latitude}, lon=${longitude}, date=${date}`);
+    console.log(`🔍 날씨 데이터 요청: lat=${latitude}, lon=${longitude}, date=${formattedDate}`);
 
     const requestPromise = nasaApiClient
       .get("/weather", {
-        params: { latitude, longitude, date },
+        params: {
+          latitude,
+          longitude,
+          date: formattedDate,
+          community: "RE", // Renewable Energy 프로젝트 사용
+          format: "JSON",
+        },
       })
       .then((response) => {
         console.log("📡 API 응답 데이터:", response.data);
@@ -53,20 +59,21 @@ export const fetchWeatherData = async (
         }
 
         const parsedData: WeatherData = {
-          T2M: weatherData.T2M?.[date] ?? undefined,
-          WS10M: weatherData.WS10M?.[date] ?? undefined,
-          WD10M: weatherData.WD10M?.[date] ?? undefined,
+          T2M: weatherData.T2M?.[formattedDate] ?? undefined,
+          WS10M: weatherData.WS10M?.[formattedDate] ?? undefined,
+          WD10M: weatherData.WD10M?.[formattedDate] ?? undefined,
         };
 
-        // 중복 요청 방지지
+        // 캐싱
         sessionStorage.setItem(cacheKey, JSON.stringify(parsedData));
 
         return parsedData;
       })
       .catch((error) => {
-        console.error("❌ 날씨 API 요청 중 오류 발생:", error);
+        console.error("❌ 날씨 API 요청 중 오류 발생:", error.response?.data || error.message);
         return null;
       })
+      
       .finally(() => {
         pendingRequests.delete(cacheKey);
       });

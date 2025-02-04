@@ -82,7 +82,7 @@ const AttitudeWidget = ({
   const currentYawInDegrees = radToDeg(currentYaw);
 
   return (
-    <div className="toolbar-attitude mx-6 my-0 hidden h-[27vh] w-[20vw] grid-cols-[1fr_1fr] grid-rows-[33%_1fr] rounded-[10px] bg-white bg-opacity-60 md:block">
+    <div className="toolbar-attitude mx-6 my-0 hidden h-[27vh] w-[20vw] grid-cols-[1fr_1fr] grid-rows-[33%_1fr] rounded-[10px] bg-white bg-opacity-90 md:block">
       {/* 배터리 및 헤딩을 가로로 정렬 */}
       <div className="col-start-1 row-start-1 flex w-full items-start justify-between p-2">
         {/* 배터리 */}

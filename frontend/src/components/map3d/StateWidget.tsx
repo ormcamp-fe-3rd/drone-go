@@ -53,7 +53,7 @@ const StateWidget = ({ stateData, selectedDrone, selectedOperationAndDate }: Sta
   const handleToggle = () => setIsExpanded((prev) => !prev);
 
   return (
-    <div className={`relative mx-6 mt-2 hidden w-[30vw] max-w-[17rem] rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold hover:bg-opacity-80 sm:block ${isExpanded ? "rounded-b-none" : ""}`}>
+    <div className={`relative mx-6 mt-2 hidden w-[30vw] max-w-[17rem] rounded-[10px] bg-white bg-opacity-90 px-2 text-center text-sm font-bold hover:bg-opacity-80 sm:block ${isExpanded ? "rounded-b-none" : ""}`}>
       <div className="flex h-[5vh] items-center justify-between">
         <div className="flex items-center">
           <img src={src} alt="State" />
@@ -74,7 +74,7 @@ const StateWidget = ({ stateData, selectedDrone, selectedOperationAndDate }: Sta
 
       {/* 상태 메시지 렌더링 */}
       {isExpanded && (
-        <div className="absolute left-0 top-full z-10 w-full max-h-[170px] overflow-y-auto rounded-b-[10px] bg-white bg-opacity-60 px-2 py-1">
+        <div className="absolute left-0 top-full z-10 w-full max-h-[170px] overflow-y-auto rounded-b-[10px] bg-white bg-opacity-90 px-2 py-1">
           {visibleMessages.length > 0 ? (
             visibleMessages.map((item, index) => (
               <div key={index}>

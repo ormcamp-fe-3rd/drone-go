@@ -62,7 +62,7 @@ const ProgressBar = ({ children, startTime, endTime, stateData }: ProgressProps)
         {progressDots.map((dot, index) => (
           <div
             key={index}
-            className="drone-dot absolute top-1/2 h-[5px] w-[5px] -translate-y-1/2 transform cursor-pointer rounded-full bg-white"
+            className="drone-dot absolute top-1/2 h-[5px] w-[5px] -translate-y-1/2 transform cursor-pointer rounded-full bg-white z-10"
             style={{ left: `${dot.progress}%` }}
             onMouseEnter={() => handleHover(dot.progress, dot.state)}
             onMouseLeave={handleMouseLeave}

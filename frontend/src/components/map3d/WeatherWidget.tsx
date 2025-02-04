@@ -79,15 +79,15 @@ const WeatherWidget = ({ positionData }: WeatherProps) => {
   }
 
   return (
-    <div className="relative mx-6 mt-2 h-[5vh] w-[30vw] max-w-[17rem] grid-cols-[0.5fr_0.5fr_1.5fr] items-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold sm:grid md:grid-cols-[1fr_0.5fr_1fr]">
-      <div className="flex items-center justify-start border-r-2 border-none border-[#B2B2B7] md:border-solid">
-        {weather.icon ? <img src={weather.icon} alt={weather.status} className="mr-2 h-6 w-6" /> : null}
-        <p className="hidden h-6 pl-2 md:flex">{weather.status}</p>
+    <div className="relative mx-6 mt-2 h-[5vh] w-[30vw] max-w-[17rem] grid-cols-[0.5fr_0.5fr_1.5fr] items-center rounded-[10px] bg-white bg-opacity-90 px-2 text-center text-sm font-bold sm:grid md:grid-cols-[1fr_0.7fr_0.8fr]">
+      <div className="flex items-center border-r-2 border-none border-[#B2B2B7] md:border-solid">
+        {weather.icon ? <img src={weather.icon} alt={weather.status} className="mr-2 h-7 w-7" /> : null}
+        <p className="hidden h-6 md:flex">{weather.status}</p>
       </div>
       <div className="h-6 border-r-2 border-solid border-[#B2B2B7]">
         {weather.temperature}°C
       </div>
-      <div className="h-6">
+      <div className="h-6 text-right">
         {weather.windSpeed} m/s ({getWindDirection(weather.windDirection || 0)})
       </div>
     </div>
