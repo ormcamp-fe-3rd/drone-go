@@ -20,10 +20,8 @@ import { useTelemetry2D } from "@/hooks/useTelemetry2D";
 import { formatAndSortPositionData } from "@/utils/formatPositionData";
 
 export default function Map3dPage() {
-  const {
-    selectedDrone,
-    selectedOperationAndDate,
-  } = useContext(SelectedDataContext);
+  const { selectedDrone, selectedOperationAndDate } =
+    useContext(SelectedDataContext);
   const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
   const [is2dMap, setIs2dMap] = useState(true);
@@ -45,24 +43,49 @@ export default function Map3dPage() {
     return "An error has occurred: " + error.message;
   }
 
-  // 속도데이터
-  const rawSpeedData = data?.filter((entry) => entry.msgId === MSG_ID.VFR_HUD) ?? [];
-  const speedData = rawSpeedData.length > 0 ? rawSpeedData : null;
-
   // 위치데이터
-  const rawPositionData = data?.filter((entry) => entry.msgId === MSG_ID.GLOBAL_POSITION) ?? [];
+  const rawPositionData =
+    data?.filter((entry) => entry.msgId === MSG_ID.GLOBAL_POSITION) ?? [];
   const positionData =
     rawPositionData.length > 0
       ? formatAndSortPositionData(rawPositionData)
       : null;
-      
+
+  // 속도데이터
+  const rawSpeedData = data?.filter((entry) => entry.msgId === MSG_ID.VFR_HUD) ?? [];
+  const speedData = rawSpeedData.length > 0 ? rawSpeedData : null;
+
+  //헤딩 데이터
+  const rawHeadingData = data?.filter((entry) => entry.msgId === MSG_ID.VFR_HUD) ?? [];
+  const headingData = rawHeadingData.length > 0 ? rawHeadingData : null;
+
   // 상태데이터
-  const rawStateData = data?.filter((entry) => entry.msgId === MSG_ID.STATUSTEXT) ?? [];
+  const rawStateData =
+    data?.filter((entry) => entry.msgId === MSG_ID.STATUSTEXT) ?? [];
   const stateData = rawStateData.length > 0 ? rawStateData : null;
 
-  const switchMap = () =>{
+  //드론 모습 상세 데이터"roll", "pitch", "yaw"
+  const rawRollData =
+    data?.filter((entry) => entry.msgId === MSG_ID.ATTITUDE) ?? [];
+  const rollData = rawRollData.length > 0 ? rawRollData : null;
+
+  const rawPitchData =
+    data?.filter((entry) => entry.msgId === MSG_ID.ATTITUDE) ?? [];
+  const pitchData = rawPitchData.length > 0 ? rawPitchData : null;
+
+  const rawYawData =
+    data?.filter((entry) => entry.msgId === MSG_ID.ATTITUDE) ?? [];
+  const yawData = rawYawData.length > 0 ? rawYawData : null;
+
+  //배터리 데이터
+  const rawbatteryRemainingData =
+    data?.filter((entry) => entry.msgId === MSG_ID.BATTERY_STATUS) ?? [];
+  const batteryRemainingData =
+    rawbatteryRemainingData.length > 0 ? rawbatteryRemainingData : null;
+
+  const switchMap = () => {
     setIs2dMap(!is2dMap);
-  }
+  };
 
   //TODO: 라우트 수정("/map-3d" 삭제, "/map" 으로 연결)
   return (
@@ -78,12 +101,18 @@ export default function Map3dPage() {
       <div className="fixed right-10 top-[10rem] z-10">
         <MapSwitchButton is2d={is2dMap} switchMap={switchMap} />
       </div>
-      
+
       <PhaseContextProvider>
         <CurrentTimeProvider>
           <div className="fixed left-4 top-[10rem] z-10">
             {is2dMap ? (
-              <AttitudeWidget></AttitudeWidget>
+              <AttitudeWidget
+                headingData={headingData ?? null}
+                batteryRemainingData={batteryRemainingData ?? null}
+                rollData={rollData ?? null}
+                pitchData={pitchData ?? null}
+                yawData={yawData ?? null}
+              />
             ) : (
               <MiniMapWidget positionData={positionData} />
             )}
