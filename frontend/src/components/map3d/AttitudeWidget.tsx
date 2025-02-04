@@ -1,6 +1,8 @@
 import { Suspense, useContext } from "react";
-import Drone from "../home/Drone";
+
 import { PhaseContext } from "@/contexts/PhaseContext";
+
+import Drone from "../home/Drone";
 
 interface AttitudeWidgetProp {
   headingData:
@@ -17,27 +19,13 @@ interface AttitudeWidgetProp {
         };
       }[]
     | null;
-  rollData:
-    | {
-        payload: {
-          roll: number;
-        };
-      }[]
-    | null;
-  pitchData:
-    | {
-        payload: {
-          pitch: number;
-        };
-      }[]
-    | null;
-  yawData:
-    | {
-        payload: {
-          yaw: number;
-        };
-      }[]
-    | null;
+  attitudeData: {
+    payload: {
+      roll: number;
+      pitch: number;
+      yaw: number;
+    }
+  }[] | null
 }
 
 // 라디안 -> 도 변환 함수
@@ -46,9 +34,7 @@ const radToDeg = (radian: number) => radian * (180 / Math.PI);
 const AttitudeWidget = ({
   headingData,
   batteryRemainingData,
-  rollData,
-  pitchData,
-  yawData,
+  attitudeData,
 }: AttitudeWidgetProp) => {
   const { phase } = useContext(PhaseContext);
 
@@ -63,17 +49,19 @@ const AttitudeWidget = ({
       ]?.payload.batteryRemaining ?? 0)
     : 0;
 
-  const currentRoll = rollData
-    ? (rollData[Math.floor(phase * (rollData.length - 1))]?.payload.roll ?? 0)
+  const currentRoll = attitudeData
+    ? (attitudeData[Math.floor(phase * (attitudeData.length - 1))]?.payload
+        .roll ?? 0)
     : 0;
 
-  const currentPitch = pitchData
-    ? (pitchData[Math.floor(phase * (pitchData.length - 1))]?.payload.pitch ??
-      0)
+  const currentPitch = attitudeData
+    ? (attitudeData[Math.floor(phase * (attitudeData.length - 1))]?.payload
+        .pitch ?? 0)
     : 0;
 
-  const currentYaw = yawData
-    ? (yawData[Math.floor(phase * (yawData.length - 1))]?.payload.yaw ?? 0)
+  const currentYaw = attitudeData
+    ? (attitudeData[Math.floor(phase * (attitudeData.length - 1))]?.payload
+        .yaw ?? 0)
     : 0;
 
   // 라디안에서 도로 변환
@@ -108,13 +96,7 @@ const AttitudeWidget = ({
           </div>
         </div>
       </div>
-      {/* 데이터 전달 값 확인용
-      <div>
-        <p>Yaw 값: {currentYawInDegrees}°</p>
-        <p>롤 값: {currentRollInDegrees}°</p>
-        <p>피치 값: {currentPitchInDegrees}°</p>
-      </div>
-*/}
+
       {/* 드론 3D 모델 */}
       <div className="attitude-3d relative col-span-2 row-start-2 flex items-center justify-center p-2">
         <div className="flex h-[10vh] w-[20vw] items-center justify-center">

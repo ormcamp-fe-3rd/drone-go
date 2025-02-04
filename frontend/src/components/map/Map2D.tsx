@@ -71,8 +71,7 @@ export default function Map2D({ positionData, stateData }: Props) {
     });
     setFlightStartTime(flightStartTime);
 
-    const totalFlightTime = (flightEndTime - flightStartTime) / 1000;
-    setTotalDuration(totalFlightTime / speed);
+    setTotalDuration((flightEndTime - flightStartTime) / 1000);
 
     const calculatedHeadings = calculateMarkerHeading(payloadData);
     setHeadings(calculatedHeadings);
@@ -118,7 +117,7 @@ export default function Map2D({ positionData, stateData }: Props) {
     }
 
     const deltaTime = currentTime - lastTimeRef.current;
-    elapsedTimeRef.current += deltaTime;
+    elapsedTimeRef.current += deltaTime * speed;
     lastTimeRef.current = currentTime;
 
     const animationDuration = totalDuration * 1000; // 단위: 밀리초
@@ -138,6 +137,57 @@ export default function Map2D({ positionData, stateData }: Props) {
     animationRef.current = window.requestAnimationFrame(animate);
   };
 
+  const addMapSource = useCallback((map: mapboxgl.Map) => {
+    const pathCoordinates = latLonAlt?.map((point) => [point.lon, point.lat]);
+
+    if(!pathCoordinates) return;
+    if (map.getSource("route")) {
+      (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates: pathCoordinates,
+            },
+            properties: {},
+          },
+        ],
+      });
+    } else {
+      map.addSource("route", {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              geometry: {
+                type: "LineString",
+                coordinates: pathCoordinates,
+              },
+              properties: {},
+            },
+          ],
+        },
+      });
+
+      map.addLayer({
+        id: "route-line",
+        type: "line",
+        source: "route",
+        layout: {
+          "line-cap": "round",
+          "line-join": "round",
+        },
+        paint: {
+          "line-width": 4,
+          "line-color": "#007cbf",
+        },
+      });
+    }
+  },[latLonAlt])
   // 지도 및 마커 초기화
   useEffect(() => {
     if (mapRef.current && latLonAlt) {
@@ -151,56 +201,13 @@ export default function Map2D({ positionData, stateData }: Props) {
       // 초기 맵 위치 설정
       map.jumpTo({
         center: [initialPoint.lon, initialPoint.lat],
-        zoom: 12,
+        zoom: 14,
       });
 
-      const pathCoordinates = latLonAlt.map((point) => [point.lon, point.lat]);
-
-      if (map.getSource("route")) {
-        (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
-          type: "FeatureCollection",
-          features: [
-            {
-              type: "Feature",
-              geometry: {
-                type: "LineString",
-                coordinates: pathCoordinates,
-              },
-              properties: {},
-            },
-          ],
-        });
+      if (map.isStyleLoaded()) {
+        addMapSource(map);
       } else {
-        map.addSource("route", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "LineString",
-                  coordinates: pathCoordinates,
-                },
-                properties: {},
-              },
-            ],
-          },
-        });
-
-        map.addLayer({
-          id: "route-line",
-          type: "line",
-          source: "route",
-          layout: {
-            "line-cap": "round",
-            "line-join": "round",
-          },
-          paint: {
-            "line-width": 4,
-            "line-color": "#007cbf",
-          },
-        });
+        map.once("style.load", () => addMapSource(map));
       }
 
       if (!markerRef.current) {
@@ -220,7 +227,7 @@ export default function Map2D({ positionData, stateData }: Props) {
           .addTo(map);
       }
     }
-  }, [latLonAlt]);
+  }, [addMapSource, latLonAlt]);
 
   function createMarkerElement(imageUrl: string) {
     const element = document.createElement("img");
@@ -248,6 +255,14 @@ export default function Map2D({ positionData, stateData }: Props) {
   const handlePlaySpeed = (value: string) => {
     setSpeed(Number(value));
   };
+  const handleStop = () => {
+    setIsPlaying(false);
+    setPhase(0);
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      lastTimeRef.current = 0;
+    }
+  };
 
   return (
     <>
@@ -271,7 +286,7 @@ export default function Map2D({ positionData, stateData }: Props) {
         <ProgressBar
           startTime={startEndTime.startTime}
           endTime={startEndTime.endTime}
-          stateData={stateData ?? null}
+          stateData={stateData}
         >
           <PlayHead
             duration={totalDuration}
@@ -282,8 +297,8 @@ export default function Map2D({ positionData, stateData }: Props) {
             onClickPlay={handlePlay}
             onClickPause={handlePause}
             onChangeSpeed={handlePlaySpeed}
-            speed={speed}
-          />
+            speed={speed} 
+            onClickStop={handleStop}/>
         </ProgressBar>
       </div>
     </>

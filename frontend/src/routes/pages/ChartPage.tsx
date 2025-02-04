@@ -2,6 +2,8 @@ import { useQuery } from "@tanstack/react-query";
 import { useContext, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import HeaderChartBtns from "@/components/charts/HeaderChartBtns";
+import LoadingMessage from "@/components/map3d/LoadingMessage";
 import { AuthContext } from "@/contexts/AuthContext";
 import SelectedDataContext from "@/contexts/SelectedDataContext";
 
@@ -43,7 +45,6 @@ const ChartPage: React.FC = () => {
   const name = location.state?.name;
   const _id = location.state?._id;
 
-  //TODO:operation 값 최신 데이터 선택해야함
   // robot_id를 기반으로 selectedDrone 설정
   useEffect(() => {
     if (robotId) {
@@ -53,12 +54,7 @@ const ChartPage: React.FC = () => {
         name: name,
         robot_id: robotId,
       };
-      setSelectedDrone(drone);
-
-      //data 확인용용
-      /*console.log("Selected Drone:", drone);
-      console.log("선택된 드론:", drone);
-      console.log("Selected Operation:", selectedOperation);*/
+      setSelectedDrone(drone)
     }
   }, [robotId, name, _id, setSelectedDrone]);
 
@@ -133,11 +129,9 @@ const ChartPage: React.FC = () => {
   };
 
   return (
-    <div className="flex h-full w-full flex-col bg-[#F3F2F9] lg:h-screen lg:w-screen">
-      <DetailedDataHeader
-        backgroundOpacity={100}
-        isMapPage={location.pathname === "/map"}
-        exportToExcel={() =>
+    <div className="flex min-h-screen flex-col bg-[#F3F2F9]">
+      <DetailedDataHeader backgroundOpacity={100}>
+        <HeaderChartBtns exportToExcel={() =>
           exportToExcel(
             batteryData,
             textData,
@@ -146,8 +140,8 @@ const ChartPage: React.FC = () => {
             selectedDrone?.name ?? null,
             selectedOperationAndDate?.name ?? null,
           )
-        } // 엑셀 익스포트 함수 전달
-      />
+        } />
+      </DetailedDataHeader>
       <div className="mx-10 mb-4 grid min-h-0 flex-grow grid-cols-1 gap-3 lg:grid-cols-2 lg:grid-rows-2">
         {/* 드론 정보 카드 */}
         <div className="flex min-h-[280px] gap-3">
@@ -221,6 +215,7 @@ const ChartPage: React.FC = () => {
           altAndSpeedData,
           <AltAndSpeedChart data={altAndSpeedData} />,
         )}
+        {isLoading && <LoadingMessage className="-top-10"/>}
       </div>
     </div>
   );
