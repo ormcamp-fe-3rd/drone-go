@@ -101,8 +101,8 @@ export default function Map3dPage() {
         <MapSwitchButton is2d={is2dMap} switchMap={switchMap} />
       </div>
 
-      <PhaseContextProvider>
-        <CurrentTimeProvider>
+      <CurrentTimeProvider>
+        <PhaseContextProvider>
           <div className="fixed left-4 top-[10rem] z-10">
             {is2dMap ? (
               <AttitudeWidget
@@ -161,8 +161,8 @@ export default function Map3dPage() {
           ) : (
             ""
           )}
-        </CurrentTimeProvider>
-      </PhaseContextProvider>
+        </PhaseContextProvider>
+      </CurrentTimeProvider>
     </>
   );
 }

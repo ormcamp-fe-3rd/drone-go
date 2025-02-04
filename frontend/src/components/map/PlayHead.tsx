@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
-import { PhaseContext } from "@/contexts/PhaseContext";
+
 import { useCurrentTime } from "@/contexts/CurrentTimeContext";
+import { PhaseContext } from "@/contexts/PhaseContext";
 import { formatTime } from "@/utils/formatTime";
 
 interface Prop {
