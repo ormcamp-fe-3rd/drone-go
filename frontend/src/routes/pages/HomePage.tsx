@@ -62,13 +62,7 @@ export function HomePage() {
       </div>
       {/* Main Content */}
       <HeroSection />
-      {isAuth ? (
-        <div ref={dataListRef}>
-          <DroneList />
-        </div>
-      ) : (
-        <UnloggedDroneList />
-      )}
+      {isAuth ? <DroneList /> : <UnloggedDroneList />}
     </div>
   );
 }
