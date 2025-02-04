@@ -10,8 +10,12 @@ interface LoginInput{
   id: string;
   password: string;
 }
+interface Prop{
+  onSuccess: () => void;
+  autoFocus?: boolean;
+}
 
-export const LoginForm = ({onSuccess}: { onSuccess: () => void;}) => {
+export const LoginForm = ({onSuccess, autoFocus=true}: Prop) => {
     const { register, handleSubmit, formState: {errors} } = useForm<LoginInput>()
     const { setIsAuth } = useContext(AuthContext);
     const navigate = useNavigate();
@@ -47,7 +51,7 @@ export const LoginForm = ({onSuccess}: { onSuccess: () => void;}) => {
       <input
         placeholder="ID"
         className="h-[3rem] w-[30rem] rounded-[10px] border-[1px] border-[#B2B2B7] px-4 text-xl"
-        autoFocus
+        autoFocus={autoFocus}
         {...register("id", {
           required: "ID is required",
           minLength: {
