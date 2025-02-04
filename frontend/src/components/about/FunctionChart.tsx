@@ -1,32 +1,33 @@
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/all";
+import { useGSAP } from "@gsap/react";
 
 gsap.registerPlugin(ScrollTrigger);
 
 export function FunctionChart() {
   const chartRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
+  useGSAP(() => {
     if (chartRef.current) {
       const chartElement = chartRef.current.querySelector(".chart");
 
       // 화면 크기 변화에 따라 start와 end 값을 동적으로 계산
-      const updateScrollTrigger = () => {
-        const viewportHeight = window.innerHeight;
-        const start = `top ${viewportHeight * 0.3}px`; // 화면 높이의 45% 지점에서 시작
-        const end = `bottom ${viewportHeight * 1}px`; // 화면 높이의 100% 지점에서 끝남
+      const updateScrollTrigger1 = () => {
+        const start = "top 5%";
+        const end = `+=3000`;
 
         ScrollTrigger.getById("chartAnimation")?.kill(); // 기존 ScrollTrigger 제거
 
         const tl = gsap.timeline({
           scrollTrigger: {
-            id: "chartAnimation", // ScrollTrigger에 ID 부여
+            id: "chartAnimation",
+            pin: true,
             trigger: chartElement,
             start: start,
             end: end,
             scrub: 1,
-            markers: false, // 디버깅용 마커 표시
+            markers: false,
           },
         });
 
@@ -43,14 +44,14 @@ export function FunctionChart() {
       };
 
       // 초기 설정
-      updateScrollTrigger();
+      updateScrollTrigger1();
 
       // 화면 크기 변경 시 ScrollTrigger 업데이트
-      window.addEventListener("resize", updateScrollTrigger);
+      window.addEventListener("resize", updateScrollTrigger1);
 
       // 컴포넌트 언마운트 시 이벤트 리스너 제거
       return () => {
-        window.removeEventListener("resize", updateScrollTrigger);
+        window.removeEventListener("resize", updateScrollTrigger1);
         ScrollTrigger.getById("chartAnimation")?.kill(); // ScrollTrigger 정리
       };
     }
