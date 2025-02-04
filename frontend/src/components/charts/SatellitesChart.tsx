@@ -23,15 +23,6 @@ const SatellitesChart: React.FC<ChartProps> = ({ data }) => {
       background: "#ffffff",
       toolbar: {
         show: true, // 툴바 표시 여부
-        tools: {
-          zoom: true, // 확대 툴
-          zoomin: true, // 확대 버튼
-          zoomout: true, // 축소 버튼/images/chart/drone1.svg
-          download: true, // 이미지 다운로드 버튼
-          pan: true, // 팬 이동 가능 여부
-          reset: true, // 차트 초기화 버튼
-          selection: true, // 선택 도구 활성화 여부
-        },
       },
     },
     grid: {
@@ -108,7 +99,7 @@ const SatellitesChart: React.FC<ChartProps> = ({ data }) => {
   };
 
   return (
-    <div className="h-full mr-2">
+    <div className="mr-2 h-full">
       <ReactApexChart
         options={chartOptions}
         series={chartSeries}

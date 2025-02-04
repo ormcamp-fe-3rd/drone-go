@@ -48,15 +48,6 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
       background: "#ffffff",
       toolbar: {
         show: true, // 툴바 표시 여부
-        tools: {
-          zoom: true, // 확대 툴
-          zoomin: true, // 확대 버튼
-          zoomout: true, // 축소 버튼
-          download: true, // 이미지 다운로드 버튼
-          pan: true, // 팬 이동 가능 여부
-          reset: true, // 차트 초기화 버튼
-          selection: true, // 선택 도구 활성화 여부
-        },
       },
     },
     fill: {
@@ -66,7 +57,7 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
     grid: {
       padding: {
         top: 10, // 차트 상단 여백
-        bottom: 40, // 차트 하단 여백
+        bottom: 35, // 차트 하단 여백
         left: 20, // 차트 왼쪽 여백
         right: 20, // 차트 오른쪽 여백
       },
@@ -181,7 +172,7 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
   };
 
   return (
-    <div className="h-full mr-2">
+    <div className="mr-2 h-full">
       <ReactApexChart
         options={chartOptions}
         series={chartSeries}
