@@ -118,7 +118,7 @@ export default function Map2D({ positionData, stateData }: Props) {
     }
 
     const deltaTime = currentTime - lastTimeRef.current;
-    elapsedTimeRef.current += deltaTime;
+    elapsedTimeRef.current += deltaTime * speed;
     lastTimeRef.current = currentTime;
 
     const animationDuration = totalDuration * 1000; // 단위: 밀리초
@@ -248,6 +248,14 @@ export default function Map2D({ positionData, stateData }: Props) {
   const handlePlaySpeed = (value: string) => {
     setSpeed(Number(value));
   };
+  const handleStop = () => {
+    setIsPlaying(false);
+    setPhase(0);
+    if (animationRef.current) {
+      cancelAnimationFrame(animationRef.current);
+      lastTimeRef.current = 0;
+    }
+  };
 
   return (
     <>
@@ -282,8 +290,8 @@ export default function Map2D({ positionData, stateData }: Props) {
             onClickPlay={handlePlay}
             onClickPause={handlePause}
             onChangeSpeed={handlePlaySpeed}
-            speed={speed}
-          />
+            speed={speed} 
+            onClickStop={handleStop}/>
         </ProgressBar>
       </div>
     </>
