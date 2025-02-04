@@ -8,16 +8,12 @@ export const fetchRobots = async () => {
 
   const response = await fetch("http://localhost:3000/robots", { headers });
   if (!response.ok) {
-    if (response.status === 401) {
-      // 로그인 토큰이 유효하지 않음
-      localStorage.removeItem("token");
-      alert("Your session has expired. Please log in again.");
-      setTimeout(()=>{
-        window.location.href = "/";
-      },100)
-      throw new Error("Unauthorized user");
-    }
-    throw new Error("Failed to fetch robots");
+    localStorage.removeItem("token");
+    alert("Your session has expired. Please log in again.");
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 100);
+    throw new Error("Unauthorized user");
   }
   return response.json();
 };
@@ -45,22 +41,7 @@ export const fetchOperationsByRobot = async (robotId: string) => {
       );
     }
 
-        const telemetriesResponse = await fetch(telemetriesUrl, {headers});
-        if (!telemetriesResponse.ok) {
-          if (telemetriesResponse.status === 401) {
-            // 로그인 토큰이 유효하지 않음
-            localStorage.removeItem("token");
-            alert("Your session has expired. Please log in again.");
-            setTimeout(() => {
-              window.location.href = "/";
-            }, 100);
-            throw new Error("Unauthorized user");
-          }
-          throw new Error(
-            `Failed to fetch telemetries: ${telemetriesResponse.statusText}`,
-          );
-        }
-        const telemetries = await telemetriesResponse.json();
+    const operations = await operationsResponse.json();
 
     // 2. 모든 operation들의 고유한 날짜 데이터를 한 번에 가져옵니다
     const operationIds = operations
