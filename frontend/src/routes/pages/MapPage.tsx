@@ -70,9 +70,11 @@ export default function MapPage() {
   // 위치데이터
   const rawPositionData = data?.filter((entry) => entry.msgId === 33) ?? [];
   const positionData =
+
     rawPositionData.length > 0
       ? formatAndSortPositionData(rawPositionData)
       : null;
+
 
   // 상태데이터
   const rawStateData = data?.filter((entry) => entry.msgId === 253) ?? [];
@@ -110,11 +112,13 @@ export default function MapPage() {
         <StateWidget
           stateData={stateData ?? null}
           selectedDrone={selectedDrone ? selectedDrone._id : null}
+
           selectedOperationAndDate={
             selectedOperationAndDate
               ? selectedOperationAndDate.operationId
               : null
           }
+
         />
       </div>
 

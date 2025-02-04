@@ -1,13 +1,11 @@
-import { useContext, useState } from "react";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
 
 import { AuthContext } from "@/contexts/AuthContext";
 
-import { LoginModal } from "./LoginModal"; // LoginModal 컴포넌트 임포트
 import { SignButton } from "./SignButton";
 
 export function HomeHeader() {
-  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false); // 로그인 모달 상태 관리
   const { isAuth, setIsAuth } = useContext(AuthContext);
 
 
@@ -21,13 +19,14 @@ export function HomeHeader() {
       localStorage.removeItem("token");
       alert("Successfully Signed Out")
     }else{
-      setIsLoginModalOpen(true); // SIGN IN 클릭 시 모달을 열기
+      handleScroll()
     }
   };
 
-  const handleCloseLoginModal = () => {
-    setIsLoginModalOpen(false); // 로그인 모달 닫기
-  };
+  const handleScroll = () => {
+    const section = document.getElementById("unlogged-data-list");
+    section?.scrollIntoView({behavior: "smooth"})
+  }
 
   return (
     <div className="mx-auto flex max-w-screen-xl">
@@ -52,18 +51,13 @@ export function HomeHeader() {
             bgColor="white"
             onClick={handleSignUpClick}
           />
-          {/* 클릭 시 알럿 */}
-          {/* TODO: 로그인 상태에 따라 SIGN OUT 으로 수정 */}
           <SignButton
             text={isAuth ? "SIGN OUT" : "SIGN IN" }
             bgColor="black"
-            onClick={handleSignInClick} // SIGN IN 클릭 시 모달을 열기
+            onClick={handleSignInClick} 
           />
         </div>
       </div>
-
-      {/* LoginModal이 열릴 때 렌더링 */}
-      {isLoginModalOpen && <LoginModal onClose={handleCloseLoginModal} />}
     </div>
   );
 }

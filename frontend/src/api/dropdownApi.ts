@@ -5,8 +5,8 @@ export const fetchRobots = async () => {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
   };
-  
-  const response = await fetch("http://localhost:3000/robots", {headers});
+
+  const response = await fetch("http://localhost:3000/robots", { headers });
   if (!response.ok) {
     if (response.status === 401) {
       // 로그인 토큰이 유효하지 않음
@@ -26,42 +26,24 @@ export const fetchOperationsByRobot = async (robotId: string) => {
   if (!robotId) {
     throw new Error("robotId is missing");
   }
-  const url = `http://localhost:3000/operations?robot=${encodeURIComponent(robotId)}`;
-  console.log("Fetching operations with URL:", url); // TODO: 배포 이후 제거
 
   const token = localStorage.getItem("token");
   const headers = {
     Authorization: `Bearer ${token}`,
     "Content-Type": "application/json",
   };
-  
+
   try {
-    const operationsResponse = await fetch(url, {headers});
+    // 1. 먼저 operations 데이터를 가져옵니다
+    const operationsUrl = `http://localhost:3000/operations?robot=${encodeURIComponent(robotId)}`;
+    const operationsResponse = await fetch(operationsUrl, { headers });
+
     if (!operationsResponse.ok) {
-      if (operationsResponse.status === 401) {
-        // 로그인 토큰이 유효하지 않음
-        localStorage.removeItem("token");
-        alert("Your session has expired. Please log in again.");
-        setTimeout(()=>{
-          window.location.href = "/";
-        },100)
-        throw new Error("Unauthorized user");
-      }
+      handleUnauthorized(operationsResponse.status);
       throw new Error(
         `Failed to fetch operations: ${operationsResponse.statusText}`,
       );
     }
-    const operations = await operationsResponse.json();
-    // 텔레메트리 데이터 가져오기
-    const operationsWithDates = await Promise.all(
-      operations.map(async (operation: { _id: string }) => {
-        if (!operation || !operation._id) {
-          return null; // operation이 없으면 null 반환
-        }
-
-        const telemetriesUrl = `http://localhost:3000/telemetries?robot=${encodeURIComponent(
-          robotId,
-        )}&operation=${encodeURIComponent(operation._id)}&fields=timestamp`;
 
         const telemetriesResponse = await fetch(telemetriesUrl, {headers});
         if (!telemetriesResponse.ok) {
@@ -80,36 +62,45 @@ export const fetchOperationsByRobot = async (robotId: string) => {
         }
         const telemetries = await telemetriesResponse.json();
 
-        interface Telemetry {
-          timestamp: string;
-        }
-        const uniqueDatesWithTimestamp = [
-          ...new Map(
-            telemetries.map((telemetry: Telemetry) => {
-              return [
-                telemetry.timestamp, // timestamp 그대로 사용
-                { timestamp: telemetry.timestamp }, // timestamp만 포함
-              ];
-            }),
-          ).values(),
-        ];
+    // 2. 모든 operation들의 고유한 날짜 데이터를 한 번에 가져옵니다
+    const operationIds = operations
+      .map((op: { _id: string }) => op._id)
+      .join(",");
+    const telemetriesUrl = `http://localhost:3000/telemetries/distinctDates?robot=${encodeURIComponent(
+      robotId,
+    )}&operations=${encodeURIComponent(operationIds)}`;
+    console.log("Telemetries URL:", telemetriesUrl); // URL 확인
+    const telemetriesResponse = await fetch(telemetriesUrl, { headers });
 
-        // operationId 정상적으로 존재하는지 확인
-        const operationId = operation._id || "Unknown Operation";
+    if (!telemetriesResponse.ok) {
+      handleUnauthorized(telemetriesResponse.status);
+      throw new Error(
+        `Failed to fetch telemetries: ${telemetriesResponse.statusText}`,
+      );
+    }
 
-        return {
-          operationId: operationId, //operation._id,
-          dates: uniqueDatesWithTimestamp, // 해당 오퍼레이션의 날짜 정보
-        };
-      }),
-    );
+    const telemetriesData = await telemetriesResponse.json();
+    console.log("Telemetries Data:", telemetriesData);
 
-    const validOperations = operationsWithDates.filter(
-      (operation) => operation !== null,
-    );
-    return validOperations;
+    // 3. 결과 매핑
+    return operations.map((operation: { _id: string }) => ({
+      operationId: operation._id,
+      dates: telemetriesData[operation._id] || [],
+    }));
   } catch (error) {
     console.error("Error fetching operations:", error);
     throw error;
+  }
+};
+
+// 401 에러 처리를 위한 헬퍼 함수
+const handleUnauthorized = (status: number) => {
+  if (status === 401) {
+    localStorage.removeItem("token");
+    alert("Your session has expired. Please log in again.");
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 100);
+    throw new Error("Unauthorized user");
   }
 };
