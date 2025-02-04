@@ -38,7 +38,7 @@ const DetailedDataHeader: React.FC<Props> = ({
       </Button>
       <article className="min-w-[226px] md:w-2/3">
         <h1 className="text-2xl font-semibold md:text-3xl">Detailed Data</h1>
-        <span className="hidden text-xs md:block md:text-sm">
+        <span className="hidden text-xs lg:block md:text-sm">
           Visualize drone data with interactive charts and maps. <br />
           Explore trends and movement patterns for the selected date.
         </span>
