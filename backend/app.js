@@ -2,11 +2,12 @@ require('dotenv').config();
 
 
 const express = require('express');
-const cors = require('cors');  
+const cors = require('cors');
 const fetch = globalThis.fetch;
 const app = express();
 
-const NASA_API_KEY = process.env.NASA_API_KEY; 
+const NASA_API_KEY = process.env.NASA_API_KEY;
+
 console.log("🔑 NASA API Key Loaded:", NASA_API_KEY); // 확인용 (배포 시 제거)
 
 // ✅ 미들웨어 설정

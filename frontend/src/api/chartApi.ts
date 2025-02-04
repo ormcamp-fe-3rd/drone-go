@@ -31,6 +31,8 @@ export const fetchTelemetriesByRobotAndOperation = async (
   try {
     const response = await fetch(url, { headers });
     if (!response.ok) {
+      console.log("Response Status:", response.status);
+      console.log("Response Status Text:", response.statusText);
       if (response.status === 401) {
         // 로그인 토큰이 유효하지 않음
         localStorage.removeItem("token");
@@ -40,6 +42,8 @@ export const fetchTelemetriesByRobotAndOperation = async (
         }, 100);
         throw new Error("Unauthorized user")
       }
+      const errorBody = await response.text();
+      console.log("Error Body:", errorBody);
       throw new Error(`Failed to fetch telemetries: ${response.statusText}`);
     }
     const data: TelemetryData[] = await response.json();

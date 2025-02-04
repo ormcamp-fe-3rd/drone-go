@@ -45,6 +45,7 @@ export default function MapPage() {
   // 위치데이터
   const rawPositionData = data?.filter((entry) => entry.msgId === 33) ?? [];
   const positionData =
+
     rawPositionData.length > 0 ? formatAndSortPositionData(rawPositionData) : null;
 
   // 상태데이터
