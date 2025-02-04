@@ -21,14 +21,14 @@ export function HomePage() {
   useEffect(() => {
     if (droneRef.current) {
       gsap.to(droneRef.current, {
-        x: "-100vw",
-        y: "200vh",
+        x: "-120vw",
+        y: "100vh",
 
         duration: 10,
         ease: "power2.out",
         scrollTrigger: {
           trigger: dataListRef.current,
-          start: "top 60%",
+          start: "top 0%",
           end: "bottom top",
           scrub: true,
           markers: false,
@@ -48,10 +48,10 @@ export function HomePage() {
 
   return (
     <div className="relative">
-      <div
-        className="absolute right-0 top-56 z-50 h-[25vh] w-[25vw]" // z-50을 추가하여 드론이 최상위에 배치
-        ref={droneRef}
-      >
+      {/* Main Content */}
+      <HeroSection />
+      {isAuth ? <DroneList /> : <UnloggedDroneList />}
+      <div className="absolute right-0 top-56 h-[25vh] w-[25vw]" ref={droneRef}>
         <Drone
           scale={110}
           rotation={rotation}
@@ -60,15 +60,6 @@ export function HomePage() {
           width={"70vw"}
         />
       </div>
-      {/* Main Content */}
-      <HeroSection />
-      {isAuth ? (
-        <div ref={dataListRef}>
-          <DroneList />
-        </div>
-      ) : (
-        <UnloggedDroneList />
-      )}
     </div>
   );
 }
