@@ -48,10 +48,10 @@ export function HomePage() {
 
   return (
     <div className="relative">
-      <div
-        className="absolute right-0 top-56 z-50 h-[25vh] w-[25vw]"
-        ref={droneRef}
-      >
+      {/* Main Content */}
+      <HeroSection />
+      {isAuth ? <DroneList /> : <UnloggedDroneList />}
+      <div className="absolute right-0 top-56 h-[25vh] w-[25vw]" ref={droneRef}>
         <Drone
           scale={110}
           rotation={rotation}
@@ -60,9 +60,6 @@ export function HomePage() {
           width={"70vw"}
         />
       </div>
-      {/* Main Content */}
-      <HeroSection />
-      {isAuth ? <DroneList /> : <UnloggedDroneList />}
     </div>
   );
 }
