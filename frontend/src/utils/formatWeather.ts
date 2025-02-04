@@ -1,8 +1,8 @@
 export const getWeatherStatus = (temperature: number, windSpeed: number) => {
-    if (temperature > 25 && windSpeed < 5) return "맑음";
-    if (temperature < 5) return "눈 가능성 있음";
-    if (windSpeed > 10) return "바람 많음";
-    return "흐림";
+    if (temperature > 25 && windSpeed < 5) return "Sunny";
+    if (temperature < 5) return "Snowy";
+    if (windSpeed > 10) return "Windy";
+    return "Cloudy";
   };
   
   export const getWindDirection = (degree: number) => {
@@ -11,10 +11,10 @@ export const getWeatherStatus = (temperature: number, windSpeed: number) => {
   };
   
   const weatherIconMap: { [key: string]: string } = {
-    "맑음": "01d",
-    "흐림": "02d",
-    "바람 많음": "50d",
-    "눈 가능성 있음": "13d",
+    "Sunny": "01d",
+    "Cloudy": "02d",
+    "Windy": "50d",
+    "Snowy": "13d",
   };
   
   export const getWeatherIcon = (status: string) =>

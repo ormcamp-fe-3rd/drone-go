@@ -39,6 +39,10 @@ export default function MapPage() {
     return "An error has occurred: " + error.message;
   }
 
+  // 배터리데이터
+  const rawBatteryData = data?.filter((entry) => entry.msgId === 147) ?? [];
+  const batteryData = rawBatteryData.length > 0 ? rawBatteryData : null; 
+
   // 속도데이터
   const rawSpeedData = data?.filter((entry) => entry.msgId === 74) ?? [];
   const speedData = rawSpeedData.length > 0 ? rawSpeedData : null; 
@@ -68,6 +72,9 @@ export default function MapPage() {
         <MapSwitchButton />
       </div>
       <div className="fixed left-4 top-[10rem] z-10">
+
+        <AttitudeWidget batteryData={batteryData ?? null} />
+
         <WeatherWidget positionData={positionData ?? null} />
           
         <SpeedWidget speedData={speedData ?? null} />
