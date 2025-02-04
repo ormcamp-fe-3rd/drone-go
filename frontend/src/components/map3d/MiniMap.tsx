@@ -44,11 +44,13 @@ export default function MiniMap({ positionData }: Props) {
         zoom: 12,
       });
 
-      markerRef.current = new mapboxgl.Marker({
-        element: createMarkerElement("/images/droneMarker.svg"),
-      })
+      if(!markerRef.current){
+        markerRef.current = new mapboxgl.Marker({
+          element: createMarkerElement("/images/droneMarker.svg"),
+        })
         .setLngLat([positionData[0].payload.lon, positionData[0].payload.lat])
         .addTo(map);
+      }
     }
   },[positionData])
 
