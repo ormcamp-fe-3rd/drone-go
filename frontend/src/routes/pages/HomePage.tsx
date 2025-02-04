@@ -21,14 +21,14 @@ export function HomePage() {
   useEffect(() => {
     if (droneRef.current) {
       gsap.to(droneRef.current, {
-        x: "-100vw",
-        y: "200vh",
+        x: "-120vw",
+        y: "100vh",
 
         duration: 10,
         ease: "power2.out",
         scrollTrigger: {
           trigger: dataListRef.current,
-          start: "top 60%",
+          start: "top 0%",
           end: "bottom top",
           scrub: true,
           markers: false,
