@@ -1,3 +1,4 @@
+import { MSG_ID } from "@/constants";
 import { TelemetryAttitudeData } from "@/types/telemetryAttitudeDataTypes";
 
 
@@ -36,7 +37,7 @@ export const fetchAttitudeDataByRobotAndOperation = async (
 
     // msgId가 30인 데이터만 필터링하고 필요한 값만 반환 - roll, pitch, yaw
     const filterAttitudeData: TelemetryAttitudeData[] = data
-      .filter((telemetry) => telemetry.msgId === 30)
+      .filter((telemetry) => telemetry.msgId === MSG_ID.ATTITUDE)
       .map((telemetry) => ({
         msgId: telemetry.msgId,
         timestamp: new Date(telemetry.timestamp),

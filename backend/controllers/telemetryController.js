@@ -56,4 +56,125 @@ const getAllTelemetries = async (req, res) => {
     }
 };
 
-module.exports = { getAllTelemetries };
+/**
+ * 특정 robot ID와 operation ID에 해당하는 distinctDates를 가져옵니다.
+ * @async
+ * @function getDistinctDates
+ * @param {object} req - Express 요청 객체
+ * @param {object} res - Express 응답 객체
+ * @returns {Promise<void>} - 성공 시 distinctDates 데이터를 JSON 형식으로 응답
+ * @throws {Error} - 서버 에러 발생 시 500 상태 코드와 에러 메시지 반환
+ */
+const getDistinctDates = async (req, res) => {
+    try {
+        const { robot, operations } = req.query;
+        // robot 또는 operations가 없으면 400 에러 반환
+        if (!robot) {
+            return res.status(400).json({ message: 'Robot parameter is required' });
+        }
+        if (!operations) {
+            return res.status(400).json({ message: 'Operations parameter is required' });
+        }
+        // operations가 빈 문자열이거나 undefined일 경우 에러 처리
+        if (!operations || operations.trim() === '') {
+            return res.status(400).json({ message: 'Operations must be a non-empty string' });
+        }
+        // operations 값이 존재하면 split을 사용해 배열로 변환
+        const operationIds = operations.split(',');
+
+        // `robot`과 `operationIds` 값을 ObjectId로 변환
+        const robotObjectId = new mongoose.Types.ObjectId(robot); // 문자열로 변환
+        const operationObjectIds = operationIds.map(id => new mongoose.Types.ObjectId(id)); // 배열의 각 항목을 ObjectId로 변환
+
+        // MongoDB에서 distinctDates를 가져오기 위한 집계
+        const result = await Telemetry.aggregate([
+            {
+                $match: {
+                    robot: robotObjectId,
+                    operation: { $in: operationObjectIds }
+                }
+            },
+            {
+                $addFields: {
+                    formattedDate: {
+                        $cond: {
+                            if: { $eq: [{ $type: "$timestamp" }, "string"] },
+                            then: { $toDate: "$timestamp" }, // string을 Date로 변환
+                            else: "$timestamp" // 이미 Date 형식이면 그대로 사용
+                        }
+                    }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    operation: 1,
+                    timestamp: 1,
+                    timestampAsString: {
+                        $dateToString: {
+                            format: "%Y-%m-%d",
+                            date: "$formattedDate"
+                        }
+                    }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        operation: "$operation",
+                        date: "$timestampAsString"
+                    },
+                    timestamp: { $first: "$timestamp" }
+                }
+            },
+            {
+                $group: {
+                    _id: "$_id.operation",
+                    dates: { $push: "$_id.date" }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    operation: "$_id",
+                    dates: 1
+                }
+            }
+        ]);
+
+        //결과를 operationId를 키로 하는 객체로 변환
+        const formattedResult = result.reduce((acc, item) => {
+            // operation을 문자열로 변환
+            const operationId = item.operation.toString();
+
+            if (operationId === undefined) {
+                console.error("Error: Undefined operation ID found", item);
+            } else {
+                acc[operationId] = item.dates.map(date => {
+
+                    const validDate = date instanceof Date ? date : new Date(date);
+
+                    if (validDate instanceof Date && !isNaN(validDate)) {
+                        return validDate.toISOString();
+                    } else {
+                        console.error("Invalid date:", date);
+                        return null;
+                    }
+                });
+            }
+            return acc;
+        }, {});
+
+
+        res.json(formattedResult);
+    } catch (error) {
+        console.error('Error in getDistinctDates:', error);
+        res.status(500).json({
+            message: 'Server error',
+            error: error.message
+        });
+    }
+};
+
+
+module.exports = { getAllTelemetries, getDistinctDates };

@@ -1,34 +1,28 @@
-import { Button } from "@/components/ui/button";
+import { useContext } from "react";
 import { Link } from "react-router-dom";
-import DropdownSection from "./DropdownSection";
-import { Robot } from "../../types/selectOptionsTypes";
 
-interface OperationAndDate {
-  operationId: string;
-  timestamp: string;
-  name: string;
-}
+import { Button } from "@/components/ui/button";
+import SelectedDataContext from "@/contexts/SelectedDataContext";
+
+import DropdownSection from "./DropdownSection";
+
 interface Props {
   isMapPage: boolean;
-  selectedDrone: Robot | null;
-  setSelectedDrone: React.Dispatch<React.SetStateAction<Robot | null>>;
-  selectedOperationAndDate: OperationAndDate | null;
-  setSelectedOperationAndDate: React.Dispatch<
-    React.SetStateAction<OperationAndDate | null>
-  >;
   backgroundOpacity: number;
   exportToExcel: () => void;
 }
 
 const DetailedDataHeader: React.FC<Props> = ({
   isMapPage,
-  selectedDrone,
-  setSelectedDrone,
-  selectedOperationAndDate,
-  setSelectedOperationAndDate,
   backgroundOpacity,
   exportToExcel,
 }) => {
+  const {
+    selectedDrone,
+    selectedOperationAndDate,
+    setSelectedDrone,
+    setSelectedOperationAndDate,
+  } = useContext(SelectedDataContext);
   const handleExportClick = () => {
     if (!selectedDrone || !selectedOperationAndDate) {
       alert("드론과 오퍼레이션 날짜를 선택해야 합니다.");

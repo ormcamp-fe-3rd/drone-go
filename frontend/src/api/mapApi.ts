@@ -1,3 +1,4 @@
+import { MSG_ID } from "@/constants";
 import { TelemetryPositionData } from "@/types/telemetryPositionDataTypes";
 
 export const fetchPositionDataByOperation = async (
@@ -33,10 +34,8 @@ export const fetchPositionDataByOperation = async (
     }
     const data: TelemetryPositionData[] = await response.json();
 
-    const GLOBAL_POSITION_INT_ID = 33;
-
     const filterPositionData: TelemetryPositionData[] = data
-      .filter((telemetry) => telemetry.msgId === GLOBAL_POSITION_INT_ID)
+      .filter((telemetry) => telemetry.msgId === MSG_ID.GLOBAL_POSITION)
       .map((telemetry) => ({
         msgId: telemetry.msgId,
         timestamp: telemetry.timestamp,

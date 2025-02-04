@@ -6,6 +6,7 @@ const Telemetry = require("../models/telemetryModel")
 const { getTelemetriesByRobotAndOperation } = require('../services/telemetryService');
 const authorizer = require("../middleware/authorizer");
 
+const { getDistinctDates } = require('../controllers/telemetryController');
 
 /**
  * Telemetry 데이터를 가져옵니다.
@@ -51,5 +52,7 @@ router.get('/', authorizer, async (req, res) => {
     }
 });
 
+// distinctDates 데이터 가져오기
+router.get('/distinctDates', getDistinctDates);
 
 module.exports = router

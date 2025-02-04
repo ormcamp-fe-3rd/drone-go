@@ -4,6 +4,8 @@ import { fetchRobots } from "../../api/dropdownApi"; // API 함수 가져오기
 import { FlightDataCard } from "./FlightDataCard";
 
 const DroneList = () => {
+
+
   const {
     data: drones = [],
     isLoading,
