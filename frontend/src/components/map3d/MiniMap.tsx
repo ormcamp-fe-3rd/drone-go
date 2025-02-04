@@ -5,6 +5,7 @@ import Map, { MapRef } from "react-map-gl";
 import { PhaseContext } from "@/contexts/PhaseContext";
 import { LatLonAlt } from "@/types/latLonAlt";
 import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
+import calculateMarkerHeading from "@/utils/calculateMarkerHeading";
 
 
 interface Props {
@@ -16,17 +17,24 @@ export default function MiniMap({ positionData }: Props) {
   const markerRef = useRef<mapboxgl.Marker | null>(null);
   const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>();
   const { phase } = useContext(PhaseContext);
-
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [headings, setHeadings] = useState<number[]>();
 
   useEffect(()=>{
-    if (!positionData) return;
-    setLatLonAlt(
-      positionData.map((item) => ({
-        lat: item.payload.lat,
-        lon: item.payload.lon,
-        alt: item.payload.alt,
-      })),
-    );
+    if (!positionData) {
+      setLatLonAlt(null);
+      return;
+    }
+    
+    const paylodData = positionData.map((item) => ({
+      lat: item.payload.lat,
+      lon: item.payload.lon,
+      alt: item.payload.alt,
+    }));
+    setLatLonAlt(paylodData);
+
+    const calculatedHeadings = calculateMarkerHeading(paylodData);
+    setHeadings(calculatedHeadings);
 
     // 맵 초기화
     if (mapRef.current) {
@@ -35,104 +43,127 @@ export default function MiniMap({ positionData }: Props) {
         center: [positionData[0].payload.lon, positionData[0].payload.lat],
         zoom: 12,
       });
+
+      markerRef.current = new mapboxgl.Marker({
+        element: createMarkerElement("/images/droneMarker.svg"),
+      })
+        .setLngLat([positionData[0].payload.lon, positionData[0].payload.lat])
+        .addTo(map);
     }
   },[positionData])
 
 
   const updateCamera = useCallback(() => {
-    if (!mapRef.current || !latLonAlt || latLonAlt.length === 0) return;
+    if (!mapRef.current || !latLonAlt || !headings ||!markerRef.current) return;
 
     const map = mapRef.current.getMap();
 
     const currentIndex = Math.floor(phase * (latLonAlt.length - 1));
     const currentPoint = latLonAlt[currentIndex];
 
-    const markerLngLat: [number, number] = [currentPoint.lon, currentPoint.lat];
+    // const currentItem = latLonAlt[currentIndex];
+    const currentHeading = headings[currentIndex] || 0;
 
-    // 마커 업데이트
-    if (!markerRef.current) {
-      markerRef.current = new mapboxgl.Marker()
-        .setLngLat(markerLngLat)
-        .addTo(map);
-    } else {
-      markerRef.current.setLngLat(markerLngLat);
-    }
+    const markerLngLat: [number, number] = [currentPoint.lon, currentPoint.lat];
+    markerRef.current.setLngLat(markerLngLat);
+    markerRef.current.setRotation(currentHeading);
 
     // 지도 카메라 업데이트
     map.flyTo({
       center: markerLngLat,
-      zoom: 12,
       essential: true,
     });
-  }, [latLonAlt, phase]);
+  }, [headings, latLonAlt, phase]);
 
 
   useEffect(() => {
-    updateCamera(); // phase가 변경될 때마다 카메라 업데이트
+    updateCamera();// phase가 변경될 때마다 카메라 업데이트
   }, [phase, updateCamera]);
+  
 
+  function createMarkerElement(imageUrl: string) {
+    const element = document.createElement("img");
+    element.src = imageUrl;
+    element.style.width = "40px";
+    element.style.height = "40px";
+    element.style.objectFit = "contain";
+    return element;
+  }
+  
+  const addRouteSourceAndLayer = useCallback(() => {
+  if(!mapRef.current || !latLonAlt) return;
+
+  const map = mapRef.current.getMap();
+  const pathCoordinates = latLonAlt.map((point) => [point.lon, point.lat]);
+
+  if (map.getSource("route")) {
+    map.removeLayer("route-line");
+    map.removeSource("route");
+  }
+
+  map.addSource("route", {
+    type: "geojson",
+    data: {
+      type: "FeatureCollection",
+      features: [
+        {
+          type: "Feature",
+          geometry: {
+            type: "LineString",
+            coordinates: pathCoordinates,
+          },
+          properties: {},
+        },
+      ],
+    },
+  });
+  
+  map.addLayer({
+    id: "route-line",
+    type: "line",
+    source: "route",
+    layout: {
+      "line-cap": "round",
+      "line-join": "round",
+    },
+    paint: {
+      "line-width": 4,
+      "line-color": "#007cbf",
+    },
+  });
+
+  setTimeout(() => {
+    const source = map.getSource("route") as mapboxgl.GeoJSONSource | undefined;
+    if (source) {
+      source.setData({
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates: pathCoordinates,
+            },
+            properties: {},
+          },
+        ],
+      });
+    }
+  }, 500);
+},[latLonAlt])
 
   // // 지도 및 마커 
   useEffect(() => {
-    if (mapRef.current && latLonAlt) {
-      const map = mapRef.current.getMap();
+    if (!mapRef.current || !latLonAlt ) return;
+    if(!mapLoaded) return;
+    
+    const map = mapRef.current.getMap();
 
-      const pathCoordinates = latLonAlt.map((point) => [point.lon, point.lat]);
-
-      const addRouteSourceAndLayer = () => {
-        if (map.getSource("route")) {
-        (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
-          type: "FeatureCollection",
-          features: [
-            {
-              type: "Feature",
-              geometry: {
-                type: "LineString",
-                coordinates: pathCoordinates,
-              },
-              properties: {},
-            },
-          ],
-        });
-      } else {
-        map.addSource("route", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "LineString",
-                  coordinates: pathCoordinates,
-                },
-                properties: {},
-              },
-            ],
-          },
-        });
-
-        map.addLayer({
-          id: "route-line",
-          type: "line",
-          source: "route",
-          layout: {
-            "line-cap": "round",
-            "line-join": "round",
-          },
-          paint: {
-            "line-width": 4,
-            "line-color": "#007cbf",
-          },
-        });
-      }}
-
-      // 스타일 로드 완료 후 source와 layer 추가
-      if (map.isStyleLoaded()) {
-        addRouteSourceAndLayer();
-      } else {
-        map.once("styledata", addRouteSourceAndLayer);
-      }
+    try{
+      addRouteSourceAndLayer()
+    } catch (error){
+      console.error("Failed to add route: ", error)
+    }
 
       if (!markerRef.current) {
         const initialPoint =
@@ -148,8 +179,21 @@ export default function MiniMap({ positionData }: Props) {
           .setLngLat(markerLngLat)
           .addTo(map);
       }
+      
+    return () => {
+      if(!mapLoaded) return;
+      if (map.getLayer("route-line")) {
+        map.removeLayer("route-line");
+      }
+      if (map.getSource("route")) {
+        map.removeSource("route");
+      }
     };
-  }, [latLonAlt]);
+  }, [addRouteSourceAndLayer, latLonAlt, mapLoaded]);
+
+  const handleMapLoad = useCallback(() => {
+    setMapLoaded(true)
+  },[])
 
   return (
     <>
@@ -173,6 +217,7 @@ export default function MiniMap({ positionData }: Props) {
         touchPitch={false}
         touchZoomRotate={false}
         dragRotate={false}
+        onLoad={handleMapLoad}
       />
     </>
   );
