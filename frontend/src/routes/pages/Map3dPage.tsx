@@ -18,6 +18,8 @@ import { CurrentTimeProvider } from "@/contexts/CurrentTimeContext";
 import PhaseContextProvider from "@/contexts/PhaseContext";
 import SelectedDataContext from "@/contexts/SelectedDataContext";
 import { useTelemetry2D } from "@/hooks/useTelemetry2D";
+import { Telemetry2dData } from "@/types/telemetry2dDataTypes";
+import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
 import { formatAndSortPositionData } from "@/utils/formatPositionData";
 
 export default function Map3dPage() {
@@ -26,6 +28,8 @@ export default function Map3dPage() {
   const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
   const [is2dMap, setIs2dMap] = useState(true);
+  const [ positionData, setPositionData ] = useState<FormattedTelemetryPositionData[] | null>(null);
+  const [ stateData, setStateData ] = useState<Telemetry2dData[] | null>(null);
 
   useEffect(() => {
     if (isAuth === null) return;
@@ -40,17 +44,22 @@ export default function Map3dPage() {
     selectedOperationAndDate,
   );
 
+  useEffect(()=>{
+    const rawPositionData =
+      data?.filter((entry) => entry.msgId === MSG_ID.GLOBAL_POSITION) ?? [];
+    setPositionData(
+      rawPositionData.length > 0
+        ? formatAndSortPositionData(rawPositionData)
+        : null);
+    const rawStateData =
+      data?.filter((entry) => entry.msgId === MSG_ID.STATUSTEXT) ?? [];
+    setStateData(rawStateData.length > 0 ? rawStateData : null);
+
+
+  },[is2dMap, data])
   if (error) {
     return "An error has occurred: " + error.message;
   }
-
-  // 위치데이터
-  const rawPositionData =
-    data?.filter((entry) => entry.msgId === MSG_ID.GLOBAL_POSITION) ?? [];
-  const positionData =
-    rawPositionData.length > 0
-      ? formatAndSortPositionData(rawPositionData)
-      : null;
 
   // 속도데이터
   const rawSpeedData = data?.filter((entry) => entry.msgId === MSG_ID.VFR_HUD) ?? [];
@@ -59,11 +68,6 @@ export default function Map3dPage() {
   //헤딩 데이터
   const rawHeadingData = data?.filter((entry) => entry.msgId === MSG_ID.VFR_HUD) ?? [];
   const headingData = rawHeadingData.length > 0 ? rawHeadingData : null;
-
-  // 상태데이터
-  const rawStateData =
-    data?.filter((entry) => entry.msgId === MSG_ID.STATUSTEXT) ?? [];
-  const stateData = rawStateData.length > 0 ? rawStateData : null;
 
   //드론 모습 상세 데이터"roll", "pitch", "yaw"
   const rawRollData =

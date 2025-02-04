@@ -137,6 +137,57 @@ export default function Map2D({ positionData, stateData }: Props) {
     animationRef.current = window.requestAnimationFrame(animate);
   };
 
+  const addMapSource = useCallback((map: mapboxgl.Map) => {
+    const pathCoordinates = latLonAlt?.map((point) => [point.lon, point.lat]);
+
+    if(!pathCoordinates) return;
+    if (map.getSource("route")) {
+      (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: {
+              type: "LineString",
+              coordinates: pathCoordinates,
+            },
+            properties: {},
+          },
+        ],
+      });
+    } else {
+      map.addSource("route", {
+        type: "geojson",
+        data: {
+          type: "FeatureCollection",
+          features: [
+            {
+              type: "Feature",
+              geometry: {
+                type: "LineString",
+                coordinates: pathCoordinates,
+              },
+              properties: {},
+            },
+          ],
+        },
+      });
+
+      map.addLayer({
+        id: "route-line",
+        type: "line",
+        source: "route",
+        layout: {
+          "line-cap": "round",
+          "line-join": "round",
+        },
+        paint: {
+          "line-width": 4,
+          "line-color": "#007cbf",
+        },
+      });
+    }
+  },[latLonAlt])
   // 지도 및 마커 초기화
   useEffect(() => {
     if (mapRef.current && latLonAlt) {
@@ -153,53 +204,10 @@ export default function Map2D({ positionData, stateData }: Props) {
         zoom: 14,
       });
 
-      const pathCoordinates = latLonAlt.map((point) => [point.lon, point.lat]);
-
-      if (map.getSource("route")) {
-        (map.getSource("route") as mapboxgl.GeoJSONSource).setData({
-          type: "FeatureCollection",
-          features: [
-            {
-              type: "Feature",
-              geometry: {
-                type: "LineString",
-                coordinates: pathCoordinates,
-              },
-              properties: {},
-            },
-          ],
-        });
+      if (map.isStyleLoaded()) {
+        addMapSource(map);
       } else {
-        map.addSource("route", {
-          type: "geojson",
-          data: {
-            type: "FeatureCollection",
-            features: [
-              {
-                type: "Feature",
-                geometry: {
-                  type: "LineString",
-                  coordinates: pathCoordinates,
-                },
-                properties: {},
-              },
-            ],
-          },
-        });
-
-        map.addLayer({
-          id: "route-line",
-          type: "line",
-          source: "route",
-          layout: {
-            "line-cap": "round",
-            "line-join": "round",
-          },
-          paint: {
-            "line-width": 4,
-            "line-color": "#007cbf",
-          },
-        });
+        map.once("style.load", () => addMapSource(map));
       }
 
       if (!markerRef.current) {
@@ -219,7 +227,7 @@ export default function Map2D({ positionData, stateData }: Props) {
           .addTo(map);
       }
     }
-  }, [latLonAlt]);
+  }, [addMapSource, latLonAlt]);
 
   function createMarkerElement(imageUrl: string) {
     const element = document.createElement("img");
