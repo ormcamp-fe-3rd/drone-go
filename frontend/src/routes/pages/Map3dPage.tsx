@@ -2,12 +2,12 @@ import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import DetailedDataHeader from "@/components/charts/DetailedDataHeader";
+import HeaderMapBtns from "@/components/charts/HeaderMapBtns";
 import Map2D from "@/components/map/Map2D";
 import AltitudeWidget from "@/components/map3d/AltitudeWidget";
 import AttitudeWidget from "@/components/map3d/AttitudeWidget";
 import CesiumViewer3D from "@/components/map3d/CesiumViewer3D";
 import LoadingMessage from "@/components/map3d/LoadingMessage";
-import MapSwitchButton from "@/components/map3d/MapSwitchButton";
 import MiniMapWidget from "@/components/map3d/MiniMapWidget";
 import SpeedWidget from "@/components/map3d/SpeedWidget";
 import StateWidget from "@/components/map3d/StateWidget";
@@ -95,15 +95,9 @@ export default function Map3dPage() {
   return (
     <>
       <div className="fixed z-10 w-full">
-        <DetailedDataHeader
-          backgroundOpacity={60}
-          isMapPage={true}
-          //TODO: 지도에서 export 기능, 버튼 삭제
-          exportToExcel={() => null}
-        />
-      </div>
-      <div className="fixed right-10 top-[10rem] z-10">
-        <MapSwitchButton is2d={is2dMap} switchMap={switchMap} />
+        <DetailedDataHeader backgroundOpacity={60}>
+          <HeaderMapBtns is2d={is2dMap} switchMap={switchMap} />
+        </DetailedDataHeader>
       </div>
 
       <CurrentTimeProvider>
