@@ -4,7 +4,7 @@ export default function UnloggedDroneList() {
   return (
     <>
       <div
-        className="absolute h-full w-full bg-black bg-opacity-50 backdrop-blur-[2px]"
+        className="absolute h-[1124px] w-full bg-black bg-opacity-50 backdrop-blur-[2px]"
         id="unlogged-data-list"
       ></div>
       <div className="mx-auto mb-10 mt-10 flex h-[1024px] flex-col items-center gap-10 text-center">
