@@ -99,6 +99,39 @@ const ChartPage: React.FC = () => {
   const { batteryData, textData, satellitesData, altAndSpeedData } =
     telemetryData;
 
+  // 에러나 로딩 상태에 대한 UI 개선
+  const renderChartCard = (
+    isLoading: boolean,
+    error: any,
+    data: any,
+    Component: React.ReactNode,
+  ) => {
+    if (isLoading) {
+      return (
+        <ChartCard title="">
+          <p className="text-center">Loading chart data...</p>
+        </ChartCard>
+      );
+    }
+    if (error) {
+      return (
+        <ChartCard title="">
+          <p className="text-center">Error loading data: {error.message}</p>
+        </ChartCard>
+      );
+    }
+    if (data.length > 0) {
+      return <ChartCard title="">{Component}</ChartCard>;
+    }
+    return (
+      <ChartCard title="">
+        <p className="text-center">
+          <strong>Select a drone and operation to view the chart.</strong>
+        </p>
+      </ChartCard>
+    );
+  };
+
   return (
     <div className="flex h-full w-full flex-col bg-[#F3F2F9] lg:h-screen lg:w-screen">
       <DetailedDataHeader
@@ -115,19 +148,19 @@ const ChartPage: React.FC = () => {
           )
         } // 엑셀 익스포트 함수 전달
       />
-      <div className="grid flex-grow min-h-0 grid-cols-1 gap-3 mx-10 mb-4 lg:grid-cols-2 lg:grid-rows-2">
+      <div className="mx-10 mb-4 grid min-h-0 flex-grow grid-cols-1 gap-3 lg:grid-cols-2 lg:grid-rows-2">
         {/* 드론 정보 카드 */}
         <div className="flex min-h-[280px] gap-3">
           <div className="flex w-3/5 flex-col overflow-hidden rounded-[10px] border border-[#B2B2B7] bg-white">
             <h2 className="mx-10 my-5 text-2xl font-semibold">
               Name : {selectedDrone ? selectedDrone.name : "Select a Drone"}
             </h2>
-            <div className="flex-1 mx-5 overflow-hidden">
+            <div className="mx-5 flex-1 overflow-hidden">
               {selectedDrone ? (
                 <img
                   src={`/images/chart/${selectedDrone.name}.svg`}
                   alt={selectedDrone.name}
-                  className="object-contain w-auto h-full"
+                  className="h-full w-auto object-contain"
                 />
               ) : (
                 <p className="text-xl text-gray-500">Select a drone</p>
@@ -135,9 +168,9 @@ const ChartPage: React.FC = () => {
             </div>
           </div>
           {/* 기타 데이터 카드 */}
-          <div className="flex flex-col w-2/5 h-full gap-2">
+          <div className="flex h-full w-2/5 flex-col gap-2">
             <div className="flex h-[40%] flex-col gap-[1px] overflow-hidden rounded-[10px] border border-[#B2B2B7] bg-white">
-              <div className="flex items-center flex-shrink-0">
+              <div className="flex flex-shrink-0 items-center">
                 <div className="mx-2 my-[6px]">
                   <img
                     src="/icons/time.svg"
@@ -154,7 +187,7 @@ const ChartPage: React.FC = () => {
               </div>
             </div>
             <div className="flex h-[60%] flex-col gap-1 overflow-hidden rounded-[10px] border border-[#B2B2B7] bg-white">
-              <div className="flex items-center flex-shrink-0">
+              <div className="flex flex-shrink-0 items-center">
                 <div className="mx-2 my-[6px]">
                   <img
                     src="/icons/setting-error.svg"
@@ -170,56 +203,23 @@ const ChartPage: React.FC = () => {
             </div>
           </div>
         </div>
-        {isLoading ? (
-          <ChartCard title="">
-            <p className="text-center">Loading chart data...</p>
-          </ChartCard>
-        ) : error instanceof Error ? (
-          <p className="text-center">Error loading data: {error.message}</p>
-        ) : altAndSpeedData.length > 0 ? (
-          <ChartCard title="">
-            <BatteryChart data={batteryData} />
-          </ChartCard>
-        ) : (
-          <ChartCard title="">
-            <p className="text-center">
-              <strong> Select a drone and operation to view the chart.</strong>
-            </p>
-          </ChartCard>
+        {renderChartCard(
+          isLoading,
+          error,
+          altAndSpeedData,
+          <BatteryChart data={batteryData} />,
         )}
-        {isLoading ? (
-          <ChartCard title="">
-            <p className="text-center">Loading chart data...</p>
-          </ChartCard>
-        ) : error instanceof Error ? (
-          <p className="text-center">Error loading data: {error.message}</p>
-        ) : altAndSpeedData.length > 0 ? (
-          <ChartCard title="">
-            <SatellitesChart data={satellitesData} />
-          </ChartCard>
-        ) : (
-          <ChartCard title="">
-            <p className="text-center">
-              <strong> Select a drone and operation to view the chart.</strong>
-            </p>
-          </ChartCard>
+        {renderChartCard(
+          isLoading,
+          error,
+          satellitesData,
+          <SatellitesChart data={satellitesData} />,
         )}
-        {isLoading ? (
-          <ChartCard title="">
-            <p className="text-center">Loading chart data...</p>
-          </ChartCard>
-        ) : error instanceof Error ? (
-          <p className="text-center">Error loading data: {error.message}</p>
-        ) : altAndSpeedData.length > 0 ? (
-          <ChartCard title="">
-            <AltAndSpeedChart data={altAndSpeedData} />
-          </ChartCard>
-        ) : (
-          <ChartCard title="">
-            <p className="text-center">
-              <strong> Select a drone and operation to view the chart.</strong>
-            </p>
-          </ChartCard>
+        {renderChartCard(
+          isLoading,
+          error,
+          altAndSpeedData,
+          <AltAndSpeedChart data={altAndSpeedData} />,
         )}
       </div>
     </div>
