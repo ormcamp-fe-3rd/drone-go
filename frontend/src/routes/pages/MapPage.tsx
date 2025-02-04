@@ -46,6 +46,7 @@ export default function MapPage() {
   // 위치데이터
   const rawPositionData = data?.filter((entry) => entry.msgId === 33) ?? [];
   const positionData =
+
     rawPositionData.length > 0 ? formatAndSortPositionData(rawPositionData) : null;
 
   // 상태데이터
@@ -71,13 +72,15 @@ export default function MapPage() {
         <WeatherWidget positionData={positionData ?? null} />
           
         <SpeedWidget speedData={speedData ?? null} />
-      
+
         <AltitudeWidget positionData={positionData ?? null} />
 
         <StateWidget
           stateData={stateData ?? null}
           selectedDrone={selectedDrone ? selectedDrone._id : null}
+
           selectedOperationAndDate={selectedOperationAndDate ? selectedOperationAndDate.operationId : null}
+
         />
           
       </div>

@@ -29,6 +29,8 @@ export const fetchTelemetriesByRobotAndOperation = async (
   try {
     const response = await fetch(url, { headers });
     if (!response.ok) {
+      console.log("Response Status:", response.status);
+      console.log("Response Status Text:", response.statusText);
       if (response.status === 401) {
         // 로그인 토큰이 유효하지 않음
         localStorage.removeItem("token");
@@ -38,6 +40,8 @@ export const fetchTelemetriesByRobotAndOperation = async (
         }, 100);
         throw new Error("Unauthorized user")
       }
+      const errorBody = await response.text();
+      console.log("Error Body:", errorBody);
       throw new Error(`Failed to fetch telemetries: ${response.statusText}`);
     }
     const data: TelemetryData[] = await response.json();
@@ -82,6 +86,7 @@ export const fetchTelemetriesByRobotAndOperation = async (
 
     // msgId가 74(groundspeed: 속도), 33(alt: 고도) 인 데이터만 필터링하고 필요한 값만 반환
     const processAltAndSpeedData = (data: any[]): AltAndSpeedData[] => {
+      console.log("Processing Alt and Speed Data:", data);
       const GROUNDSPEED_MSG_ID = 74;
       const ALTITUDE_MSG_ID = 33;
 
