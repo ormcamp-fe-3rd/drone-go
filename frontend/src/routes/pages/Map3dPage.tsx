@@ -70,17 +70,9 @@ export default function Map3dPage() {
   const headingData = rawHeadingData.length > 0 ? rawHeadingData : null;
 
   //드론 모습 상세 데이터"roll", "pitch", "yaw"
-  const rawRollData =
+  const rawAttitudeData =
     data?.filter((entry) => entry.msgId === MSG_ID.ATTITUDE) ?? [];
-  const rollData = rawRollData.length > 0 ? rawRollData : null;
-
-  const rawPitchData =
-    data?.filter((entry) => entry.msgId === MSG_ID.ATTITUDE) ?? [];
-  const pitchData = rawPitchData.length > 0 ? rawPitchData : null;
-
-  const rawYawData =
-    data?.filter((entry) => entry.msgId === MSG_ID.ATTITUDE) ?? [];
-  const yawData = rawYawData.length > 0 ? rawYawData : null;
+  const attitudeData = rawAttitudeData.length > 0 ? rawAttitudeData : null;
 
   //배터리 데이터
   const rawbatteryRemainingData =
@@ -107,9 +99,7 @@ export default function Map3dPage() {
               <AttitudeWidget
                 headingData={headingData}
                 batteryRemainingData={batteryRemainingData}
-                rollData={rollData}
-                pitchData={pitchData}
-                yawData={yawData}
+                attitudeData={attitudeData}
               />
             ) : (
               <MiniMapWidget positionData={positionData} />
