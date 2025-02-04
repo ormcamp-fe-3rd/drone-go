@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useEffect,useState } from "react";
+
 import { useCurrentTime } from "@/contexts/CurrentTimeContext";
 import { formatTime } from "@/utils/formatTime";
 
@@ -52,7 +53,7 @@ const StateWidget = ({ stateData, selectedDrone, selectedOperationAndDate }: Sta
   const handleToggle = () => setIsExpanded((prev) => !prev);
 
   return (
-    <div className="relative mx-6 mt-2 hidden w-[30vw] max-w-[17rem] rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold hover:bg-opacity-80 sm:block">
+    <div className={`relative mx-6 mt-2 hidden w-[30vw] max-w-[17rem] rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold hover:bg-opacity-80 sm:block ${isExpanded ? "rounded-b-none" : ""}`}>
       <div className="flex h-[5vh] items-center justify-between">
         <div className="flex items-center">
           <img src={src} alt="State" />

@@ -1,8 +1,10 @@
+import { MSG_ID } from "@/constants";
+import { AltAndSpeedData } from "@/types/altAndspeedDataType";
+
 import { TelemetryData } from "../types/telemetryAllDataTypes";
 import { ProcessedTelemetryBatteryData } from "../types/telemetryBatteryDataTypes";
 import { ProcessedTelemetrySatellitesData } from "../types/telemetrySatellitesDataTypes";
 import { ProcessedTelemetryTextData } from "../types/telemetryTextData";
-import { AltAndSpeedData } from "@/types/altAndspeedDataType";
 
 export const fetchTelemetriesByRobotAndOperation = async (
   robotId: string,
@@ -29,6 +31,8 @@ export const fetchTelemetriesByRobotAndOperation = async (
   try {
     const response = await fetch(url, { headers });
     if (!response.ok) {
+      console.log("Response Status:", response.status);
+      console.log("Response Status Text:", response.statusText);
       if (response.status === 401) {
         // 로그인 토큰이 유효하지 않음
         localStorage.removeItem("token");
@@ -36,16 +40,17 @@ export const fetchTelemetriesByRobotAndOperation = async (
         setTimeout(() => {
           window.location.href = "/";
         }, 100);
-        throw new Error("Unauthorized user")
+        throw new Error("Unauthorized user");
       }
+      const errorBody = await response.text();
+      console.log("Error Body:", errorBody);
       throw new Error(`Failed to fetch telemetries: ${response.statusText}`);
     }
     const data: TelemetryData[] = await response.json();
 
     // msgId가 147인 데이터만 필터링하고 필요한 값만 반환 - 배터리 온도, 전압, 잔량 데이터
-    const BATTERY_STATUS_MSG_ID = 147;
     const batteryData: ProcessedTelemetryBatteryData[] = data
-      .filter((telemetry) => telemetry.msgId === BATTERY_STATUS_MSG_ID)
+      .filter((telemetry) => telemetry.msgId === MSG_ID.BATTERY_STATUS)
       .map((telemetry) => ({
         msgId: telemetry.msgId,
         timestamp: new Date(telemetry.timestamp),
@@ -57,9 +62,8 @@ export const fetchTelemetriesByRobotAndOperation = async (
       }));
 
     // msgId가 253인 데이터만 필터링하고 필요한 값만 반환 - text 상태 데이터
-    const TEXT_STATUS_MSG_ID = 253;
     const textData: ProcessedTelemetryTextData[] = data
-      .filter((telemetry) => telemetry.msgId === TEXT_STATUS_MSG_ID)
+      .filter((telemetry) => telemetry.msgId === MSG_ID.STATUSTEXT)
       .map((telemetry) => ({
         msgId: telemetry.msgId,
         timestamp: new Date(telemetry.timestamp),
@@ -69,9 +73,8 @@ export const fetchTelemetriesByRobotAndOperation = async (
       }));
 
     // msgId가 24인 데이터만 필터링하고 필요한 값만 반환 - 연결되어있는 위성 수
-    const GPS_RAW_INT_MSG_ID = 24;
     const satellitesData: ProcessedTelemetrySatellitesData[] = data
-      .filter((telemetry) => telemetry.msgId === GPS_RAW_INT_MSG_ID)
+      .filter((telemetry) => telemetry.msgId === MSG_ID.GPS_RAW_INT)
       .map((telemetry) => ({
         msgId: telemetry.msgId,
         timestamp: new Date(telemetry.timestamp),
@@ -82,8 +85,6 @@ export const fetchTelemetriesByRobotAndOperation = async (
 
     // msgId가 74(groundspeed: 속도), 33(alt: 고도) 인 데이터만 필터링하고 필요한 값만 반환
     const processAltAndSpeedData = (data: any[]): AltAndSpeedData[] => {
-      const GROUNDSPEED_MSG_ID = 74;
-      const ALTITUDE_MSG_ID = 33;
 
       // 타임스탬프별로 데이터 정리
       const timestampMap = new Map<string, AltAndSpeedData>();
@@ -91,15 +92,15 @@ export const fetchTelemetriesByRobotAndOperation = async (
       data
         .filter(
           (telemetry) =>
-            telemetry.msgId === GROUNDSPEED_MSG_ID ||
-            telemetry.msgId === ALTITUDE_MSG_ID,
+            telemetry.msgId === MSG_ID.VFR_HUD ||
+            telemetry.msgId === MSG_ID.GLOBAL_POSITION,
         )
         .forEach((telemetry) => {
           const timestamp = new Date(telemetry.timestamp).toISOString();
           const existing = timestampMap.get(timestamp);
 
           if (existing) {
-            if (telemetry.msgId === GROUNDSPEED_MSG_ID) {
+            if (telemetry.msgId === MSG_ID.VFR_HUD) {
               existing.payload.groundspeed = telemetry.payload.groundspeed;
             } else {
               existing.payload.alt = telemetry.payload.alt;
@@ -109,11 +110,11 @@ export const fetchTelemetriesByRobotAndOperation = async (
               timestamp: new Date(telemetry.timestamp),
               payload: {
                 groundspeed:
-                  telemetry.msgId === GROUNDSPEED_MSG_ID
+                  telemetry.msgId === MSG_ID.VFR_HUD
                     ? telemetry.payload.groundspeed
                     : undefined,
                 alt:
-                  telemetry.msgId === ALTITUDE_MSG_ID
+                  telemetry.msgId === MSG_ID.GLOBAL_POSITION
                     ? telemetry.payload.alt
                     : undefined,
               },

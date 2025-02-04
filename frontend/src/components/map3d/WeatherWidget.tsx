@@ -1,15 +1,21 @@
 import { useEffect, useState, useMemo } from "react";
 import { fetchWeatherData } from "@/api/fetchWeatherData";
-import { getWeatherStatus, getWindDirection, getWeatherIcon } from "@/utils/formatWeather";
+import {
+  getWeatherStatus,
+  getWindDirection,
+  getWeatherIcon,
+} from "@/utils/formatWeather";
 
 interface WeatherProps {
-  positionData: {
-    timestamp: number;
-    payload: {
-      lat: number;
-      lon: number;
-    };
-  }[] | null;
+  positionData:
+    | {
+        timestamp: number;
+        payload: {
+          lat: number;
+          lon: number;
+        };
+      }[]
+    | null;
 }
 
 const WeatherWidget = ({ positionData }: WeatherProps) => {
@@ -66,7 +72,7 @@ const WeatherWidget = ({ positionData }: WeatherProps) => {
 
   if (isLoading) {
     return (
-      <div className="relative mx-6 mt-2 h-[5vh] w-[30vw] max-w-[17rem] flex justify-center items-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold sm:grid md:grid-cols-[1fr_0.5fr_1fr]">
+      <div className="relative mx-6 mt-2 flex h-[5vh] w-[30vw] max-w-[17rem] items-center justify-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold sm:grid md:grid-cols-[1fr_0.5fr_1fr]">
         Loading...
       </div>
     );
