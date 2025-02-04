@@ -34,7 +34,7 @@ export default function Map3dPage() {
     }
   }, [isAuth, navigate]);
 
-  const { data, error } = useTelemetry2D(
+  const { data, error, isLoading } = useTelemetry2D(
     selectedDrone,
     selectedOperationAndDate,
   );
@@ -87,7 +87,6 @@ export default function Map3dPage() {
     setIs2dMap(!is2dMap);
   };
 
-  //TODO: 라우트 수정("/map-3d" 삭제, "/map" 으로 연결)
   return (
     <>
       <div className="fixed z-10 w-full">
@@ -136,6 +135,31 @@ export default function Map3dPage() {
             <Map2D positionData={positionData} stateData={stateData} />
           ) : (
             <CesiumViewer3D positionData={positionData} stateData={stateData} />
+          )}
+
+          {selectedOperationAndDate === null ? (
+            <div className="fixed flex h-screen w-screen items-center justify-center">
+              <div className="pointer-events-none flex h-20 w-56 items-center rounded-2xl bg-white bg-opacity-90 drop-shadow-md">
+                <p className="w-full text-center">
+                  Please select an operation.
+                </p>
+              </div>
+            </div>
+          ) : (
+            ""
+          )}
+
+          {isLoading ? (
+            <div className="fixed flex h-screen w-screen items-center justify-center">
+              <div className="pointer-events-none flex justify-center gap-5 h-20 w-56 items-center rounded-2xl bg-white bg-opacity-90 drop-shadow-md">
+                <img src="/icons/loading.svg" alt="" className="animate-spin w-6 h-6"/>
+                <p className="text-center">
+                  Loading...
+                </p>
+              </div>
+            </div>
+          ) : (
+            ""
           )}
         </CurrentTimeProvider>
       </PhaseContextProvider>

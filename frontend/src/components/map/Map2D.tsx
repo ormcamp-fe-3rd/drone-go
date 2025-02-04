@@ -151,7 +151,7 @@ export default function Map2D({ positionData, stateData }: Props) {
       // 초기 맵 위치 설정
       map.jumpTo({
         center: [initialPoint.lon, initialPoint.lat],
-        zoom: 12,
+        zoom: 14,
       });
 
       const pathCoordinates = latLonAlt.map((point) => [point.lon, point.lat]);
