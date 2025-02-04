@@ -121,9 +121,9 @@ export default function Map3dPage() {
             />
           </div>
           {is2dMap ? (
-            <Map2D positionData={positionData} stateData={stateData} />
+            <Map2D positionData={positionData} />
           ) : (
-            <CesiumViewer3D positionData={positionData} stateData={stateData} />
+            <CesiumViewer3D positionData={positionData} />
           )}
 
           {!selectedOperationAndDate && 

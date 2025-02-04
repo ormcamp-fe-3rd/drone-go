@@ -11,17 +11,10 @@ import ProgressBarBtns from "../map/ProgressBarBtns";
 
 interface CesiumViewerProps {
   positionData: FormattedTelemetryPositionData[] | null;
-  stateData:
-    | {
-        timestamp: Date;
-        payload: { text: string };
-      }[]
-    | null;
 }
 
 const CesiumViewer: React.FC<CesiumViewerProps> = ({
   positionData,
-  stateData,
 }) => {
   const cesiumContainerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
@@ -318,7 +311,6 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
         <ProgressBar
           startTime={startEndTime.startTime}
           endTime={startEndTime.endTime}
-          stateData={stateData}
         >
           <PlayHead
             duration={totalDuration}

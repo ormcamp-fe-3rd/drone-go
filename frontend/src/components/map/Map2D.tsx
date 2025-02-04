@@ -14,17 +14,9 @@ import ProgressBarBtns from "./ProgressBarBtns";
 
 interface Props {
   positionData: FormattedTelemetryPositionData[] | null;
-  stateData:
-    | {
-        timestamp: Date;
-        payload: {
-          text: string;
-        };
-      }[]
-    | null;
 }
 
-export default function Map2D({ positionData, stateData }: Props) {
+export default function Map2D({ positionData }: Props) {
   const mapRef = useRef<MapRef>(null); // 맵 인스턴스 접근
   const markerRef = useRef<mapboxgl.Marker | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
@@ -323,7 +315,6 @@ export default function Map2D({ positionData, stateData }: Props) {
         <ProgressBar
           startTime={startEndTime.startTime}
           endTime={startEndTime.endTime}
-          stateData={stateData}
         >
           <PlayHead
             duration={totalDuration}
