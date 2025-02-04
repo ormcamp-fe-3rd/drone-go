@@ -38,7 +38,7 @@ export const fetchTelemetriesByRobotAndOperation = async (
         setTimeout(() => {
           window.location.href = "/";
         }, 100);
-        throw new Error("Unauthorized user");
+        throw new Error("Unauthorized user")
       }
       const errorBody = await response.text();
       console.log("Error Body:", errorBody);

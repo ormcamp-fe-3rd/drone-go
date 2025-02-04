@@ -6,6 +6,7 @@ const fetch = globalThis.fetch;
 const app = express();
 
 const NASA_API_KEY = process.env.NASA_API_KEY;
+
 console.log("🔑 NASA API Key Loaded:", NASA_API_KEY); // 확인용 (배포 시 제거)
 
 // ✅ 미들웨어 설정
@@ -29,7 +30,7 @@ app.get('/weather', async (req, res) => {
     }
 
     // 🛠 날짜 형식 변환 (YYYY-MM-DD → YYYYMMDD)
-    date = date.replace(/-/g, "");
+    date = date.replace(/-/g, ""); 
 
     const nasaUrl = `https://power.larc.nasa.gov/api/temporal/daily/point?latitude=${latitude}&longitude=${longitude}&start=${date}&end=${date}&parameters=T2M,WS10M,WD10M&community=RE&format=JSON&api_key=${NASA_API_KEY}`;
 
