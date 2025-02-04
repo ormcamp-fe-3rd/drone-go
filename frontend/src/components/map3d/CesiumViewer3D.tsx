@@ -1,5 +1,6 @@
 import * as Cesium from "cesium";
 import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import { degToRad } from "three/src/math/MathUtils";
 
 import { PhaseContext } from "@/contexts/PhaseContext";
 import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
@@ -9,6 +10,7 @@ import PlayHead from "../map/PlayHead";
 import ProgressBar from "../map/ProgressBar";
 import ProgressBarBtns from "../map/ProgressBarBtns";
 
+const adjustDroneHeading = degToRad(216);
 interface CesiumViewerProps {
   positionData: FormattedTelemetryPositionData[] | null;
 }
@@ -36,7 +38,6 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
     endTime: string;
   }>({ startTime: "", endTime: "" });
   const [flightStartTime, setFlightStartTime] = useState(0);
-
   const { phase, setPhase } = useContext(PhaseContext);
 
   // Cesium viewer 초기화
@@ -99,13 +100,13 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
           prevPosition,
           new Cesium.Cartesian3(),
         );
-
+        
         if (Cesium.Cartesian3.magnitudeSquared(direction) > 0) {
           Cesium.Cartesian3.normalize(direction, direction);
           const heading = Math.atan2(direction.y, direction.x);
           const orientation = Cesium.Transforms.headingPitchRollQuaternion(
             position,
-            new Cesium.HeadingPitchRoll(heading, 0, 0),
+            new Cesium.HeadingPitchRoll(heading+adjustDroneHeading, 0, 0),
           );
           modelEntityRef.current.orientation = new Cesium.ConstantProperty(
             orientation,
