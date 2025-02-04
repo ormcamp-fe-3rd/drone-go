@@ -70,9 +70,9 @@ const AttitudeWidget = ({
   const currentYawInDegrees = radToDeg(currentYaw);
 
   return (
-    <div className="toolbar-attitude mx-6 my-0 hidden h-[27vh] w-[20vw] grid-cols-[1fr_1fr] grid-rows-[33%_1fr] rounded-[10px] bg-white bg-opacity-60 md:block">
+    <div className="toolbar-attitude mx-6 my-0 hidden h-[27vh] w-[30vw] max-w-[17rem] sm:flex sm:flex-col rounded-[10px] bg-white bg-opacity-60 md:block">
       {/* 배터리 및 헤딩을 가로로 정렬 */}
-      <div className="col-start-1 row-start-1 flex w-full items-start justify-between p-2">
+      <div className="flex w-full h-5 items-start justify-between p-2">
         {/* 배터리 */}
         <div className="battery flex items-center">
           <img
@@ -87,19 +87,19 @@ const AttitudeWidget = ({
 
         {/* 헤딩 */}
         <div className="flex items-start">
-          <div className="angle mr-2 inline-block w-[35px] rounded-[30px] border-2 border-black text-center text-[12px]">
+          <div className="angle mr-2 inline-block w-[35px] rounded-[30px] border-[1px] border-black text-center text-[12px]">
             {currentHeading}°
           </div>
           <br />
-          <div>
+          {/* <div>
             <img src="/images/Frame 69.svg" alt="Heading" />
-          </div>
+          </div> */}
         </div>
       </div>
 
       {/* 드론 3D 모델 */}
-      <div className="attitude-3d relative col-span-2 row-start-2 flex items-center justify-center p-2">
-        <div className="flex h-[10vh] w-[20vw] items-center justify-center">
+      <div className="attitude-3d relative flex items-center justify-center p-2 w-full h-full">
+        <div className="flex h-full w-full items-center justify-center">
           <Suspense fallback={<div>Loading drone...</div>}>
             <Drone
               scale={100}
@@ -109,8 +109,8 @@ const AttitudeWidget = ({
                 currentPitchInDegrees,
               ]} // 도 단위로 변환된 값 사용
               yAnimationHeight={0}
-              height={"30vh"}
-              width={"20vw"}
+              height={"100%"}
+              width={"100%"}
             />
           </Suspense>
         </div>
