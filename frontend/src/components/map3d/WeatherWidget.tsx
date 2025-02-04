@@ -43,7 +43,7 @@ const WeatherWidget = ({ positionData }: WeatherProps) => {
     }
 
     const { lat, lon } = latestPosition.payload;
-    const date = new Date(latestPosition.timestamp).toISOString().split("T")[0];
+    const date = new Date(latestPosition.timestamp).toISOString().split("T")[0]
 
     console.log(`📍 최신 위치: lat=${lat}, lon=${lon}, date=${date}`);
 
