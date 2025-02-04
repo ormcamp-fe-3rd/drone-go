@@ -48,6 +48,7 @@ const ProgressBarBtns = ({
               <SelectItem value="5">5x</SelectItem>
               <SelectItem value="10">10x</SelectItem>
               <SelectItem value="20">20x</SelectItem>
+              <SelectItem value="30">30x</SelectItem>
             </SelectContent>
           </Select>
         </div>
