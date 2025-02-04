@@ -6,6 +6,7 @@ import Map2D from "@/components/map/Map2D";
 import AltitudeWidget from "@/components/map3d/AltitudeWidget";
 import AttitudeWidget from "@/components/map3d/AttitudeWidget";
 import CesiumViewer3D from "@/components/map3d/CesiumViewer3D";
+import LoadingMessage from "@/components/map3d/LoadingMessage";
 import MapSwitchButton from "@/components/map3d/MapSwitchButton";
 import MiniMapWidget from "@/components/map3d/MiniMapWidget";
 import SpeedWidget from "@/components/map3d/SpeedWidget";
@@ -137,7 +138,7 @@ export default function Map3dPage() {
             <CesiumViewer3D positionData={positionData} stateData={stateData} />
           )}
 
-          {selectedOperationAndDate === null ? (
+          {!selectedOperationAndDate && 
             <div className="fixed flex h-screen w-screen items-center justify-center">
               <div className="pointer-events-none flex h-20 w-56 items-center rounded-2xl bg-white bg-opacity-90 drop-shadow-md">
                 <p className="w-full text-center">
@@ -145,22 +146,10 @@ export default function Map3dPage() {
                 </p>
               </div>
             </div>
-          ) : (
-            ""
-          )}
-
-          {isLoading ? (
-            <div className="fixed flex h-screen w-screen items-center justify-center">
-              <div className="pointer-events-none flex justify-center gap-5 h-20 w-56 items-center rounded-2xl bg-white bg-opacity-90 drop-shadow-md">
-                <img src="/icons/loading.svg" alt="" className="animate-spin w-6 h-6"/>
-                <p className="text-center">
-                  Loading...
-                </p>
-              </div>
-            </div>
-          ) : (
-            ""
-          )}
+          }
+          {isLoading && 
+            <LoadingMessage/>}
+          
         </PhaseContextProvider>
       </CurrentTimeProvider>
     </>

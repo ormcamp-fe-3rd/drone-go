@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useContext, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import LoadingMessage from "@/components/map3d/LoadingMessage";
 import { AuthContext } from "@/contexts/AuthContext";
 import SelectedDataContext from "@/contexts/SelectedDataContext";
 
@@ -220,6 +221,7 @@ const ChartPage: React.FC = () => {
             </p>
           </ChartCard>
         )}
+        {isLoading && <LoadingMessage className="-top-10"/>}
       </div>
     </div>
   );
