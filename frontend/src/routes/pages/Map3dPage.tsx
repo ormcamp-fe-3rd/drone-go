@@ -107,11 +107,11 @@ export default function Map3dPage() {
           <div className="fixed left-4 top-[10rem] z-10">
             {is2dMap ? (
               <AttitudeWidget
-                headingData={headingData ?? null}
-                batteryRemainingData={batteryRemainingData ?? null}
-                rollData={rollData ?? null}
-                pitchData={pitchData ?? null}
-                yawData={yawData ?? null}
+                headingData={headingData}
+                batteryRemainingData={batteryRemainingData}
+                rollData={rollData}
+                pitchData={pitchData}
+                yawData={yawData}
               />
             ) : (
               <MiniMapWidget positionData={positionData} />
