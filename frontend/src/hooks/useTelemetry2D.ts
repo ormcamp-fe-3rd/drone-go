@@ -6,7 +6,7 @@ import { Robot } from "@/types/selectOptionsTypes";
 
 type OperationInfo = {
   operationId: string;
-  date: string;
+  timestamp: string;
   name: string;
 };
 
