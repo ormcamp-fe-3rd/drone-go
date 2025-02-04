@@ -71,8 +71,7 @@ export default function Map2D({ positionData, stateData }: Props) {
     });
     setFlightStartTime(flightStartTime);
 
-    const totalFlightTime = (flightEndTime - flightStartTime) / 1000;
-    setTotalDuration(totalFlightTime / speed);
+    setTotalDuration((flightEndTime - flightStartTime) / 1000);
 
     const calculatedHeadings = calculateMarkerHeading(payloadData);
     setHeadings(calculatedHeadings);
