@@ -11,6 +11,7 @@ import LoadingMessage from "@/components/map3d/LoadingMessage";
 import MiniMapWidget from "@/components/map3d/MiniMapWidget";
 import SpeedWidget from "@/components/map3d/SpeedWidget";
 import StateWidget from "@/components/map3d/StateWidget";
+import WeatherWidget from "@/components/map3d/WeatherWidget";
 import { MSG_ID } from "@/constants";
 import { AuthContext } from "@/contexts/AuthContext";
 import { CurrentTimeProvider } from "@/contexts/CurrentTimeContext";
@@ -106,8 +107,7 @@ export default function Map3dPage() {
             ) : (
               <MiniMapWidget positionData={positionData} />
             )}
-            {/* TODO: 오류 해결 */}
-            {/* <WeatherWidget positionData={positionData} /> */}
+            <WeatherWidget positionData={positionData} />
 
             <SpeedWidget speedData={speedData} />
 

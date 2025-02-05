@@ -87,7 +87,7 @@ const StateWidget = ({
 
   return (
     <div
-      className={`relative mx-6 mt-2 hidden w-[30vw] max-w-[17rem] rounded-[10px] bg-white bg-opacity-80 px-2 text-center text-sm font-bold hover:bg-opacity-80 sm:block ${isExpanded ? "rounded-b-none" : ""}`}
+      className={`relative mx-6 mt-2 hidden w-[30vw] max-w-[19rem] rounded-[10px] bg-white bg-opacity-80 px-2 text-center text-sm font-bold hover:bg-opacity-80 sm:block ${isExpanded ? "rounded-b-none" : ""}`}
     >
       <div className="flex h-[5vh] items-center justify-between">
         <div className="flex items-center">

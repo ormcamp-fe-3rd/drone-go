@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Axios 인스턴스 생성
 const nasaApiClient = axios.create({
-  baseURL: "https://power.larc.nasa.gov/api/temporal/daily/point/",
+  baseURL: import.meta.env.VITE_API_URL,
   headers: {
     "Content-Type": "application/json",
     Accept: "application/json",

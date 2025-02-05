@@ -1,42 +1,87 @@
+import nasaApiClient from "@/api/nasaApiClient";
+
 interface WeatherData {
   T2M?: number; // 기온 (°C)
   WS10M?: number; // 풍속 (m/s)
   WD10M?: number; // 풍향 (degrees)
 }
 
-// const API_BASE_URL =
-//   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+// 중복 요청 방지
+const pendingRequests = new Map<string, Promise<WeatherData | null>>();
 
+/**
+ * 🌤️ 특정 좌표와 날짜에 대한 날씨 데이터를 가져옴.
+ * @param latitude 위도
+ * @param longitude 경도
+ * @param date 조회할 날짜 (YYYY-MM-DD 형식)
+ * @returns WeatherData | null
+ */
 export const fetchWeatherData = async (
   latitude: number,
   longitude: number,
   date: string,
 ): Promise<WeatherData | null> => {
   try {
-    console.log(
-      `🔍 날씨 데이터 요청: lat=${latitude}, lon=${longitude}, date=${date}`,
-    );
+    const formattedDate = date.replace(/-/g, ""); // YYYYMMDD 형식으로 변환
+    const cacheKey = `${latitude}-${longitude}-${formattedDate}`;
 
-    const response = await fetch(
-      `${import.meta.env.VITE_API_URL}/weather?latitude=${latitude}&longitude=${longitude}&date=${date}`,
-    );
-    if (!response.ok) throw new Error(`백엔드 응답 오류: ${response.status}`);
-
-    const data = await response.json();
-    console.log("🌍 API 응답 데이터:", data);
-
-    if (!data?.T2M || !data?.WS10M || !data?.WD10M) {
-      console.warn("⚠️ 유효한 날씨 데이터가 없음.");
-      return null;
+    const cachedData = localStorage.getItem(cacheKey);
+    if (cachedData) {
+      return JSON.parse(cachedData);
     }
 
-    return {
-      T2M: data.T2M ?? undefined,
-      WS10M: data.WS10M ?? undefined,
-      WD10M: data.WD10M ?? undefined,
-    };
+    // 중복 요청 방지
+    if (pendingRequests.has(cacheKey)) {
+      return pendingRequests.get(cacheKey)!;
+    }
+
+    const requestPromise = nasaApiClient
+      .get("/weather", {
+        params: {
+          latitude,
+          longitude,
+          date: formattedDate,
+          community: "RE", // Renewable Energy 프로젝트 사용
+          format: "JSON",
+        },
+      })
+      .then((response) => {
+
+        const weatherData = response.data?.properties?.parameter;
+        if (!weatherData) {
+          console.warn(
+            "⚠️ properties.parameter에서 유효한 날씨 데이터를 찾을 수 없음.",
+          );
+          return null;
+        }
+
+        const parsedData: WeatherData = {
+          T2M: weatherData.T2M?.[formattedDate] ?? undefined,
+          WS10M: weatherData.WS10M?.[formattedDate] ?? undefined,
+          WD10M: weatherData.WD10M?.[formattedDate] ?? undefined,
+        };
+
+        // 캐싱
+        localStorage.setItem(cacheKey, JSON.stringify(parsedData));
+
+        return parsedData;
+      })
+      .catch((error) => {
+        console.error(
+          "❌ 날씨 API 요청 중 오류 발생:",
+          error.response?.data || error.message,
+        );
+        return null;
+      })
+
+      .finally(() => {
+        pendingRequests.delete(cacheKey);
+      });
+
+    pendingRequests.set(cacheKey, requestPromise);
+    return requestPromise;
   } catch (error) {
-    console.error("❌ 날씨 API 요청 중 오류 발생:", error);
+    console.error("❌ 예기치 않은 오류:", error);
     return null;
   }
 };
