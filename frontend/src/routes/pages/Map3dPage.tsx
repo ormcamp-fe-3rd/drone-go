@@ -11,7 +11,6 @@ import LoadingMessage from "@/components/map3d/LoadingMessage";
 import MiniMapWidget from "@/components/map3d/MiniMapWidget";
 import SpeedWidget from "@/components/map3d/SpeedWidget";
 import StateWidget from "@/components/map3d/StateWidget";
-import WeatherWidget from "@/components/map3d/WeatherWidget";
 import { MSG_ID } from "@/constants";
 import { AuthContext } from "@/contexts/AuthContext";
 import { CurrentTimeProvider } from "@/contexts/CurrentTimeContext";
@@ -90,7 +89,7 @@ export default function Map3dPage() {
   return (
     <>
       <div className="fixed z-10 w-full">
-        <DetailedDataHeader backgroundOpacity={60}>
+        <DetailedDataHeader backgroundOpacity={80}>
           <HeaderMapBtns is2d={is2dMap} switchMap={switchMap} />
         </DetailedDataHeader>
       </div>
@@ -107,7 +106,8 @@ export default function Map3dPage() {
             ) : (
               <MiniMapWidget positionData={positionData} />
             )}
-            <WeatherWidget positionData={positionData} />
+            {/* TODO: 오류 해결 */}
+            {/* <WeatherWidget positionData={positionData} /> */}
 
             <SpeedWidget speedData={speedData} />
 

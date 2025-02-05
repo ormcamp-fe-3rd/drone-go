@@ -71,7 +71,7 @@ const AttitudeWidget = ({
   const currentYawInDegrees = radToDeg(currentYaw);
 
   return (
-    <div className="toolbar-attitude mx-6 my-0 hidden h-[27vh] w-[30vw] max-w-[17rem] rounded-[10px] bg-white bg-opacity-60 sm:flex sm:flex-col md:block">
+    <div className="toolbar-attitude mx-6 my-0 hidden h-[27vh] w-[30vw] max-w-[17rem] rounded-[10px] bg-white bg-opacity-80 sm:flex sm:flex-col md:block drop-shadow-md">
       <div className="flex h-5 w-full items-start justify-between p-2">
         <div className="battery flex items-center">
           <img

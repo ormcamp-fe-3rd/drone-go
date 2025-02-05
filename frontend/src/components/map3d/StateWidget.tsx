@@ -25,6 +25,7 @@ const StateWidget = ({
   const [visibleMessages, setVisibleMessages] = useState<
     { timestamp: Date; payload: { text: string } }[]
   >([]);
+  const [newMessage, setNewMessage] = useState(false);
 
   const { currentTime } = useCurrentTime();
 
@@ -33,6 +34,7 @@ const StateWidget = ({
   // 드론, 오퍼레이션 변경 시 상태 초기화
   useEffect(() => {
     setVisibleMessages([]);
+    setNewMessage(false);
   }, [selectedDrone, selectedOperationAndDate]);
 
   useEffect(() => {
@@ -58,6 +60,12 @@ const StateWidget = ({
           ),
       );
 
+      // 새로운 메시지가 있으면 빨간 점을 켜도록 상태 업데이트
+      if (newMessages.length > 0) {
+        setNewMessage(true);
+        setTimeout(() => setNewMessage(false), 3000);
+      }
+
       return mergedMessages.sort(
         (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
       );
@@ -68,12 +76,16 @@ const StateWidget = ({
 
   return (
     <div
-      className={`relative mx-6 mt-2 hidden w-[30vw] max-w-[17rem] rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold hover:bg-opacity-80 sm:block ${isExpanded ? "rounded-b-none" : ""}`}
+      className={`relative mx-6 mt-2 hidden w-[30vw] max-w-[17rem] rounded-[10px] bg-white bg-opacity-80 px-2 text-center text-sm font-bold hover:bg-opacity-80 sm:block ${isExpanded ? "rounded-b-none" : ""}`}
     >
       <div className="flex h-[5vh] items-center justify-between">
         <div className="flex items-center">
           <img src={src} alt="State" />
           <p className="pl-2">State</p>
+          {/* 빨간 점 */}
+          {newMessage && (
+            <span className="top-[50%] ml-1 h-2 w-2 animate-pulse rounded-full bg-red-500"></span>
+          )}
         </div>
         <button onClick={handleToggle} className="flex items-center">
           <img
@@ -95,7 +107,7 @@ const StateWidget = ({
             visibleMessages.map((item, index) => (
               <div key={index}>
                 <div className="flex flex-col items-end gap-1 py-1 text-right text-[12px] text-[#3F5D7E]">
-                  <div className="">{item.payload.text}</div>
+                  <div>{item.payload.text}</div>
                   <div className="ml-auto text-[10px]">
                     {formatTime(item.timestamp)}
                   </div>
