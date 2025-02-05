@@ -6,7 +6,7 @@ import * as THREE from "three";
 interface DroneProp {
   scale: number;
   rotation: number[];
-  yAnimationHeight: number; // Y축 애니메이션의 최대 높이
+  yAnimationHeight: number;
   height: string; // 캔버스 높이
   width: string; // 캔버스 너비
 }
@@ -15,7 +15,7 @@ export default function Drone({
   scale,
   rotation,
   yAnimationHeight,
-  height, // Three 캔버스 기본 높이값
+  height,
   width,
 }: DroneProp) {
   const glb = useLoader(GLTFLoader, "../../public/objects/drone.glb");
@@ -92,10 +92,7 @@ export default function Drone({
   }, [glb, scale, rotation]);
 
   return (
-    <div
-      className="absolute right-0 z-30"
-      style={{ height, width }} // 부모에서 전달된 크기로 설정
-    >
+    <div className="absolute right-0" style={{ height, width }}>
       <Canvas camera={{ position: [0, 50, 100], fov: 75 }}>
         <ambientLight intensity={3} />
         <directionalLight position={[0, 0, 5]} color="white" />

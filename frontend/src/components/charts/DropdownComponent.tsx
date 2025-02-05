@@ -46,7 +46,7 @@ const DropdownComponent = <
               <DropdownMenuItem
                 key={item._id}
                 onClick={() => onSelect(item)}
-                className="flex flex-col items-center justify-center w-full border-b border-neutral-40"
+                className="border-neutral-40 flex w-full flex-col items-center justify-center border-b"
               >
                 {item.name}
               </DropdownMenuItem>

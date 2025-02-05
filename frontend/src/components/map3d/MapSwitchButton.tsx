@@ -1,6 +1,6 @@
-interface Props{
+interface Props {
   is2d: boolean;
-  switchMap: ()=> void;
+  switchMap: () => void;
 }
 export default function MapSwitchButton({ is2d, switchMap }: Props) {
   const to2d = "/icons/to-2dmap.svg";

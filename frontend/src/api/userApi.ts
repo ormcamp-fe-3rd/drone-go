@@ -1,9 +1,12 @@
-export const userLogin = async (id:string, password:string):Promise<string> => {
-  try{
+export const userLogin = async (
+  id: string,
+  password: string,
+): Promise<string> => {
+  try {
     const response = await fetch("http://localhost:3000/users/login", {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({id: id, password: password})
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ id: id, password: password }),
     });
 
     if (!response.ok) {
@@ -12,8 +15,8 @@ export const userLogin = async (id:string, password:string):Promise<string> => {
 
     const token = await response.json();
     return token;
-  }catch(error){
-    console.log('Login Error: ', error);
+  } catch (error) {
+    console.log("Login Error: ", error);
     throw error;
   }
-}
+};

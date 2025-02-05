@@ -5,12 +5,12 @@ import { Robot } from "@/types/selectOptionsTypes";
 
 import SelectedDataContext from "./SelectedDataContext";
 
-
 const SelectedDataContextProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
-const [selectedOperationAndDate, setSelectedOperationAndDate] = useState<OperationAndDate | null>(null);
+  const [selectedDrone, setSelectedDrone] = useState<Robot | null>(null);
+  const [selectedOperationAndDate, setSelectedOperationAndDate] =
+    useState<OperationAndDate | null>(null);
 
   return (
     <SelectedDataContext.Provider

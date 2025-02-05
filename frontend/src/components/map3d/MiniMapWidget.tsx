@@ -13,4 +13,4 @@ const MiniMapWidget = ({ positionData }: MiniMapWidgetProp) => {
   );
 };
 
-export default MiniMapWidget
+export default MiniMapWidget;

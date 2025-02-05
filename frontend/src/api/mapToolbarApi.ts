@@ -1,7 +1,6 @@
 import { MSG_ID } from "@/constants";
 import { TelemetryAttitudeData } from "@/types/telemetryAttitudeDataTypes";
 
-
 export const fetchAttitudeDataByRobotAndOperation = async (
   robotId: string,
   operationId: string,
@@ -12,7 +11,7 @@ export const fetchAttitudeDataByRobotAndOperation = async (
 
   const url = `http://localhost:3000/telemetries?robot=${encodeURIComponent(robotId)}&operation=${encodeURIComponent(operationId)}`;
   console.log("Fetching telemetries with URL:", url); // TODO: 배포 이후 제거
-  
+
   const token = localStorage.getItem("token");
   const headers = {
     Authorization: `Bearer ${token}`,
@@ -20,7 +19,7 @@ export const fetchAttitudeDataByRobotAndOperation = async (
   };
 
   try {
-    const response = await fetch(url, {headers});
+    const response = await fetch(url, { headers });
     if (!response.ok) {
       if (response.status === 401) {
         // 로그인 토큰이 유효하지 않음

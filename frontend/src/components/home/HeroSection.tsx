@@ -23,7 +23,7 @@ export function HeroSection() {
   const scrollToDataList = () => {
     const element = document.getElementById("DataList");
     if (element) {
-      // 스크롤을 더 느리게 만들기 위한 코드
+
       const targetPosition = element.offsetTop;
       const startPosition = window.pageYOffset;
       const distance = targetPosition - startPosition;
@@ -42,7 +42,7 @@ export function HeroSection() {
         const run = easeInOutQuad(timeElapsed, startPosition, distance, 1500); // 1500ms로 느리게 설정
         window.scrollTo(0, run);
         if (timeElapsed < 1500) {
-          requestAnimationFrame(animateScroll); // 애니메이션 진행 중 계속 호출
+          requestAnimationFrame(animateScroll); 
         }
       };
 
@@ -88,8 +88,8 @@ export function HeroSection() {
         </div>
 
         <img
-          className="absolute bottom-20 left-0 z-10 h-full w-full object-cover"
-          src="../public/images/cloud.svg"
+          className="absolute bottom-20 left-0 h-full w-full object-cover"
+          src="../public/images/home/cloud.svg"
           alt="cloud 이미지"
         />
       </div>

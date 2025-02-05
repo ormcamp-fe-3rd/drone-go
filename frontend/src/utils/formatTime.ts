@@ -7,7 +7,7 @@ export const formatTime = (time?: Date | number | string): string => {
   }
 
   const date = time instanceof Date ? time : new Date(time);
-  
+
   if (isNaN(date.getTime())) {
     console.error("❌ formatTime: Invalid Date", time);
     return "잘못된 시간"; // 기본값

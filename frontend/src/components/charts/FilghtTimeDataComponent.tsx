@@ -34,8 +34,8 @@ const FlightTimeDataComponenet: React.FC<FlightTimeDataProps> = ({ data }) => {
     .join(":");
 
   return (
-    <div className="flex-col justify-between h-full mx-3">
-      <div className="flex items-center justify-between h-1/3">
+    <div className="mx-3 h-full flex-col justify-between">
+      <div className="flex h-1/3 items-center justify-between">
         <h2 className="text-[16px] font-bold text-[#3F5D7E]">Start Time</h2>
         <p className="text-[16px] font-bold">{formattedStartTime}</p>
       </div>
@@ -43,7 +43,7 @@ const FlightTimeDataComponenet: React.FC<FlightTimeDataProps> = ({ data }) => {
         <h2 className="text-[16px] font-bold text-[#3F5D7E]">End Time</h2>
         <p className="text-[16px] font-bold">{formattedEndTime}</p>
       </div>
-      <div className="flex items-center justify-between h-1/3">
+      <div className="flex h-1/3 items-center justify-between">
         <h2 className="text-[16px] font-bold text-[#3F5D7E]">Total Time</h2>
         <p className="text-[16px] font-bold">{formattedTotalFlightTime}</p>
       </div>

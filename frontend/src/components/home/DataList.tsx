@@ -1,18 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { fetchRobots } from "../../api/dropdownApi"; // API 함수 가져오기
+import { fetchRobots } from "../../api/dropdownApi";
 import { FlightDataCard } from "./FlightDataCard";
 
 const DroneList = () => {
-
-
   const {
     data: drones = [],
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["robots"], // Query 캐싱 키
-    queryFn: fetchRobots, // API 호출 함수
+    queryKey: ["robots"],
+    queryFn: fetchRobots,
   });
 
   if (isLoading) return <div>Loading...</div>;
@@ -35,7 +33,7 @@ const DroneList = () => {
             <FlightDataCard
               key={drone._id}
               name={drone.name}
-              img={drone.img}
+              img={`/images/chart/${drone.name}.svg`}
               robot_id={drone.robot_id}
               _id={drone._id}
               robot={op.robot}

@@ -7,17 +7,17 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        pre: ['Pretendard', 'Arial', 'sans-serif'],
+        pre: ["Pretendard", "Arial", "sans-serif"],
       },
       fontWeight: {
         black: 100,
         extralight: 200,
         light: 300,
         regular: 400,
-        medium: 500, 
-        semibold: 600, 
-        bold: 700, 
-        extrabold: 800, 
+        medium: 500,
+        semibold: 600,
+        bold: 700,
+        extrabold: 800,
       },
       borderRadius: {
         lg: "var(--radius)",

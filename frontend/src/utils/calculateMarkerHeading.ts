@@ -16,7 +16,7 @@ function calculateHeading(
     Math.cos(lat1Rad) * Math.sin(lat2Rad) -
     Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(lon2Rad - lon1Rad);
 
-  const heading = Math.atan2(x, y) * (180 / Math.PI); // 결과를 도(degree)로 변환
+  const heading = Math.atan2(x, y) * (180 / Math.PI); 
   return (heading + 360) % 360; // 0~360 범위로 보정
 }
 

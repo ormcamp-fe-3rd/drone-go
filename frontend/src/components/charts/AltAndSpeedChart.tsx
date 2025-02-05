@@ -9,14 +9,13 @@ interface ChartProps {
 }
 
 const AltAndSpeedChart: React.FC<ChartProps> = ({ data }) => {
-  const convertSpeedToKmh = (speed: number) => {
-    const speedKmh = speed * 3.6; // m/s를 km/h로 변환
-    return parseFloat(speedKmh.toFixed(2)); // 소수점 둘째 자리까지 반올림
+  const convertSpeedToMs = (speed: number) => {
+    return parseFloat(speed.toFixed(2)); // m/s
   };
 
   const convertAltToKmh = (alt: number) => {
-    const altKm = alt / 1000; // 미터를 킬로미터로 변환
-    return parseFloat(altKm.toFixed(2)); // 소수점 둘째 자리까지 반올림
+    const altKm = alt / 1000;
+    return parseFloat((altKm / 10).toFixed(2)); // 소수점 둘째 자리까지 반올림
   };
 
   // timestamp를 밀리초 단위의 숫자로 변환
@@ -27,7 +26,7 @@ const AltAndSpeedChart: React.FC<ChartProps> = ({ data }) => {
       name: "Alt",
       data: data.map((item, index) => ({
         x: timestamps[index],
-        y: convertAltToKmh(item.payload.alt || 0),
+        y: convertAltToKmh(item.alt || 0),
       })),
       type: "line",
     },
@@ -35,7 +34,7 @@ const AltAndSpeedChart: React.FC<ChartProps> = ({ data }) => {
       name: "Speed",
       data: data.map((item, index) => ({
         x: timestamps[index],
-        y: convertSpeedToKmh(item.payload.groundspeed || 0),
+        y: convertSpeedToMs(item.groundspeed || 0),
       })),
       type: "line",
     },
@@ -48,15 +47,6 @@ const AltAndSpeedChart: React.FC<ChartProps> = ({ data }) => {
       background: "#ffffff",
       toolbar: {
         show: true, // 툴바 표시 여부
-        tools: {
-          zoom: true, // 확대 툴
-          zoomin: true, // 확대 버튼
-          zoomout: true, // 축소 버튼
-          download: true, // 이미지 다운로드 버튼
-          pan: true, // 팬 이동 가능 여부
-          reset: true, // 차트 초기화 버튼
-          selection: true, // 선택 도구 활성화 여부
-        },
       },
     },
     fill: {
@@ -66,7 +56,7 @@ const AltAndSpeedChart: React.FC<ChartProps> = ({ data }) => {
     grid: {
       padding: {
         top: 10, // 차트 상단 여백
-        bottom: 40, // 차트 하단 여백
+        bottom: 15, // 차트 하단 여백
         left: 20, // 차트 왼쪽 여백
         right: 20, // 차트 오른쪽 여백
       },
@@ -152,12 +142,12 @@ const AltAndSpeedChart: React.FC<ChartProps> = ({ data }) => {
     },
   };
   return (
-    <div className="mr-2">
+    <div className="mr-2 h-full">
       <ReactApexChart
         options={chartOptions}
         series={chartSeries}
         type="line"
-        height={350}
+        height="100%"
       />
     </div>
   );

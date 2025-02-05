@@ -7,11 +7,15 @@ interface CurrentTimeContextType {
 
 // 초기값 설정
 const CurrentTimeContext = createContext<CurrentTimeContextType | undefined>(
-  undefined
+  undefined,
 );
 
 // Context Provider 생성
-export const CurrentTimeProvider = ({ children }: { children: React.ReactNode }) => {
+export const CurrentTimeProvider = ({
+  children,
+}: {
+  children: React.ReactNode;
+}) => {
   const [currentTime, setCurrentTime] = useState(0);
 
   return (
