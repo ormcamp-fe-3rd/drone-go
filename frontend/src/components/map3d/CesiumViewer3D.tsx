@@ -21,7 +21,7 @@ interface CesiumViewerProps {
   positionData: FormattedTelemetryPositionData[] | null;
 }
 
-const CesiumViewer: React.FC<CesiumViewerProps> = ({ positionData }) => {
+const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
   const cesiumContainerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const modelEntityRef = useRef<Cesium.Entity | null>(null);
@@ -294,7 +294,7 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({ positionData }) => {
   );
 };
 
-export default CesiumViewer;
+export default CesiumViewer3D;
 
 const initViewer = async (
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>,
