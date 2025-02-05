@@ -11,7 +11,7 @@ export const fetchTelemetryData = async (
   }
 
   try {
-    const { data } = await apiClient.get<Telemetry[]>("/telemetries", {
+    const { data } = await apiClient.get<Telemetry[]>("/telemetries/map", {
       params: { operation: operationId, robot: robotId },
     });
 
