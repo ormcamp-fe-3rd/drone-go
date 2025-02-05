@@ -34,7 +34,7 @@ const WeatherWidget = ({ positionData }: WeatherProps) => {
           curr.timestamp > latest.timestamp ? curr : latest
         )
       : null;
-  }, [positionData]);
+  }, [positionData, positionData?.map(p => p.timestamp)]);
 
   useEffect(() => {
     if (!latestPosition) {
@@ -60,7 +60,9 @@ const WeatherWidget = ({ positionData }: WeatherProps) => {
 
         console.log("🌡️ 온도:", temperature, "💨 풍속:", windSpeed, "🧭 풍향:", windDirection);
 
-        setWeather({ temperature, windSpeed, windDirection, status, icon });
+        const windSpeedInKmh = windSpeed * 3.6; // m/s -> km/h
+
+        setWeather({ temperature, windSpeed: windSpeedInKmh, windDirection, status, icon });
       } else {
         setWeather({ temperature: 0, windSpeed: 0, windDirection: 0, status: "정보 없음", icon: "" });
       }
@@ -68,18 +70,18 @@ const WeatherWidget = ({ positionData }: WeatherProps) => {
     };
 
     loadWeather();
-  }, [latestPosition]);
+  }, [latestPosition?.timestamp]);
 
   if (isLoading) {
     return (
-      <div className="relative mx-6 mt-2 flex h-[5vh] w-[30vw] max-w-[17rem] items-center justify-center rounded-[10px] bg-white bg-opacity-60 px-2 text-center text-sm font-bold sm:grid md:grid-cols-[1fr_0.5fr_1fr]">
+      <div className="relative mx-6 mt-2 flex h-[5vh] w-[30vw] max-w-[17rem] items-center justify-center rounded-[10px] bg-white bg-opacity-90 px-2 text-center text-sm font-bold sm:grid md:grid-cols-[1fr_0.5fr_1fr]">
         Loading...
       </div>
     );
   }
 
   return (
-    <div className="relative mx-6 mt-2 h-[5vh] w-[30vw] max-w-[17rem] grid-cols-[0.5fr_0.5fr_1.5fr] items-center rounded-[10px] bg-white bg-opacity-90 px-2 text-center text-sm font-bold sm:grid md:grid-cols-[1fr_0.7fr_0.8fr]">
+    <div className="relative mx-6 mt-2 h-[5vh] w-[30vw] max-w-[19rem] grid-cols-[0.5fr_0.5fr_1.5fr] items-center rounded-[10px] bg-white bg-opacity-90 px-2 text-center text-sm font-bold sm:grid md:grid-cols-[1fr_0.5fr_1fr]">
       <div className="flex items-center border-r-2 border-none border-[#B2B2B7] md:border-solid">
         {weather.icon ? <img src={weather.icon} alt={weather.status} className="mr-2 h-7 w-7" /> : null}
         <p className="hidden h-6 md:flex">{weather.status}</p>
@@ -88,7 +90,7 @@ const WeatherWidget = ({ positionData }: WeatherProps) => {
         {weather.temperature}°C
       </div>
       <div className="h-6 text-right">
-        {weather.windSpeed} m/s ({getWindDirection(weather.windDirection || 0)})
+        {weather.windSpeed} km/h ({getWindDirection(weather.windDirection || 0)})
       </div>
     </div>
   );

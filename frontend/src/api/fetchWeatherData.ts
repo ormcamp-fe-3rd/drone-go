@@ -25,7 +25,7 @@ export const fetchWeatherData = async (
     const formattedDate = date.replace(/-/g, ""); // YYYYMMDD 형식으로 변환
     const cacheKey = `${latitude}-${longitude}-${formattedDate}`;
 
-    const cachedData = sessionStorage.getItem(cacheKey);
+    const cachedData = localStorage.getItem(cacheKey);
     if (cachedData) {
       console.log(`🟢 캐시된 날씨 데이터 사용: ${cacheKey}`);
       return JSON.parse(cachedData);
@@ -65,7 +65,7 @@ export const fetchWeatherData = async (
         };
 
         // 캐싱
-        sessionStorage.setItem(cacheKey, JSON.stringify(parsedData));
+        localStorage.setItem(cacheKey, JSON.stringify(parsedData));
 
         return parsedData;
       })
