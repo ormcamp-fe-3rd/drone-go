@@ -28,8 +28,10 @@ export default function Map3dPage() {
   const { isAuth } = useContext(AuthContext);
   const navigate = useNavigate();
   const [is2dMap, setIs2dMap] = useState(true);
-  const [ positionData, setPositionData ] = useState<FormattedTelemetryPositionData[] | null>(null);
-  const [ stateData, setStateData ] = useState<Telemetry2dData[] | null>(null);
+  const [positionData, setPositionData] = useState<
+    FormattedTelemetryPositionData[] | null
+  >(null);
+  const [stateData, setStateData] = useState<Telemetry2dData[] | null>(null);
 
   useEffect(() => {
     if (isAuth === null) return;
@@ -44,29 +46,30 @@ export default function Map3dPage() {
     selectedOperationAndDate,
   );
 
-  useEffect(()=>{
+  useEffect(() => {
     const rawPositionData =
       data?.filter((entry) => entry.msgId === MSG_ID.GLOBAL_POSITION) ?? [];
     setPositionData(
       rawPositionData.length > 0
         ? formatAndSortPositionData(rawPositionData)
-        : null);
+        : null,
+    );
     const rawStateData =
       data?.filter((entry) => entry.msgId === MSG_ID.STATUSTEXT) ?? [];
     setStateData(rawStateData.length > 0 ? rawStateData : null);
-
-
-  },[is2dMap, data])
+  }, [is2dMap, data]);
   if (error) {
     return "An error has occurred: " + error.message;
   }
 
   // 속도데이터
-  const rawSpeedData = data?.filter((entry) => entry.msgId === MSG_ID.VFR_HUD) ?? [];
+  const rawSpeedData =
+    data?.filter((entry) => entry.msgId === MSG_ID.VFR_HUD) ?? [];
   const speedData = rawSpeedData.length > 0 ? rawSpeedData : null;
 
   //헤딩 데이터
-  const rawHeadingData = data?.filter((entry) => entry.msgId === MSG_ID.VFR_HUD) ?? [];
+  const rawHeadingData =
+    data?.filter((entry) => entry.msgId === MSG_ID.VFR_HUD) ?? [];
   const headingData = rawHeadingData.length > 0 ? rawHeadingData : null;
 
   //드론 모습 상세 데이터"roll", "pitch", "yaw"
@@ -126,7 +129,7 @@ export default function Map3dPage() {
             <CesiumViewer3D positionData={positionData} />
           )}
 
-          {!selectedOperationAndDate && 
+          {!selectedOperationAndDate && (
             <div className="fixed flex h-screen w-screen items-center justify-center">
               <div className="pointer-events-none flex h-20 w-56 items-center rounded-2xl bg-white bg-opacity-90 drop-shadow-md">
                 <p className="w-full text-center">
@@ -134,10 +137,8 @@ export default function Map3dPage() {
                 </p>
               </div>
             </div>
-          }
-          {isLoading && 
-            <LoadingMessage/>}
-          
+          )}
+          {isLoading && <LoadingMessage />}
         </PhaseContextProvider>
       </CurrentTimeProvider>
     </>
