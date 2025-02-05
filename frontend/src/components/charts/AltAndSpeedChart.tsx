@@ -9,7 +9,6 @@ interface ChartProps {
 }
 
 const AltAndSpeedChart: React.FC<ChartProps> = ({ data }) => {
-  console.log("data", data);
   const convertSpeedToMs = (speed: number) => {
     return parseFloat(speed.toFixed(2)); // m/s
   };

@@ -1,7 +1,5 @@
-import { MSG_ID } from "@/constants";
 import { AltAndSpeedData } from "@/types/altAndspeedDataType";
 
-import { TelemetryData } from "../types/telemetryAllDataTypes";
 import { ProcessedTelemetryBatteryData } from "../types/telemetryBatteryDataTypes";
 import { ProcessedTelemetrySatellitesData } from "../types/telemetrySatellitesDataTypes";
 import { ProcessedTelemetryTextData } from "../types/telemetryTextData";
@@ -45,21 +43,12 @@ export const fetchTelemetriesByRobotAndOperation = async (
       throw new Error(`Failed to fetch telemetries: ${response.statusText}`);
     }
     const data = await response.json();
-    console.log("📌 Full API Response:", data);
+
     // 데이터가 객체 형태로 반환되므로, 각 프로퍼티를 배열로 처리
     const batteryData = data.batteryData || [];
     const textData = data.textData || [];
     const satellitesData = data.satellitesData || [];
     const altAndSpeedData = data.altAndSpeedData || [];
-
-    console.log("📌 altAndSpeedData:", altAndSpeedData); // altAndSpeedData 확인
-
-    console.log("📌 Final Processed Data:", {
-      batteryData,
-      textData,
-      satellitesData,
-      altAndSpeedData,
-    });
 
     // 배열이 아니라면 빈 배열로 처리
     if (
