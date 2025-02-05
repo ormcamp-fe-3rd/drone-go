@@ -1,7 +1,5 @@
-import { MSG_ID } from "@/constants";
 import { AltAndSpeedData } from "@/types/altAndspeedDataType";
 
-import { TelemetryData } from "../types/telemetryAllDataTypes";
 import { ProcessedTelemetryBatteryData } from "../types/telemetryBatteryDataTypes";
 import { ProcessedTelemetrySatellitesData } from "../types/telemetrySatellitesDataTypes";
 import { ProcessedTelemetryTextData } from "../types/telemetryTextData";
