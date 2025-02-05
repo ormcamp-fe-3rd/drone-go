@@ -74,7 +74,6 @@ export default function Map2D({ positionData }: Props) {
       const map = mapRef.current.getMap();
       map.jumpTo({
         center: [positionData[0].payload.lon, positionData[0].payload.lat],
-        zoom: 12,
       });
 
       if (!markerRef.current) {
