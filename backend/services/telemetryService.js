@@ -62,5 +62,4 @@ const getFilteredTelemetries = async (robotId, operationId, pageKey) => {
         throw new Error(`Error fetching filtered telemetries: ${error.message}`);
     }
 };
-
 module.exports = { getFilteredTelemetries };

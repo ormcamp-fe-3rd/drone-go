@@ -1,4 +1,3 @@
-import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { twMerge } from "tailwind-merge";
 import { fetchRobots, fetchOperationsByRobot } from "../../api/dropdownApi";
@@ -10,6 +9,7 @@ interface OperationAndDate {
   timestamp: string; // 정렬용 원본 데이터
   name: string;
 }
+
 interface DropdownSectionProps {
   className?: string; // className을 받을 수 있도록 추가
   selectedDrone: Robot | null;
@@ -37,7 +37,7 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
   });
 
   const {
-    data: operationAndDates = [],
+    data: operationAndDates = [], // operationAndDates의 타입을 명시합니다.
     isLoading: isOperationsLoading,
     error: operationsError,
   } = useQuery({
@@ -45,7 +45,7 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
     queryFn: () => fetchOperationsByRobot(selectedDrone?._id || ""),
     enabled: !!selectedDrone?._id,
     select: (data) => {
-      const processedData = data.map((item) => {
+      const processedData = data.map((item: { operationId: string; dates: any[] }) => {
         const operationId = item.operationId;
         const timestamp =
           item.dates && item.dates[0] ? item.dates[0] : "No Date Available";
@@ -55,7 +55,7 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
         return { operationId, timestamp: actualTimestamp };
       });
 
-      const sortedData = processedData.sort((a, b) => {
+      const sortedData = processedData.sort((a: OperationAndDate, b: OperationAndDate) => {
         const timeA = new Date(a.timestamp).getTime();
         const timeB = new Date(b.timestamp).getTime();
 
@@ -94,7 +94,7 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
   return (
     <div
       className={twMerge(
-        `mx-3 flex flex-wrap justify-center gap-3 md:flex-nowrap md:justify-end ${className}`,
+        `mx-3 flex flex-wrap justify-center gap-3 md:flex-nowrap md:justify-end ${className}`
       )}
     >
       {!isRobotsLoading && (
@@ -112,7 +112,7 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
               : "Select Operation | Date"
           }
           onSelect={handleOperationAndDateSelect}
-          data={operationAndDates.map((item, index) => {
+          data={operationAndDates.map((item: OperationAndDate, index: number) => {
             const formattedTimestamp = new Date(item.timestamp);
             const localDate =
               formattedTimestamp instanceof Date &&

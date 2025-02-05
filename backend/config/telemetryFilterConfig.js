@@ -16,4 +16,4 @@ const telemetryFilterConfig = {
     },
   };
   
-  module.exports = telemetryFilterConfig;  
+  module.exports = telemetryFilterConfig;

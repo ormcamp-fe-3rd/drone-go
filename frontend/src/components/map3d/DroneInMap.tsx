@@ -1,14 +1,7 @@
-import { useFrame, useLoader } from "@react-three/fiber";
-import { useEffect, useRef, useState } from "react";
+import { useLoader } from "@react-three/fiber";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
-
-interface DroneProp {
-  dragPosition: {
-    x: number;
-    y: number;
-  } | null;
-}
 
 export default function DroneInMap() {
   const glb = useLoader(GLTFLoader, "/objects/drone.glb");
