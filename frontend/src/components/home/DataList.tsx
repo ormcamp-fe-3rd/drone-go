@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { fetchRobots } from "../../api/dropdownApi";
+import { fetchRobots } from "../../api/dropdownApi"; // API 함수 가져오기
 import { FlightDataCard } from "./FlightDataCard";
 
 const DroneList = () => {
@@ -9,10 +9,9 @@ const DroneList = () => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["robots"],
-    queryFn: fetchRobots,
+    queryKey: ["robots"], // Query 캐싱 키
+    queryFn: fetchRobots, // API 호출 함수
   });
-
   if (isLoading) return <div>Loading...</div>;
   if (error instanceof Error) return <div>Error: {error.message}</div>;
 

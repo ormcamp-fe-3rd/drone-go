@@ -6,7 +6,7 @@ export const fetchRobots = async () => {
     "Content-Type": "application/json",
   };
 
-  const response = await fetch(import.meta.env.VITE_API_URL, { headers });
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/robots`, { headers });
   if (!response.ok) {
     localStorage.removeItem("token");
     alert("Your session has expired. Please log in again.");
