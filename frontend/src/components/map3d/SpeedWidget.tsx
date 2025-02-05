@@ -11,7 +11,7 @@ interface SpeedWidgetProps {
 
 const SpeedWidget = ({ speedData }: SpeedWidgetProps) => {
   const { phase } = useContext(PhaseContext);
-  const src = "/public/images/rocket-01.svg";
+  const src = "/images/map/speed-widget.svg";
 
   // 속도 변환 함수 (knots → m/s 변환)
   const convertSpeed = (knots: number) => knots * 0.514444;

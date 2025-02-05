@@ -46,7 +46,7 @@ export default function MiniMap({ positionData }: Props) {
 
       if(!markerRef.current){
         markerRef.current = new mapboxgl.Marker({
-          element: createMarkerElement("/images/droneMarker.svg"),
+          element: createMarkerElement("/images/map/droneMarker.svg"),
         })
         .setLngLat([positionData[0].payload.lon, positionData[0].payload.lat])
         .addTo(map);

@@ -8,7 +8,7 @@ interface AltitudeWidgetProp{
 }
 const AltitudeWidget = ({positionData}:AltitudeWidgetProp) => {
   const { phase } = useContext(PhaseContext);
-  const src = "/images/navigator-01.svg";
+  const src = "/images/map/altitude-widget.svg";
 
   const altitude = positionData
     ? positionData[Math.floor(phase * (positionData.length - 1))].payload.alt

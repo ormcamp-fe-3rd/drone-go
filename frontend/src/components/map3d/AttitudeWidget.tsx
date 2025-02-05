@@ -76,7 +76,7 @@ const AttitudeWidget = ({
         {/* 배터리 */}
         <div className="battery flex items-center">
           <img
-            src="/images/battery-charging-01.svg"
+            src="/images/map/battery-charging-01.svg"
             alt="Battery"
             className="mr-2"
           />

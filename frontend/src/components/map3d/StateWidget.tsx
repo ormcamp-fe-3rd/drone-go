@@ -20,7 +20,7 @@ const StateWidget = ({ stateData, selectedDrone, selectedOperationAndDate }: Sta
   
   const { currentTime } = useCurrentTime();
   
-  const src = "/public/images/setting-error-03.svg";
+  const src = "/images/map/state-widget.svg";
 
   // 드론, 오퍼레이션 변경 시 상태 초기화
   useEffect(() => {
@@ -63,8 +63,8 @@ const StateWidget = ({ stateData, selectedDrone, selectedOperationAndDate }: Sta
           <img
             src={
               isExpanded
-                ? "/public/images/togglebtn.svg"
-                : "/public/images/Vector 17.svg"
+                ? "/images/map/togglebtn.svg"
+                : "/images/map/togglebtn-up.svg"
             }
             alt={isExpanded ? "접기" : "펼치기"}
             className="h-4 w-4"
