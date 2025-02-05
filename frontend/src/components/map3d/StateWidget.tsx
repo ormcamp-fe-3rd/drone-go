@@ -63,7 +63,8 @@ const StateWidget = ({
       // 새로운 메시지가 있으면 빨간 점을 켜도록 상태 업데이트
       if (newMessages.length > 0) {
         if(isExpanded){
-          setNewMessage(false);
+          setNewMessage(true);
+          setTimeout(()=> setNewMessage(false), 5000)
         }else{
           setNewMessage(true);
         }
