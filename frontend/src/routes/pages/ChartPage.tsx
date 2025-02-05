@@ -215,7 +215,7 @@ const ChartPage: React.FC = () => {
           altAndSpeedData,
           <AltAndSpeedChart data={altAndSpeedData} />,
         )}
-        {isLoading && <LoadingMessage className="-top-10"/>}
+        {isLoading && <LoadingMessage />}
       </div>
     </div>
   );
