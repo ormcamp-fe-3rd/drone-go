@@ -54,7 +54,7 @@ const ChartPage: React.FC = () => {
         name: name,
         robot_id: robotId,
       };
-      setSelectedDrone(drone)
+      setSelectedDrone(drone);
     }
   }, [robotId, name, _id, setSelectedDrone]);
 
@@ -129,18 +129,20 @@ const ChartPage: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F3F2F9]">
+    <div className="flex h-screen flex-col bg-[#F3F2F9]">
       <DetailedDataHeader backgroundOpacity={100}>
-        <HeaderChartBtns exportToExcel={() =>
-          exportToExcel(
-            batteryData,
-            textData,
-            satellitesData,
-            altAndSpeedData,
-            selectedDrone?.name ?? null,
-            selectedOperationAndDate?.name ?? null,
-          )
-        } />
+        <HeaderChartBtns
+          exportToExcel={() =>
+            exportToExcel(
+              batteryData,
+              textData,
+              satellitesData,
+              altAndSpeedData,
+              selectedDrone?.name ?? null,
+              selectedOperationAndDate?.name ?? null,
+            )
+          }
+        />
       </DetailedDataHeader>
       <div className="mx-10 mb-4 grid min-h-0 flex-grow grid-cols-1 gap-3 lg:grid-cols-2 lg:grid-rows-2">
         {/* 드론 정보 카드 */}
