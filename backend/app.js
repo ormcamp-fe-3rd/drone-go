@@ -8,9 +8,8 @@ const app = express();
 
 const NASA_API_KEY = process.env.NASA_API_KEY;
 
-console.log("🔑 NASA API Key Loaded:", NASA_API_KEY); // 확인용 (배포 시 제거)
 
-// ✅ 미들웨어 설정
+// 미들웨어 설정
 app.use(cors());
 app.use(express.json());
 
@@ -21,7 +20,7 @@ app.get('/', (req, res) => {
   res.json({ success: true });
 });
 
-// 🚀 NASA API 요청 엔드포인트 수정
+// NASA API 요청 엔드포인트 수정
 app.get('/weather', async (req, res) => {
   try {
     let { latitude, longitude, date } = req.query;
@@ -30,7 +29,7 @@ app.get('/weather', async (req, res) => {
       return res.status(400).json({ error: "latitude, longitude, date 필수" });
     }
 
-    // 🛠 날짜 형식 변환 (YYYY-MM-DD → YYYYMMDD)
+    // 날짜 형식 변환 (YYYY-MM-DD → YYYYMMDD)
     date = date.replace(/-/g, "");
 
     const nasaUrl = `https://power.larc.nasa.gov/api/temporal/daily/point?latitude=${latitude}&longitude=${longitude}&start=${date}&end=${date}&parameters=T2M,WS10M,WD10M&community=RE&format=JSON&api_key=${NASA_API_KEY}`;
@@ -57,15 +56,16 @@ app.get('/weather', async (req, res) => {
   }
 });
 
-// ✅ 추가된 라우트 로딩
+// 추가된 라우트 로딩
 app.use(require("./routes"));
 
-// ✅ 404 처리 미들웨어
+// 404 처리 미들웨어
 app.use((req, res) => {
   res.status(404).json({ message: '잘못된 경로로 요청되었음' });
 });
 
-// ✅ 서버 실행
-app.listen(3000, () => {
-  console.log('✅ 서버 실행 중: http://localhost:3000');
+// 서버 실행
+const port = process.env.EXPRESS_PORT || 3000;  // 포트 설정
+app.listen(port, () => {
+  console.log(`✅ 서버 실행 중`);
 });

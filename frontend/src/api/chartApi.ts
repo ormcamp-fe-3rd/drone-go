@@ -17,7 +17,7 @@ export const fetchTelemetriesByRobotAndOperation = async (
     throw new Error("Both robotId and operationId are required");
   }
 
-  const url = `http://localhost:3000/telemetries?robot=${encodeURIComponent(robotId)}&operation=${encodeURIComponent(operationId)}`;
+  const url = `${import.meta.env.VITE_API_URL}/telemetries?robot=${encodeURIComponent(robotId)}&operation=${encodeURIComponent(operationId)}`;
 
   const token = localStorage.getItem("token");
   const headers = {

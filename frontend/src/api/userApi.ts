@@ -3,11 +3,14 @@ export const userLogin = async (
   password: string,
 ): Promise<string> => {
   try {
-    const response = await fetch("http://localhost:3000/users/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ id: id, password: password }),
-    });
+    const response = await fetch(
+      `${import.meta.env.VITE_API_URL}/users/login`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ id: id, password: password }),
+      },
+    );
 
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);

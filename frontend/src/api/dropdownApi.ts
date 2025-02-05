@@ -6,7 +6,7 @@ export const fetchRobots = async () => {
     "Content-Type": "application/json",
   };
 
-  const response = await fetch("http://localhost:3000/robots", { headers });
+  const response = await fetch(import.meta.env.VITE_API_URL, { headers });
   if (!response.ok) {
     localStorage.removeItem("token");
     alert("Your session has expired. Please log in again.");
@@ -30,7 +30,7 @@ export const fetchOperationsByRobot = async (robotId: string) => {
   };
 
   try {
-    const operationsUrl = `http://localhost:3000/operations?robot=${encodeURIComponent(robotId)}`;
+    const operationsUrl = `${import.meta.env.VITE_API_URL}/operations?robot=${encodeURIComponent(robotId)}`;
     const operationsResponse = await fetch(operationsUrl, { headers });
 
     if (!operationsResponse.ok) {
@@ -45,7 +45,7 @@ export const fetchOperationsByRobot = async (robotId: string) => {
     const operationIds = operations
       .map((op: { _id: string }) => op._id)
       .join(",");
-    const telemetriesUrl = `http://localhost:3000/telemetries/distinctDates?robot=${encodeURIComponent(
+    const telemetriesUrl = `${import.meta.env.VITE_API_URL}/telemetries/distinctDates?robot=${encodeURIComponent(
       robotId,
     )}&operations=${encodeURIComponent(operationIds)}`;
     const telemetriesResponse = await fetch(telemetriesUrl, { headers });

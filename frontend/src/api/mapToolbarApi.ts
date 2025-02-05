@@ -9,7 +9,7 @@ export const fetchAttitudeDataByRobotAndOperation = async (
     throw new Error("OperationId are required");
   }
 
-  const url = `http://localhost:3000/telemetries?robot=${encodeURIComponent(robotId)}&operation=${encodeURIComponent(operationId)}`;
+  const url = `${import.meta.env.VITE_API_URL}/telemetries?robot=${encodeURIComponent(robotId)}&operation=${encodeURIComponent(operationId)}`;
   console.log("Fetching telemetries with URL:", url); // TODO: 배포 이후 제거
 
   const token = localStorage.getItem("token");

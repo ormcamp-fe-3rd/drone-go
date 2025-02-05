@@ -4,8 +4,8 @@ interface WeatherData {
   WD10M?: number; // 풍향 (degrees)
 }
 
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+// const API_BASE_URL =
+//   import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
 export const fetchWeatherData = async (
   latitude: number,
@@ -18,7 +18,7 @@ export const fetchWeatherData = async (
     );
 
     const response = await fetch(
-      `${API_BASE_URL}/weather?latitude=${latitude}&longitude=${longitude}&date=${date}`,
+      `${import.meta.env.VITE_API_URL}/weather?latitude=${latitude}&longitude=${longitude}&date=${date}`,
     );
     if (!response.ok) throw new Error(`백엔드 응답 오류: ${response.status}`);
 
