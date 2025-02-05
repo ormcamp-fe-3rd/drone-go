@@ -89,25 +89,27 @@ const StateWidget = ({
     <div
       className={`relative mx-6 mt-2 hidden w-[30vw] max-w-[19rem] rounded-[10px] bg-white bg-opacity-80 px-2 text-center text-sm font-bold hover:bg-opacity-80 sm:block ${isExpanded ? "rounded-b-none" : ""}`}
     >
-      <div className="flex h-[5vh] items-center justify-between">
-        <div className="flex items-center">
-          <img src={src} alt="State" />
-          <p className="pl-2">State</p>
-          {/* 빨간 점 */}
-          {newMessage && (
-            <span className="top-[50%] ml-1 h-2 w-2 rounded-full bg-red-500"></span>
-          )}
-        </div>
-        <button onClick={handleToggle} className="flex items-center">
-          <img
-            src={
-              isExpanded
-                ? "/images/map/togglebtn.svg"
-                : "/images/map/togglebtn-up.svg"
-            }
-            alt={isExpanded ? "접기" : "펼치기"}
-            className="h-4 w-4"
-          />
+      <div className="flex h-[5vh] items-center justify-between w-full">
+        <button onClick={handleToggle} className="flex w-full justify-between items-center">
+          <div className="flex items-center justify-between ">
+            <img src={src} alt="State" />
+            <p className="pl-2">State</p>
+            {/* 빨간 점 */}
+            {newMessage && (
+              <span className="top-[50%] ml-1 h-2 w-2 rounded-full bg-red-500"></span>
+            )}
+          </div>
+          <div className="flex items-center justify-center">
+            <img
+              src={
+                isExpanded
+                  ? "/images/map/togglebtn.svg"
+                  : "/images/map/togglebtn-up.svg"
+              }
+              alt={isExpanded ? "접기" : "펼치기"}
+              className="h-4 w-4"
+            />
+          </div>
         </button>
       </div>
 
