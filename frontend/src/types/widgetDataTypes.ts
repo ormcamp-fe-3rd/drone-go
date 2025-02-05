@@ -6,7 +6,6 @@ export interface WidgetData {
 }
 
 export interface StateValue {
-    state: string;
-    time: string;
-  }
-  
+  state: string;
+  time: string;
+}

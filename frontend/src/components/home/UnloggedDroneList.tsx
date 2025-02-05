@@ -25,13 +25,6 @@ export default function UnloggedDroneList() {
             aria-hidden="false"
             tabIndex={-1}
           >
-            {/* <button tabIndex={0} className="absolute right-10 top-10 h-6 w-6">
-              <img
-                className="cursor-pointer"
-                src="/icons/close.svg"
-                alt="Close"
-              />
-            </button> */}
             <p id="login-modal-title" className="mb-12 text-2xl font-bold">
               Login required to continue
             </p>

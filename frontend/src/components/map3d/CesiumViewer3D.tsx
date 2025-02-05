@@ -1,5 +1,11 @@
 import * as Cesium from "cesium";
-import React, { useCallback, useContext, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { degToRad } from "three/src/math/MathUtils";
 
 import { PhaseContext } from "@/contexts/PhaseContext";
@@ -15,9 +21,7 @@ interface CesiumViewerProps {
   positionData: FormattedTelemetryPositionData[] | null;
 }
 
-const CesiumViewer: React.FC<CesiumViewerProps> = ({
-  positionData,
-}) => {
+const CesiumViewer: React.FC<CesiumViewerProps> = ({ positionData }) => {
   const cesiumContainerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const modelEntityRef = useRef<Cesium.Entity | null>(null);
@@ -100,13 +104,13 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
           prevPosition,
           new Cesium.Cartesian3(),
         );
-        
+
         if (Cesium.Cartesian3.magnitudeSquared(direction) > 0) {
           Cesium.Cartesian3.normalize(direction, direction);
           const heading = Math.atan2(direction.y, direction.x);
           const orientation = Cesium.Transforms.headingPitchRollQuaternion(
             position,
-            new Cesium.HeadingPitchRoll(heading+adjustDroneHeading, 0, 0),
+            new Cesium.HeadingPitchRoll(heading + adjustDroneHeading, 0, 0),
           );
           modelEntityRef.current.orientation = new Cesium.ConstantProperty(
             orientation,
@@ -174,10 +178,10 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
     updateDronePosition(0);
 
     setShowInitialInfo(true);
-    const timer = setTimeout(()=>{
+    const timer = setTimeout(() => {
       setShowInitialInfo(false);
-    }, 5000)
-    
+    }, 5000);
+
     return () => clearTimeout(timer);
   }, [positionData, isInitialized, updateDronePosition]);
 
@@ -238,11 +242,11 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
   const handleStop = () => {
     setIsPlaying(false);
     setPhase(0);
-    if(animationRef.current){
+    if (animationRef.current) {
       cancelAnimationFrame(animationRef.current);
       lastTimeRef.current = 0;
     }
-  }
+  };
 
   return (
     <>
@@ -258,10 +262,10 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
           }}
         />
         {showInitialInfo && (
-          <div className="fixed flex items-center justify-center left-1/2 -translate-x-1/2 top-1/2 -translate-y-1/2">
+          <div className="fixed left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center">
             <div className="pointer-events-none flex h-20 w-56 items-center rounded-2xl bg-white bg-opacity-90 drop-shadow-md">
               <p className="w-full text-center">
-                Scroll to zoom out <br/> for a better view! 
+                Scroll to zoom out <br /> for a better view!
               </p>
             </div>
           </div>
@@ -291,7 +295,6 @@ const CesiumViewer: React.FC<CesiumViewerProps> = ({
 };
 
 export default CesiumViewer;
-
 
 const initViewer = async (
   viewerRef: React.MutableRefObject<Cesium.Viewer | null>,

@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
+
 import { fetchWeatherData } from "@/api/fetchWeatherData";
 import {
+  getWeatherIcon,
   getWeatherStatus,
   getWindDirection,
-  getWeatherIcon,
 } from "@/utils/formatWeather";
 
 interface WeatherProps {

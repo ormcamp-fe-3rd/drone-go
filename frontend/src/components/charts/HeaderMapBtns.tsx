@@ -7,18 +7,20 @@ interface Props {
   switchMap: () => void;
 }
 
-export default function HeaderMapBtns({is2d, switchMap}: Props){
+export default function HeaderMapBtns({ is2d, switchMap }: Props) {
   const to2d = "/icons/to2d.svg";
   const to3d = "/icons/to3d.svg";
 
   return (
     <>
-      <Button className="h-16 w-16 min-w-[64px] rounded-[10px] bg-white" 
-        onClick={switchMap}>
+      <Button
+        className="h-16 w-16 min-w-[64px] rounded-[10px] bg-white"
+        onClick={switchMap}
+      >
         <img
           src={is2d ? to3d : to2d}
-          alt={is2d ? "3d map": "2d map"}
-          className="w-12 h-12"
+          alt={is2d ? "3d map" : "2d map"}
+          className="h-12 w-12"
         />
       </Button>
       <Link to="/chart">
@@ -26,7 +28,7 @@ export default function HeaderMapBtns({is2d, switchMap}: Props){
           <img
             src="/icons/charts.svg"
             alt="Charts Icon"
-            className="object-contain w-16 h-16"
+            className="h-16 w-16 object-contain"
           />
         </Button>
       </Link>

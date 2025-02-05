@@ -1,10 +1,16 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@radix-ui/react-select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@radix-ui/react-select";
 
 interface ProgressBarBtnProps {
   isPlaying: boolean;
   onClickPlay: () => void;
   onClickPause: () => void;
-  onChangeSpeed: (value:string) => void;
+  onChangeSpeed: (value: string) => void;
   onClickStop: () => void;
   speed: number;
 }
@@ -16,7 +22,6 @@ const ProgressBarBtns = ({
   onClickStop,
   speed,
 }: ProgressBarBtnProps) => {
-
   return (
     <div className="absolute left-1/2 mt-4 -translate-x-1/2 transform">
       <div className="flex h-7 w-28 items-center justify-center rounded-xl bg-white bg-opacity-50">

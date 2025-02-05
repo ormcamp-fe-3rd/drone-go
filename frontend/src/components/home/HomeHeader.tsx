@@ -8,25 +8,25 @@ import { SignButton } from "./SignButton";
 export function HomeHeader() {
   const { isAuth, setIsAuth } = useContext(AuthContext);
 
-
   const handleSignUpClick = () => {
     alert("The SIGN UP feature is not available yet.🔧");
   };
 
   const handleSignInClick = () => {
-    if(isAuth){ // SIGN OUT 클릭 시 로그아웃
+    if (isAuth) {
+      // SIGN OUT 클릭 시 로그아웃
       setIsAuth(false);
       localStorage.removeItem("token");
-      alert("Successfully Signed Out")
-    }else{
-      handleScroll()
+      alert("Successfully Signed Out");
+    } else {
+      handleScroll();
     }
   };
 
   const handleScroll = () => {
     const section = document.getElementById("unlogged-data-list");
-    section?.scrollIntoView({behavior: "smooth"})
-  }
+    section?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <div className="mx-auto flex max-w-screen-xl">
@@ -52,9 +52,9 @@ export function HomeHeader() {
             onClick={handleSignUpClick}
           />
           <SignButton
-            text={isAuth ? "SIGN OUT" : "SIGN IN" }
+            text={isAuth ? "SIGN OUT" : "SIGN IN"}
             bgColor="black"
-            onClick={handleSignInClick} 
+            onClick={handleSignInClick}
           />
         </div>
       </div>

@@ -1,5 +1,5 @@
 import FunctionSection from "@/components/about/FunctionSection";
-import ResetScrollBtn from "@/components/about/resetScrollbtn";
+import ResetScrollBtn from "@/components/about/ResetScrollBtn";
 import TeamSection from "@/components/about/TeamSection";
 import UsecaseSection from "@/components/about/UsecaseSection";
 import WelcomeSection from "@/components/about/WelcomeSection";

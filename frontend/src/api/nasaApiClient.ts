@@ -5,7 +5,7 @@ const nasaApiClient = axios.create({
   baseURL: "https://power.larc.nasa.gov/api/temporal/daily/point/",
   headers: {
     "Content-Type": "application/json",
-    "Accept": "application/json",
+    Accept: "application/json",
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", // 브라우저처럼 요청
   },
 });
@@ -21,7 +21,7 @@ nasaApiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // 응답 인터셉터 (에러 처리)
@@ -34,10 +34,13 @@ nasaApiClient.interceptors.response.use(
     } else if (error.response?.status === 403) {
       console.error("Forbidden - NASA API 접근 권한 없음");
     } else if (error.response?.status === 307) {
-      console.warn("Temporary Redirect - 경로 변경 가능성 있음", error.response.headers);
+      console.warn(
+        "Temporary Redirect - 경로 변경 가능성 있음",
+        error.response.headers,
+      );
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default nasaApiClient;

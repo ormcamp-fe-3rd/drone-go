@@ -10,7 +10,8 @@ interface Props {
 }
 
 export default function HeaderChartBtns({ exportToExcel }: Props) {
-  const { selectedDrone, selectedOperationAndDate } = useContext(SelectedDataContext);
+  const { selectedDrone, selectedOperationAndDate } =
+    useContext(SelectedDataContext);
 
   const handleExportClick = () => {
     if (!selectedDrone || !selectedOperationAndDate) {

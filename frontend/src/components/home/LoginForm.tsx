@@ -1,48 +1,52 @@
 import { useMutation } from "@tanstack/react-query";
 import { useContext } from "react";
-import { SubmitHandler,useForm } from "react-hook-form"
+import { SubmitHandler, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 
 import { userLogin } from "@/api/userApi";
 import { AuthContext } from "@/contexts/AuthContext";
 
-interface LoginInput{
+interface LoginInput {
   id: string;
   password: string;
 }
-interface Prop{
+interface Prop {
   onSuccess: () => void;
   autoFocus?: boolean;
 }
 
-export const LoginForm = ({onSuccess, autoFocus=true}: Prop) => {
-    const { register, handleSubmit, formState: {errors} } = useForm<LoginInput>()
-    const { setIsAuth } = useContext(AuthContext);
-    const navigate = useNavigate();
-    
-    const loginMutation = useMutation({
-      mutationFn: async ({id, password}: {id: string, password: string}) => {
-        return await userLogin(id, password);
-      },
-      onSuccess: (data) => {
-        setIsAuth(true);
-        localStorage.setItem("token", data);
-        setTimeout(()=> {
-          alert("Welcome aboard!");
-        },0)
-        navigate("/");
-        onSuccess();
-      },
-      onError: (error) => {
-        alert("Login failed. Please check your ID and password.");
-        console.error(error);
-      }
-    })
+export const LoginForm = ({ onSuccess, autoFocus = true }: Prop) => {
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginInput>();
+  const { setIsAuth } = useContext(AuthContext);
+  const navigate = useNavigate();
 
-    const onSubmit: SubmitHandler<LoginInput> = (input) => {
-      loginMutation.mutate(input);
-    };
-    
+  const loginMutation = useMutation({
+    mutationFn: async ({ id, password }: { id: string; password: string }) => {
+      return await userLogin(id, password);
+    },
+    onSuccess: (data) => {
+      setIsAuth(true);
+      localStorage.setItem("token", data);
+      setTimeout(() => {
+        alert("Welcome aboard!");
+      }, 0);
+      navigate("/");
+      onSuccess();
+    },
+    onError: (error) => {
+      alert("Login failed. Please check your ID and password.");
+      console.error(error);
+    },
+  });
+
+  const onSubmit: SubmitHandler<LoginInput> = (input) => {
+    loginMutation.mutate(input);
+  };
+
   return (
     <form
       onSubmit={handleSubmit(onSubmit)}
@@ -61,7 +65,7 @@ export const LoginForm = ({onSuccess, autoFocus=true}: Prop) => {
         })}
         disabled={loginMutation.isPending}
       />
-      <div className="text-sm text-red-500 h-10 leading-8">
+      <div className="h-10 text-sm leading-8 text-red-500">
         {errors.id?.message}
       </div>
       <input
@@ -71,7 +75,7 @@ export const LoginForm = ({onSuccess, autoFocus=true}: Prop) => {
         {...register("password", { required: "Password is required" })}
         disabled={loginMutation.isPending}
       />
-      <div className="text-sm text-red-500 h-10 leading-8 ">
+      <div className="h-10 text-sm leading-8 text-red-500">
         {errors.password?.message}
       </div>
       <button
@@ -83,4 +87,4 @@ export const LoginForm = ({onSuccess, autoFocus=true}: Prop) => {
       </button>
     </form>
   );
-}
+};

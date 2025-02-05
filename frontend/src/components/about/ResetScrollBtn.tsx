@@ -1,6 +1,6 @@
-import { ArrowUp } from "lucide-react";
 import gsap from "gsap";
 import { ScrollToPlugin } from "gsap/ScrollToPlugin";
+import { ArrowUp } from "lucide-react";
 
 gsap.registerPlugin(ScrollToPlugin);
 

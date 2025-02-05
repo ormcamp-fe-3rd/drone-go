@@ -119,7 +119,7 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
   return (
     <div
       className={twMerge(
-        `mx-3 flex flex-wrap justify-center gap-3 lg:flex-nowrap md:justify-end ${className}`,
+        `mx-3 flex flex-wrap justify-center gap-3 md:justify-end lg:flex-nowrap ${className}`,
       )}
     >
       {!isRobotsLoading && (

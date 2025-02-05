@@ -1,4 +1,4 @@
-export default function WelcomeSection(){
+export default function WelcomeSection() {
   return (
     <div className="flex w-full max-w-[1440px] flex-col items-center justify-center gap-10 text-center">
       <div className="text-6xl font-semibold text-title">

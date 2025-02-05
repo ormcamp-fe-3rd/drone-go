@@ -19,7 +19,7 @@ apiClient.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // 응답 인터셉터 (에러 처리)
@@ -31,7 +31,7 @@ apiClient.interceptors.response.use(
       // 로그아웃 처리 로직 추가 가능
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export default apiClient;

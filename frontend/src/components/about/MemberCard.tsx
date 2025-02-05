@@ -1,11 +1,10 @@
-interface Props{
+interface Props {
   img: string;
   name: string;
   roles: string[];
 }
 
-export default function MemberCard({img, name, roles}:Props){
-
+export default function MemberCard({ img, name, roles }: Props) {
   return (
     <div className="group relative h-[247px] w-[247px]">
       <img src={img} alt={name} className="rounded-[30px] shadow-lg" />

@@ -1,6 +1,6 @@
-import MemberCard from "./MemberCard"
+import MemberCard from "./MemberCard";
 
-export default function TeamSection(){
+export default function TeamSection() {
   return (
     <div className="flex w-full max-w-[1440px] flex-col items-center justify-center gap-10 pb-40 text-center">
       <div className="title">Meet Our Teem</div>
@@ -9,7 +9,7 @@ export default function TeamSection(){
         Coming from diverse backgrounds, we come together as one, supporting
         each other and growing together.
       </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-14 ">
+      <div className="grid grid-cols-1 gap-14 sm:grid-cols-2 lg:grid-cols-4">
         <MemberCard
           img={"/public/images/introduce/section03-01.png"}
           name={"BanJaeYeong"}
@@ -28,7 +28,7 @@ export default function TeamSection(){
         <MemberCard
           img={"/public/images/introduce/section03-04.png"}
           name={"KimHyeBin"}
-          roles={["Frontend","Designer"]}
+          roles={["Frontend", "Designer"]}
         />
       </div>
     </div>

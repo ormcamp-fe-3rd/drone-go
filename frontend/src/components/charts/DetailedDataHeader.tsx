@@ -22,7 +22,6 @@ const DetailedDataHeader: React.FC<Props> = ({
     setSelectedOperationAndDate,
   } = useContext(SelectedDataContext);
 
-
   return (
     <div
       className={`mx-10 my-5 flex flex-wrap items-center justify-evenly gap-1 rounded-[10px] border bg-white px-5 py-4 sm:justify-between md:flex-nowrap md:justify-evenly md:gap-4 md:px-5 bg-opacity-${backgroundOpacity}`}
@@ -38,7 +37,7 @@ const DetailedDataHeader: React.FC<Props> = ({
       </Button>
       <article className="min-w-[226px] md:w-2/3">
         <h1 className="text-2xl font-semibold md:text-3xl">Detailed Data</h1>
-        <span className="hidden text-xs lg:block md:text-sm">
+        <span className="hidden text-xs md:text-sm lg:block">
           Visualize drone data with interactive charts and maps. <br />
           Explore trends and movement patterns for the selected date.
         </span>
@@ -52,9 +51,7 @@ const DetailedDataHeader: React.FC<Props> = ({
           className="flex-1"
         />
       </div>
-      <div className="flex gap-4">
-        {children}
-      </div>
+      <div className="flex gap-4">{children}</div>
     </div>
   );
 };

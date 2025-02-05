@@ -17,7 +17,7 @@ interface Props {
 }
 
 export default function Map2D({ positionData }: Props) {
-  const mapRef = useRef<MapRef>(null); // 맵 인스턴스 접근
+  const mapRef = useRef<MapRef>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
 
@@ -29,7 +29,7 @@ export default function Map2D({ positionData }: Props) {
     endTime: string;
   }>({ startTime: "", endTime: "" });
   const [flightStartTime, setFlightStartTime] = useState(0);
-  
+
   // 애니메이션 관련 변수
   const [isPlaying, setIsPlaying] = useState(false);
   const animationRef = useRef<number>();
@@ -38,7 +38,6 @@ export default function Map2D({ positionData }: Props) {
   const { phase, setPhase } = useContext(PhaseContext);
   const [speed, setSpeed] = useState(1);
   const [headings, setHeadings] = useState<number[]>();
-  
 
   // 경로, 운행시간 셋팅
   useEffect(() => {
@@ -57,7 +56,6 @@ export default function Map2D({ positionData }: Props) {
 
     const calculatedHeadings = calculateMarkerHeading(payloadData);
     setHeadings(calculatedHeadings);
-
 
     const flightStartTime = positionData[0].timestamp; // Unix 타임스탬프
     const flightEndTime = positionData[positionData.length - 1].timestamp;
@@ -81,7 +79,7 @@ export default function Map2D({ positionData }: Props) {
 
       if (!markerRef.current) {
         markerRef.current = new mapboxgl.Marker({
-          element: createMarkerElement("/images/droneMarker.svg"),
+          element: createMarkerElement("/images/map/droneMarker.svg"),
         })
           .setLngLat([positionData[0].payload.lon, positionData[0].payload.lat])
           .addTo(map);
@@ -148,13 +146,13 @@ export default function Map2D({ positionData }: Props) {
     }
     animationRef.current = window.requestAnimationFrame(animate);
   };
-  
+
   const addRouteSourceAndLayer = useCallback(() => {
     if (!mapRef.current || !latLonAlt) return;
-    
+
     const map = mapRef.current.getMap();
     const pathCoordinates = latLonAlt.map((point) => [point.lon, point.lat]);
-    
+
     if (map.getSource("route")) {
       map.removeLayer("route-line");
       map.removeSource("route");
@@ -325,8 +323,9 @@ export default function Map2D({ positionData }: Props) {
             onClickPlay={handlePlay}
             onClickPause={handlePause}
             onChangeSpeed={handlePlaySpeed}
-            speed={speed} 
-            onClickStop={handleStop}/>
+            speed={speed}
+            onClickStop={handleStop}
+          />
         </ProgressBar>
       </div>
     </>

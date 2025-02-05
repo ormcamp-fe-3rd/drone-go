@@ -4,5 +4,5 @@ export const MSG_ID = {
   GLOBAL_POSITION: 33, //위도, 경도, 고도
   VFR_HUD: 74, //헤딩, 속도
   BATTERY_STATUS: 147, //배터리 온도, 전압, 잔량
-  STATUSTEXT: 253 //텍스트 상태 메세지
+  STATUSTEXT: 253, //텍스트 상태 메세지
 };

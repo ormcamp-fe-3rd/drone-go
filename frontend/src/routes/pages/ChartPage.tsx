@@ -40,7 +40,6 @@ const ChartPage: React.FC = () => {
     }
   }, [isAuth, navigate]);
 
-  // location에서 robot_id 가져오기
   const robotId = location.state?.robot_id;
   const name = location.state?.name;
   const _id = location.state?._id;
@@ -48,17 +47,15 @@ const ChartPage: React.FC = () => {
   // robot_id를 기반으로 selectedDrone 설정
   useEffect(() => {
     if (robotId) {
-      // robotId로부터 Robot 객체 생성
       const drone: Robot = {
         _id: _id,
         name: name,
         robot_id: robotId,
       };
-      setSelectedDrone(drone)
+      setSelectedDrone(drone);
     }
   }, [robotId, name, _id, setSelectedDrone]);
 
-  // 데이터 요청
   const {
     data: telemetryData = {
       batteryData: [],
@@ -89,13 +86,12 @@ const ChartPage: React.FC = () => {
       );
     },
     enabled: !!selectedDrone && !!selectedOperationAndDate, // 선택된 드론과 오퍼레이션 값이 있을 때만 API 호출
-    staleTime: 60000, // 데이터 캐싱 시간 (1분)
+    staleTime: 60000,
   });
 
   const { batteryData, textData, satellitesData, altAndSpeedData } =
     telemetryData;
 
-  // 에러나 로딩 상태에 대한 UI 개선
   const renderChartCard = (
     isLoading: boolean,
     error: any,
@@ -131,16 +127,18 @@ const ChartPage: React.FC = () => {
   return (
     <div className="flex min-h-screen flex-col bg-[#F3F2F9]">
       <DetailedDataHeader backgroundOpacity={100}>
-        <HeaderChartBtns exportToExcel={() =>
-          exportToExcel(
-            batteryData,
-            textData,
-            satellitesData,
-            altAndSpeedData,
-            selectedDrone?.name ?? null,
-            selectedOperationAndDate?.name ?? null,
-          )
-        } />
+        <HeaderChartBtns
+          exportToExcel={() =>
+            exportToExcel(
+              batteryData,
+              textData,
+              satellitesData,
+              altAndSpeedData,
+              selectedDrone?.name ?? null,
+              selectedOperationAndDate?.name ?? null,
+            )
+          }
+        />
       </DetailedDataHeader>
       <div className="mx-10 mb-4 grid min-h-0 flex-grow grid-cols-1 gap-3 lg:grid-cols-2 lg:grid-rows-2">
         {/* 드론 정보 카드 */}

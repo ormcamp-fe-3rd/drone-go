@@ -1,6 +1,6 @@
-import UsecaseCard from "./UsecaseCard"
+import UsecaseCard from "./UsecaseCard";
 
-export default function UsecaseSection(){
+export default function UsecaseSection() {
   return (
     <div className="flex w-full max-w-[1440px] flex-col items-center justify-center gap-10 text-center">
       <div className="title">
