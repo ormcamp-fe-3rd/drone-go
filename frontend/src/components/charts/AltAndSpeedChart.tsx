@@ -9,14 +9,14 @@ interface ChartProps {
 }
 
 const AltAndSpeedChart: React.FC<ChartProps> = ({ data }) => {
-  const convertSpeedToKmh = (speed: number) => {
-    const speedKmh = speed * 3.6; // m/s를 km/h로 변환
-    return parseFloat(speedKmh.toFixed(2)); // 소수점 둘째 자리까지 반올림
+  console.log("data", data);
+  const convertSpeedToMs = (speed: number) => {
+    return parseFloat(speed.toFixed(2)); // m/s
   };
 
   const convertAltToKmh = (alt: number) => {
-    const altKm = alt / 10; // 미터를 킬로미터로 변환
-    return parseFloat(altKm.toFixed(2)); // 소수점 둘째 자리까지 반올림
+    const altKm = alt / 1000;
+    return parseFloat((altKm / 10).toFixed(2)); // 소수점 둘째 자리까지 반올림
   };
 
   // timestamp를 밀리초 단위의 숫자로 변환
@@ -35,7 +35,7 @@ const AltAndSpeedChart: React.FC<ChartProps> = ({ data }) => {
       name: "Speed",
       data: data.map((item, index) => ({
         x: timestamps[index],
-        y: convertSpeedToKmh(item.groundspeed || 0),
+        y: convertSpeedToMs(item.groundspeed || 0),
       })),
       type: "line",
     },

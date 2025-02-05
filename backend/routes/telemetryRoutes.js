@@ -52,14 +52,17 @@ router.get('/', authorizer, async (req, res) => {
         const batteryData = telemetries.data.filter(item => item.msgId === MSG_ID.BATTERY_STATUS);
         const textData = telemetries.data.filter(item => item.msgId === MSG_ID.STATUSTEXT);
         const satellitesData = telemetries.data.filter(item => item.msgId === MSG_ID.GPS_RAW_INT);
-        const altAndSpeedData = telemetries.data.filter(item => item.msgId === MSG_ID.VFR_HUD);
+        const hadingAndSpeedData = telemetries.data.filter(item => item.msgId === MSG_ID.VFR_HUD);
+        const attitudeData = telemetries.data.filter(item => item.msgId === MSG_ID.ATTITUDE);
 
         // 각 데이터를 배열 형태로 응답
         res.json({
             batteryData,
             textData,
             satellitesData,
-            altAndSpeedData,
+            hadingAndSpeedData,
+            attitudeData,
+            altAndSpeedData: telemetries.altAndSpeedData, // 고도와 속도 값을 합친 새로 추가된 데이터  
         });
     } catch (error) {
         console.error('Error in telemetries route:', error);
