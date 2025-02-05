@@ -14,25 +14,25 @@ const exportToExcel = (
 ) => {
   const batteryDataFormatted = batteryData.map((data) => ({
     timestamp: formatTimestamp(data.timestamp),
-    temperature: data.payload.temperature,
-    batteryRemaining: data.payload.batteryRemaining,
-    voltage: data.payload.voltage, // voltage 값 설정
+    temperature: data.temperature,
+    batteryRemaining: data.batteryRemaining,
+    voltage: data.voltage, // voltage 값 설정
   }));
 
   const stateDataFormatted = textData.map((data) => ({
     timestamp: formatTimestamp(data.timestamp),
-    message: data.payload.text,
+    message: data.text,
   }));
 
   const satellitesDataFormatted = satellitesData.map((data) => ({
     timestamp: formatTimestamp(data.timestamp),
-    satellitesVisible: data.payload.satellitesVisible,
+    satellitesVisible: data.satellitesVisible,
   }));
 
   const altAndSpeedDataFormatted = altAndSpeedData.map((data) => ({
     timestamp: formatTimestamp(data.timestamp),
-    altitude: data.payload.alt,
-    speed: data.payload.groundspeed,
+    altitude: data.alt,
+    speed: data.groundspeed,
   }));
 
   // 엑셀로 내보낼 데이터를 구성

@@ -26,17 +26,17 @@ const BatteryChart: React.FC<ChartProps> = ({ data }) => {
   const chartSeries = [
     {
       name: "Temperature (°C)",
-      data: data.map((item) => item.payload.temperature),
+      data: data.map((item) => item.temperature),
       type: "line",
     },
     {
       name: "Battery Remaining (%)",
-      data: data.map((item) => item.payload.batteryRemaining),
+      data: data.map((item) => item.batteryRemaining),
       type: "area",
     },
     {
       name: "Voltage (V)",
-      data: data.map((item) => item.payload.voltage),
+      data: data.map((item) => item.voltage),
       type: "line",
     },
   ];

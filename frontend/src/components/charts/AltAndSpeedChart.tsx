@@ -15,7 +15,7 @@ const AltAndSpeedChart: React.FC<ChartProps> = ({ data }) => {
   };
 
   const convertAltToKmh = (alt: number) => {
-    const altKm = alt / 1000; // 미터를 킬로미터로 변환
+    const altKm = alt / 10; // 미터를 킬로미터로 변환
     return parseFloat(altKm.toFixed(2)); // 소수점 둘째 자리까지 반올림
   };
 
@@ -27,7 +27,7 @@ const AltAndSpeedChart: React.FC<ChartProps> = ({ data }) => {
       name: "Alt",
       data: data.map((item, index) => ({
         x: timestamps[index],
-        y: convertAltToKmh(item.payload.alt || 0),
+        y: convertAltToKmh(item.alt || 0),
       })),
       type: "line",
     },
@@ -35,7 +35,7 @@ const AltAndSpeedChart: React.FC<ChartProps> = ({ data }) => {
       name: "Speed",
       data: data.map((item, index) => ({
         x: timestamps[index],
-        y: convertSpeedToKmh(item.payload.groundspeed || 0),
+        y: convertSpeedToKmh(item.groundspeed || 0),
       })),
       type: "line",
     },

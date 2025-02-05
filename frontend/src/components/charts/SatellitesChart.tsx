@@ -12,7 +12,7 @@ const SatellitesChart: React.FC<ChartProps> = ({ data }) => {
   const chartSeries = [
     {
       name: "Satellites_Visible",
-      data: data.map((item) => item.payload.satellitesVisible),
+      data: data.map((item) => item.satellitesVisible),
     },
   ];
   const chartOptions: ApexOptions = {

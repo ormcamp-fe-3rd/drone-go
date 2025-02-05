@@ -7,7 +7,14 @@ const { getTelemetriesByRobotAndOperation } = require('../services/telemetryServ
 const authorizer = require("../middleware/authorizer");
 
 const { getDistinctDates } = require('../controllers/telemetryController');
-
+const MSG_ID = {
+    GPS_RAW_INT: 24, //연결된 위성수
+    ATTITUDE: 30, //드론 자세 정보(roll, pitch, yaw)
+    GLOBAL_POSITION: 33, //위도, 경도, 고도
+    VFR_HUD: 74, //헤딩, 속도
+    BATTERY_STATUS: 147, //배터리 온도, 전압, 잔량
+    STATUSTEXT: 253 //텍스트 상태 메세지
+};
 /**
  * Telemetry 데이터를 가져옵니다.
  * - robot과 operation을 기반으로 필터링
@@ -21,7 +28,6 @@ const { getDistinctDates } = require('../controllers/telemetryController');
 router.get('/', authorizer, async (req, res) => {
     try {
         const { robot, operation } = req.query;
-
         // 로봇과 operation이 모두 제공되지 않으면 400 에러
         if (!robot || !operation) {
             return res.status(400).json({ message: 'Both robot and operation must be provided' });
@@ -42,7 +48,19 @@ router.get('/', authorizer, async (req, res) => {
             return res.status(404).json({ message: 'No matching telemetries found' });
         }
 
-        res.json(telemetries);
+        // 각 데이터를 배열 형태로 응답
+        const batteryData = telemetries.data.filter(item => item.msgId === MSG_ID.BATTERY_STATUS);
+        const textData = telemetries.data.filter(item => item.msgId === MSG_ID.STATUSTEXT);
+        const satellitesData = telemetries.data.filter(item => item.msgId === MSG_ID.GPS_RAW_INT);
+        const altAndSpeedData = telemetries.data.filter(item => item.msgId === MSG_ID.VFR_HUD);
+
+        // 각 데이터를 배열 형태로 응답
+        res.json({
+            batteryData,
+            textData,
+            satellitesData,
+            altAndSpeedData,
+        });
     } catch (error) {
         console.error('Error in telemetries route:', error);
         res.status(500).json({
