@@ -7,14 +7,14 @@ export default function UnloggedDroneList() {
         className="absolute h-[1124px] w-full bg-black bg-opacity-50 backdrop-blur-[2px]"
         id="unlogged-data-list"
       ></div>
-      <div className="mx-auto mb-10 mt-10 flex h-[1024px] flex-col items-center gap-10 text-center">
+      <div className="mx-auto pb-10 pt-10 flex h-[1024px] flex-col items-center gap-10 text-center">
         <p className="title" id="DataList">
           Select the Drone
         </p>
         <p className="subtitle mt-2">
           Select a drone and view its data visualization.
         </p>
-        <img src="/images/droneCardList.png" alt="" />
+        <img src="/images/home/droneCardList.png" alt="signout droneList bg" />
 
         <div className="absolute flex h-auto min-h-[37.5rem] w-full">
           <div
