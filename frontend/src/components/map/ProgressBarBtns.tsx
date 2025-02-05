@@ -48,12 +48,24 @@ const ProgressBarBtns = ({
               position="popper"
               className="mb-1 w-10 cursor-pointer rounded-xl bg-white bg-opacity-50 text-center"
             >
-              <SelectItem value="1">1x</SelectItem>
-              <SelectItem value="2">2x</SelectItem>
-              <SelectItem value="5">5x</SelectItem>
-              <SelectItem value="10">10x</SelectItem>
-              <SelectItem value="20">20x</SelectItem>
-              <SelectItem value="30">30x</SelectItem>
+              <SelectItem value="1" disabled={isPlaying}>
+                1x
+              </SelectItem>
+              <SelectItem value="2" disabled={isPlaying}>
+                2x
+              </SelectItem>
+              <SelectItem value="5" disabled={isPlaying}>
+                5x
+              </SelectItem>
+              <SelectItem value="10" disabled={isPlaying}>
+                10x
+              </SelectItem>
+              <SelectItem value="20" disabled={isPlaying}>
+                20x
+              </SelectItem>
+              <SelectItem value="30" disabled={isPlaying}>
+                30x
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>

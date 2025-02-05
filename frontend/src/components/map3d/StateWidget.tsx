@@ -62,17 +62,28 @@ const StateWidget = ({
 
       // 새로운 메시지가 있으면 빨간 점을 켜도록 상태 업데이트
       if (newMessages.length > 0) {
-        setNewMessage(true);
-        setTimeout(() => setNewMessage(false), 3000);
+        if(isExpanded){
+          setNewMessage(true);
+          setTimeout(()=> setNewMessage(false), 5000)
+        }else{
+          setNewMessage(true);
+        }
       }
 
       return mergedMessages.sort(
         (a, b) => b.timestamp.getTime() - a.timestamp.getTime(),
       );
     });
-  }, [stateData, currentTime]);
 
-  const handleToggle = () => setIsExpanded((prev) => !prev);
+  }, [stateData, currentTime, isExpanded]);
+
+
+  const handleToggle = () => {
+    setIsExpanded((prev) => !prev);
+    if(newMessage){
+      setNewMessage(false)
+    }
+  };
 
   return (
     <div
@@ -84,7 +95,7 @@ const StateWidget = ({
           <p className="pl-2">State</p>
           {/* 빨간 점 */}
           {newMessage && (
-            <span className="top-[50%] ml-1 h-2 w-2 animate-pulse rounded-full bg-red-500"></span>
+            <span className="top-[50%] ml-1 h-2 w-2 rounded-full bg-red-500"></span>
           )}
         </div>
         <button onClick={handleToggle} className="flex items-center">
