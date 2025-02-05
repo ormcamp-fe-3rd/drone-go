@@ -96,13 +96,7 @@ const getDistinctDates = async (req, res) => {
             },
             {
                 $addFields: {
-                    formattedDate: {
-                        $cond: {
-                            if: { $eq: [{ $type: "$timestamp" }, "string"] },
-                            then: { $toDate: "$timestamp" }, // string을 Date로 변환
-                            else: "$timestamp" // 이미 Date 형식이면 그대로 사용
-                        }
-                    }
+                    formattedDate: { $toDate: "$timestamp" } // 확실한 변환
                 }
             },
             {
@@ -113,7 +107,8 @@ const getDistinctDates = async (req, res) => {
                     timestampAsString: {
                         $dateToString: {
                             format: "%Y-%m-%d",
-                            date: "$formattedDate"
+                            date: "$formattedDate",
+                            timezone: "Asia/Seoul"
                         }
                     }
                 }

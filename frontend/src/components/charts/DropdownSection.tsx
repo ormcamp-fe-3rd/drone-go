@@ -100,15 +100,11 @@ const DropdownSection: React.FC<DropdownSectionProps> = ({
   }, [selectedDrone, operationAndDates, setSelectedOperationAndDate]);
 
   const handleDroneSelect = (item: { _id: string; name: string }) => {
-    //데이터 확인용 배포 이전 console.log 삭제 예정
-    console.log("Selected Drone:", item);
     setSelectedDrone(item as Robot);
     setSelectedOperationAndDate(null);
   };
 
   const handleOperationAndDateSelect = (item: OperationAndDate) => {
-    //데이터 확인용 배포 이전 console.log 삭제 예정
-    console.log("Selected operation and date:", item);
     setSelectedOperationAndDate(item);
   };
 
