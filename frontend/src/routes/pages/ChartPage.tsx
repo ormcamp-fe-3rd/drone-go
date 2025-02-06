@@ -125,7 +125,7 @@ const ChartPage: React.FC = () => {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#F3F2F9]">
+    <div className="flex h-screen flex-col bg-[#F3F2F9]">
       <DetailedDataHeader backgroundOpacity={100}>
         <HeaderChartBtns
           exportToExcel={() =>
