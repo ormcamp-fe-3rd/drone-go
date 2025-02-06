@@ -85,7 +85,7 @@ export default function Map2D({ positionData }: Props) {
           .addTo(map);
       }
     }
-  }, [positionData, setPhase, speed]);
+  }, [positionData, setPhase]);
 
   const updateCamera = useCallback(
     (phase: number) => {
