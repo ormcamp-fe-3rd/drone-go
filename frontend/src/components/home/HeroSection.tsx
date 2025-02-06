@@ -56,7 +56,7 @@ export function HeroSection() {
       <div className="mx-auto max-w-screen-xl">
         {/* Background Video */}
         <video
-          className="absolute left-0 top-0 my-0 h-[800px] w-full object-cover"
+          className="absolute left-0 top-0 my-0 h-full w-full object-cover"
           autoPlay
           muted
           loop
@@ -88,7 +88,7 @@ export function HeroSection() {
         </div>
 
         <img
-          className="absolute bottom-20 left-0 h-full w-full object-cover"
+          className="absolute bottom-0 left-0 h-full w-full object-cover"
           src="../public/images/home/cloud.svg"
           alt="cloud 이미지"
         />
