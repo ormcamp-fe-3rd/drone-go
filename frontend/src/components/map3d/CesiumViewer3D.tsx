@@ -271,7 +271,7 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
           </div>
         )}
       </div>
-      <div className="fixed bottom-0 w-screen">
+      <div className="fixed bottom-10 w-screen">
         <ProgressBar
           startTime={startEndTime.startTime}
           endTime={startEndTime.endTime}

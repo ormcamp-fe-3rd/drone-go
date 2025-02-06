@@ -308,7 +308,7 @@ export default function Map2D({ positionData }: Props) {
         />
       </div>
 
-      <div className="fixed bottom-0 w-screen">
+      <div className="fixed bottom-10 w-screen">
         <ProgressBar
           startTime={startEndTime.startTime}
           endTime={startEndTime.endTime}
