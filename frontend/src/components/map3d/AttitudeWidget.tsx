@@ -44,12 +44,13 @@ const AttitudeWidget = ({
     ? (headingData[Math.floor(phase * (headingData.length - 1))]?.payload
         .heading ?? 0)
     : 0;
-
-  const currentBattery = batteryRemainingData
+    
+  const rawBattery = batteryRemainingData
     ? (batteryRemainingData[
         Math.floor(phase * (batteryRemainingData.length - 1))
       ]?.payload.batteryRemaining ?? 0)
     : 0;
+  const currentBattery = (rawBattery/100).toFixed(2);
 
   const currentRoll = attitudeData
     ? (attitudeData[Math.floor(phase * (attitudeData.length - 1))]?.payload
