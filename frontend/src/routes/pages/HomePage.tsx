@@ -51,13 +51,16 @@ export function HomePage() {
       {/* Main Content */}
       <HeroSection />
       {isAuth ? <DroneList /> : <UnloggedDroneList />}
-      <div className="absolute right-0 top-56 h-[25vh] w-[25vw]" ref={droneRef}>
+      <div
+        className="absolute right-0 top-56 h-[650px] max-h-[650px] w-[950px] max-w-[950px]"
+        ref={droneRef}
+      >
         <Drone
           scale={110}
           rotation={rotation}
           yAnimationHeight={5}
-          height={"80vh"}
-          width={"70vw"}
+          height={"650px"}
+          width={"950px"}
         />
       </div>
     </div>
