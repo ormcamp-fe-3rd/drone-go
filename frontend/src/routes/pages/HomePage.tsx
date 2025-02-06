@@ -21,10 +21,10 @@ export function HomePage() {
   useEffect(() => {
     if (droneRef.current) {
       gsap.to(droneRef.current, {
-        x: "-120vw",
+        x: "-500vw",
         y: "100vh",
 
-        duration: 10,
+        duration: 300,
         ease: "power2.out",
         scrollTrigger: {
           trigger: dataListRef.current,
