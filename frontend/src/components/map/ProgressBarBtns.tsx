@@ -41,29 +41,29 @@ const ProgressBarBtns = ({
 
         <div>
           <Select onValueChange={onChangeSpeed}>
-            <SelectTrigger className={`w-8 text-center ${isPlaying ?"text-gray-500":""}`} disabled={isPlaying}>
+            <SelectTrigger className={`w-8 text-center`} >
               <SelectValue placeholder={`${speed}x`}>{speed}x</SelectValue>
             </SelectTrigger>
             <SelectContent
               position="popper"
               className="mb-1 w-10 cursor-pointer rounded-xl bg-white bg-opacity-50 text-center"
             >
-              <SelectItem value="1" disabled={isPlaying}>
+              <SelectItem value="1" >
                 1x
               </SelectItem>
-              <SelectItem value="2" disabled={isPlaying}>
+              <SelectItem value="2">
                 2x
               </SelectItem>
-              <SelectItem value="5" disabled={isPlaying}>
+              <SelectItem value="5" >
                 5x
               </SelectItem>
-              <SelectItem value="10" disabled={isPlaying}>
+              <SelectItem value="10">
                 10x
               </SelectItem>
-              <SelectItem value="20" disabled={isPlaying}>
+              <SelectItem value="20">
                 20x
               </SelectItem>
-              <SelectItem value="30" disabled={isPlaying}>
+              <SelectItem value="30">
                 30x
               </SelectItem>
             </SelectContent>

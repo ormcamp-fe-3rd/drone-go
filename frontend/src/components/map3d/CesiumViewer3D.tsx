@@ -33,7 +33,8 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
   const [speed, setSpeed] = useState(1);
   const animationRef = useRef<number>();
   const lastTimeRef = useRef<number>(0);
-  const elapsedTimeRef = useRef<number>(0);
+  const elapsedTimeRef = useRef<number>(0);  
+  const speedRef = useRef(1);
 
   // 시간 관련 상태
   const [totalDuration, setTotalDuration] = useState<number>(0);
@@ -201,7 +202,7 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
       }
 
       const deltaTime = currentTime - lastTimeRef.current;
-      elapsedTimeRef.current += deltaTime * speed;
+      elapsedTimeRef.current += deltaTime * speedRef.current;
       lastTimeRef.current = currentTime;
 
       const animationDuration = totalDuration * 1000;
@@ -236,7 +237,9 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
   };
 
   const handlePlaySpeed = (value: string) => {
+    const newSpeed = Number(value);
     setSpeed(Number(value));
+    speedRef.current = newSpeed;
   };
 
   const handleStop = () => {

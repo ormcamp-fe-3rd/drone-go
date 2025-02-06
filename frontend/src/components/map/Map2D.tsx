@@ -38,6 +38,7 @@ export default function Map2D({ positionData }: Props) {
   const { phase, setPhase } = useContext(PhaseContext);
   const [speed, setSpeed] = useState(1);
   const [headings, setHeadings] = useState<number[]>();
+  const speedRef = useRef(1);
 
   // 경로, 운행시간 셋팅
   useEffect(() => {
@@ -126,7 +127,7 @@ export default function Map2D({ positionData }: Props) {
     }
 
     const deltaTime = currentTime - lastTimeRef.current;
-    elapsedTimeRef.current += deltaTime * speed;
+    elapsedTimeRef.current += deltaTime * speedRef.current;
     lastTimeRef.current = currentTime;
 
     const animationDuration = totalDuration * 1000; // 단위: 밀리초
@@ -273,7 +274,9 @@ export default function Map2D({ positionData }: Props) {
   };
 
   const handlePlaySpeed = (value: string) => {
+    const newSpeed = Number(value);
     setSpeed(Number(value));
+    speedRef.current = newSpeed;
   };
 
   const handleStop = () => {
