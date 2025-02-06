@@ -41,7 +41,7 @@ const ProgressBarBtns = ({
 
         <div>
           <Select onValueChange={onChangeSpeed}>
-            <SelectTrigger className="w-8 text-center">
+            <SelectTrigger className={`w-8 text-center ${isPlaying ?"text-gray-500":""}`} disabled={isPlaying}>
               <SelectValue placeholder={`${speed}x`}>{speed}x</SelectValue>
             </SelectTrigger>
             <SelectContent
