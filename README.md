@@ -1,7 +1,6 @@
-# drone-go
+# 🚀 drone-go
 드론 비행 데이터를 직관적으로 이해하고 분석할 수 있도록 도와주는 서비스입니다. 
 
-#### [🎨 피그마 작업](https://www.figma.com/design/eyJ9BGiaD3NO9xKcYjLSLC/DroneGo?node-id=0-1&t=VSSbvUxYUdEaGgDN-1)
 
 ## 프로젝트 소개
 ### 주요 기능
@@ -64,7 +63,45 @@ ID: test PW: 1234
     <td>김도연</td>
     <td>김수진</td>
     <td>김혜빈</td>
-    <td>반재영</td>
+    <td>반재영 🚩</td>
+  </tr>
+  <tr>
+    <td>
+      <div>
+        - 차트 페이지 레이아웃<br/>
+        - 로봇/오퍼레이션 데이터 선택 헤더<br/>
+        - 데이터 차트 시각화<br/>
+        - 차트 데이터 엑셀 export<br/>
+      </div>
+    </td>
+    <td>
+      <div>
+        - 지도 페이지 레이아웃<br/>
+        - 지도 위젯 기능<br/>
+        - 2D 지도 드론 위치 변화<br/>
+        - 날씨 API 연동<br/>
+      </div>
+    </td>
+    <td>
+      <div>
+        - 3D 드론 모델링, 애니메이션<br/>
+        - 메인 페이지 레이아웃, Three Fiber<br/>
+        - 메인, 소개 페이지 스크롤 효과<br/>
+        - 메인 드론 데이터 목록<br/>
+        - 3D 드론 자세변화 위젯<br/>
+        - AWS 배포<br/>
+      </div>
+    </td>
+    <td>
+      <div>
+        - 소개 페이지 레이아웃<br/>
+        - 3D 지도 드론 위치 변화<br/>
+        - 지도 마커 헤딩 변화<br/>
+        - 지도 애니메이션 재생 컨트롤<br/>
+        - 미니맵 위젯<br/>
+        - 로그인, 로그아웃, AWS 배포<br/>
+      </div>
+    </td>
   </tr>
   <tr>
     <td><a href="https://github.com/Devkdy22">Devkdy22</a></td>
@@ -74,5 +111,6 @@ ID: test PW: 1234
   </tr>
 </table>
 
-## WIKI
-#### [프로젝트 멘토링](https://github.com/ormcamp-fe-3rd/drone-go/wiki/%EB%A9%98%ED%86%A0%EB%A7%81)
+## 🔗
+#### [📄 WIKI](https://github.com/ormcamp-fe-3rd/drone-go/wiki/Home)
+#### [🎨 피그마](https://www.figma.com/design/eyJ9BGiaD3NO9xKcYjLSLC/DroneGo?node-id=0-1&t=VSSbvUxYUdEaGgDN-1)
