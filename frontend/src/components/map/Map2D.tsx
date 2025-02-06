@@ -298,7 +298,7 @@ export default function Map2D({ positionData }: Props) {
           initialViewState={{
             longitude: 126.976944, // 경도
             latitude: 37.572398, // 위도
-            zoom: 12,
+            zoom: 13,
             pitch: 0,
             bearing: 0,
           }}
