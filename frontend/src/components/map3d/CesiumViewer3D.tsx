@@ -9,6 +9,7 @@ import React, {
 import { degToRad } from "three/src/math/MathUtils";
 
 import { PhaseContext } from "@/contexts/PhaseContext";
+import { useAnimation } from "@/hooks/useAnimation";
 import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
 import { formatTime } from "@/utils/formatTime";
 
@@ -28,14 +29,6 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [showInitialInfo, setShowInitialInfo] = useState(false);
 
-  // 애니메이션 관련 상태
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1);
-  const animationRef = useRef<number>();
-  const lastTimeRef = useRef<number>(0);
-  const elapsedTimeRef = useRef<number>(0);  
-  const speedRef = useRef(1);
-
   // 시간 관련 상태
   const [totalDuration, setTotalDuration] = useState<number>(0);
   const [startEndTime, setStartEndTime] = useState<{
@@ -44,6 +37,14 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
   }>({ startTime: "", endTime: "" });
   const [flightStartTime, setFlightStartTime] = useState(0);
   const { phase, setPhase } = useContext(PhaseContext);
+
+  const { 
+    isPlaying, speed, elapsedTimeRef ,handlePlay, handlePause, handleStop, handlePlaySpeed 
+  } = useAnimation({duration: totalDuration, onUpdate: (progress) => {
+    setPhase(progress);
+    updateDronePosition(progress);
+  }})
+
 
   // Cesium viewer 초기화
   useEffect(() => {
@@ -190,66 +191,9 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
   useEffect(() => {
     elapsedTimeRef.current = phase * totalDuration * 1000;
     updateDronePosition(phase);
-  }, [phase, totalDuration, updateDronePosition]);
+  }, [elapsedTimeRef, phase, totalDuration, updateDronePosition]);
 
-  // 애니메이션 프레임 처리
-  const animate = useCallback(
-    (currentTime: number) => {
-      if (!totalDuration) return;
 
-      if (!lastTimeRef.current) {
-        lastTimeRef.current = currentTime;
-      }
-
-      const deltaTime = currentTime - lastTimeRef.current;
-      elapsedTimeRef.current += deltaTime * speedRef.current;
-      lastTimeRef.current = currentTime;
-
-      const animationDuration = totalDuration * 1000;
-      const newPhase = Math.min(1, elapsedTimeRef.current / animationDuration);
-      setPhase(newPhase);
-
-      if (newPhase >= 1) {
-        setIsPlaying(false);
-        setPhase(0);
-        lastTimeRef.current = 0;
-        elapsedTimeRef.current = 0;
-        return;
-      }
-
-      animationRef.current = requestAnimationFrame(animate);
-    },
-    [totalDuration, speed, setPhase],
-  );
-
-  const handlePlay = () => {
-    setIsPlaying(true);
-    lastTimeRef.current = 0;
-    animationRef.current = requestAnimationFrame(animate);
-  };
-
-  const handlePause = () => {
-    setIsPlaying(false);
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      lastTimeRef.current = 0;
-    }
-  };
-
-  const handlePlaySpeed = (value: string) => {
-    const newSpeed = Number(value);
-    setSpeed(Number(value));
-    speedRef.current = newSpeed;
-  };
-
-  const handleStop = () => {
-    setIsPlaying(false);
-    setPhase(0);
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      lastTimeRef.current = 0;
-    }
-  };
 
   return (
     <>
