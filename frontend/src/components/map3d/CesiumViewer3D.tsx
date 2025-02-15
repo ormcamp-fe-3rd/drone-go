@@ -69,39 +69,27 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
   // phase에 따른 드론 위치 업데이트
   const updateDronePosition = useCallback(
     (currentPhase: number) => {
-      if (!viewerRef.current || !positionData || !modelEntityRef.current)
+      if (!viewerRef.current || !pathPositions || !modelEntityRef.current)
         return;
 
       const index = Math.min(
-        Math.floor(currentPhase * (positionData.length - 1)),
-        positionData.length - 1,
+        Math.floor(currentPhase * (pathPositions.length - 1)),
+        pathPositions.length - 1,
       );
 
-      if (!positionData[index] || !positionData[index].payload) return;
-
-      const currentItem = positionData[index];
-      const position = Cesium.Cartesian3.fromDegrees(
-        currentItem.payload.lon,
-        currentItem.payload.lat,
-        currentItem.payload.alt,
-      );
+      if (!pathPositions[index]) return;
 
       // 위치 업데이트
+      const currentPosition = pathPositions[index]
       modelEntityRef.current.position = new Cesium.ConstantPositionProperty(
-        position,
+        currentPosition,
       );
 
       // 방향 계산 및 업데이트
       if (index > 0) {
-        const prevItem = positionData[index - 1];
-        const prevPosition = Cesium.Cartesian3.fromDegrees(
-          prevItem.payload.lon,
-          prevItem.payload.lat,
-          prevItem.payload.alt,
-        );
-
+        const prevPosition = pathPositions[index-1]
         const direction = Cesium.Cartesian3.subtract(
-          position,
+          currentPosition,
           prevPosition,
           new Cesium.Cartesian3(),
         );
@@ -110,7 +98,7 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
           Cesium.Cartesian3.normalize(direction, direction);
           const heading = Math.atan2(direction.y, direction.x);
           const orientation = Cesium.Transforms.headingPitchRollQuaternion(
-            position,
+            currentPosition,
             new Cesium.HeadingPitchRoll(heading + adjustDroneHeading, 0, 0),
           );
           modelEntityRef.current.orientation = new Cesium.ConstantProperty(
@@ -124,7 +112,7 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
         viewerRef.current.trackedEntity = modelEntityRef.current;
       }
     },
-    [positionData],
+    [pathPositions],
   );
 
   // 경로 데이터 설정
