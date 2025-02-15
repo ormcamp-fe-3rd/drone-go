@@ -4,6 +4,11 @@ import { MapRef } from "react-map-gl";
 import { LatLonAlt } from "@/types/latLonAlt";
 import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
 
+const MARKER_IMG_URL = "/images/map/droneMarker.svg";
+const MARKER_WIDTH = "50px";
+const MARKER_HEIGHT = "50px";
+const LAYER_LINE_WIDTH = 4;
+
 export const addMapSourceLayerMarker = (
   mapRef: React.MutableRefObject<MapRef|null>,
   latLonAlt: LatLonAlt[],
@@ -46,15 +51,15 @@ export const addMapSourceLayerMarker = (
       "line-join": "round",
     },
     paint: {
-      "line-width": 4,
+      "line-width": LAYER_LINE_WIDTH,
       "line-color": "#007cbf",
     },
   });
 
   if(!markerRef.current){
     markerRef.current = new mapboxgl.Marker({
-      element: createMarkerElement("/images/map/droneMarker.svg"),
-    })
+      element: createMarkerElement(MARKER_IMG_URL),
+    });
   }
   markerRef.current.setLngLat([positionData[0].payload.lon, positionData[0].payload.lat])
   .addTo(map);
@@ -83,8 +88,8 @@ export const addMapSourceLayerMarker = (
 function createMarkerElement(imageUrl: string) {
   const element = document.createElement("img");
   element.src = imageUrl;
-  element.style.width = "50px";
-  element.style.height = "50px";
+  element.style.width = MARKER_WIDTH;
+  element.style.height = MARKER_HEIGHT;
   element.style.objectFit = "contain";
   return element;
 }

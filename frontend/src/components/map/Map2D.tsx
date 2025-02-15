@@ -12,6 +12,13 @@ import ProgressBar from "../map/ProgressBar";
 import PlayHead from "./PlayHead";
 import ProgressBarBtns from "./ProgressBarBtns";
 
+const INITIAL_VIEW_STATE = {
+  longitude: 126.976944,
+  latitude: 37.572398,
+  zoom: 13,
+};
+const MAP_STYLE = "mapbox://styles/mapbox/streets-v11"
+
 interface Props {
   positionData: FormattedTelemetryPositionData[] | null;
 }
@@ -130,15 +137,9 @@ export default function Map2D({ positionData }: Props) {
         <Map
           ref={mapRef}
           mapboxAccessToken={import.meta.env.VITE_MAPBOX_ACCESS_TOKEN}
-          initialViewState={{
-            longitude: 126.976944, // 경도
-            latitude: 37.572398, // 위도
-            zoom: 13,
-            pitch: 0,
-            bearing: 0,
-          }}
+          initialViewState={INITIAL_VIEW_STATE}
           style={{ width: "100%", height: "100%" }}
-          mapStyle="mapbox://styles/mapbox/streets-v11"
+          mapStyle={MAP_STYLE}
           onLoad={handleMapLoad}
         />
       </div>
