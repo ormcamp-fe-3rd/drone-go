@@ -33,6 +33,7 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
   } = usePositionData({
     positionData: positionData
   })
+  const pathPositionsRef = useRef<Cesium.Cartesian3[]>([]);
 
   const { 
     isPlaying, speed, elapsedTimeRef,
@@ -62,13 +63,19 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
   }, []);
 
 
+  useEffect(() => {
+    if (pathPositions) {
+      pathPositionsRef.current = pathPositions;
+    }
+  }, [pathPositions]);
+
+
   // 경로 데이터 설정
   useEffect(() => {
     if (
       !viewerRef.current ||
-      !positionData ||
-      !isInitialized ||
-      positionData.length === 0
+      !pathPositionsRef.current ||
+      !isInitialized 
     )
       return;
 
@@ -77,7 +84,7 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
     // 경로 라인 추가
     viewerRef.current.entities.add({
       polyline: {
-        positions: pathPositions,
+        positions: pathPositionsRef.current,
         material: Cesium.Color.BLUE,
         width: 3,
       },
@@ -93,7 +100,7 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
     });
 
     // 초기 위치 설정
-    updateDronePosition(0, pathPositions, modelEntityRef, viewerRef);
+    updateDronePosition(0, pathPositionsRef.current, modelEntityRef, viewerRef);
     setPhase(0);
 
     // 초기 카메라 스크롤 안내문구
