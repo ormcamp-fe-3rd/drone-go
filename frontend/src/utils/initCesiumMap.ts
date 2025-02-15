@@ -41,6 +41,7 @@ export const initCesiumMap = async (
     );
 
     viewerRef.current.scene.primitives.add(buildingTileset);
+    viewerRef.current.scene.screenSpaceCameraController.minimumZoomDistance = 50;
 
     setIsInitialized(true);
   } catch (error) {

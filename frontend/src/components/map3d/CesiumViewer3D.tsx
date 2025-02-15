@@ -16,7 +16,6 @@ import PlayHead from "../map/PlayHead";
 import ProgressBar from "../map/ProgressBar";
 import ProgressBarBtns from "../map/ProgressBarBtns";
 
-const INITIAL_INFO_DURATION_MS = 5000;
 const DRONE_MODEL_URI = "/objects/drone.glb";
 const DRONE_MODEL_MIN_PIXEL_SIZE = 64;
 const DRONE_MODEL_SCALE = 10;
@@ -31,7 +30,6 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const modelEntityRef = useRef<Cesium.Entity | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [showInitialInfo, setShowInitialInfo] = useState(false);
 
   const { phase, setPhase } = useContext(PhaseContext);
   const [pathPositions, setPathPositions] = useState<Cesium.Cartesian3[]>();
@@ -109,13 +107,6 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
     updateDronePosition(0, pathPositions, modelEntityRef, viewerRef);
     setPhase(0);
 
-    // 초기 카메라 스크롤 안내문구
-    setShowInitialInfo(true);
-    const timer = setTimeout(() => {
-      setShowInitialInfo(false);
-    }, INITIAL_INFO_DURATION_MS);
-    return () => clearTimeout(timer);
-
   }, [isInitialized, pathPositions, setPhase]);
 
 
@@ -140,15 +131,6 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
             height: "100%",
           }}
         />
-        {showInitialInfo && (
-          <div className="fixed left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center">
-            <div className="pointer-events-none flex h-20 w-56 items-center rounded-2xl bg-white bg-opacity-90 drop-shadow-md">
-              <p className="w-full text-center">
-                Scroll to zoom out <br /> for a better view!
-              </p>
-            </div>
-          </div>
-        )}
       </div>
       <div className="fixed bottom-10 w-screen">
         <ProgressBar

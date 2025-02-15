@@ -48,7 +48,27 @@ export const updateDronePosition = (
   }
 
   // 카메라 업데이트
-  if (!viewerRef.current.trackedEntity) {
+  if (currentPhase >0 && !viewerRef.current.trackedEntity) {
     viewerRef.current.trackedEntity = modelEntityRef.current;
+  }
+  
+  //초기 카메라 위치 설정
+  if (currentPhase === 0 ) {
+    viewerRef.current.trackedEntity = undefined;
+    const camera = viewerRef.current.scene.camera;
+    const cartographic = Cesium.Cartographic.fromCartesian(pathPositions[0]);
+    const initialPosition = Cesium.Cartesian3.fromRadians(
+      cartographic.longitude,
+      cartographic.latitude,
+      cartographic.height + 500,
+    );
+    camera.setView({
+      destination: initialPosition,
+      orientation: {
+        heading: 0,
+        pitch: -Cesium.Math.PI_OVER_TWO,
+        roll: 0,
+      },
+    });
   }
 }
