@@ -1,23 +1,21 @@
 import * as Cesium from "cesium";
 import React, {
-  useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
 } from "react";
-import { degToRad } from "three/src/math/MathUtils";
 
 import { PhaseContext } from "@/contexts/PhaseContext";
 import { useAnimationTime } from "@/hooks/useAnimationTime";
 import { usePositionData } from "@/hooks/usePositionData";
 import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
+import { updateDronePosition } from "@/utils/updateDronePosition";
 
 import PlayHead from "../map/PlayHead";
 import ProgressBar from "../map/ProgressBar";
 import ProgressBarBtns from "../map/ProgressBarBtns";
 
-const adjustDroneHeading = degToRad(216);
 interface CesiumViewerProps {
   positionData: FormattedTelemetryPositionData[] | null;
 }
@@ -44,7 +42,7 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
     positionData: positionData, 
     onUpdate: (progress) => {
       setPhase(progress);
-      updateDronePosition(progress);
+      updateDronePosition(progress, pathPositions, modelEntityRef, viewerRef);
   }})
 
 
@@ -63,55 +61,6 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
     };
   }, []);
 
-
-  // phase에 따른 드론 위치 업데이트
-  const updateDronePosition = useCallback(
-    (currentPhase: number) => {
-      if (!viewerRef.current || !pathPositions || !modelEntityRef.current)
-        return;
-
-      const index = Math.min(
-        Math.floor(currentPhase * (pathPositions.length - 1)),
-        pathPositions.length - 1,
-      );
-
-      if (!pathPositions[index]) return;
-
-      // 위치 업데이트
-      const currentPosition = pathPositions[index]
-      modelEntityRef.current.position = new Cesium.ConstantPositionProperty(
-        currentPosition,
-      );
-
-      // 방향 계산 및 업데이트
-      if (index > 0) {
-        const prevPosition = pathPositions[index-1]
-        const direction = Cesium.Cartesian3.subtract(
-          currentPosition,
-          prevPosition,
-          new Cesium.Cartesian3(),
-        );
-
-        if (Cesium.Cartesian3.magnitudeSquared(direction) > 0) {
-          Cesium.Cartesian3.normalize(direction, direction);
-          const heading = Math.atan2(direction.y, direction.x);
-          const orientation = Cesium.Transforms.headingPitchRollQuaternion(
-            currentPosition,
-            new Cesium.HeadingPitchRoll(heading + adjustDroneHeading, 0, 0),
-          );
-          modelEntityRef.current.orientation = new Cesium.ConstantProperty(
-            orientation,
-          );
-        }
-      }
-
-      // 카메라 업데이트
-      if (!viewerRef.current.trackedEntity) {
-        viewerRef.current.trackedEntity = modelEntityRef.current;
-      }
-    },
-    [pathPositions],
-  );
 
   // 경로 데이터 설정
   useEffect(() => {
@@ -144,7 +93,7 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
     });
 
     // 초기 위치 설정
-    updateDronePosition(0);
+    updateDronePosition(0, pathPositions, modelEntityRef, viewerRef);
     setPhase(0);
 
     // 초기 카메라 스크롤 안내문구
@@ -154,14 +103,14 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
     }, 5000);
     return () => clearTimeout(timer);
 
-  }, [isInitialized, pathPositions, positionData, setPhase, updateDronePosition]);
+  }, [isInitialized, pathPositions, positionData, setPhase]);
 
 
   // phase 변경 시 드론 위치 업데이트
   useEffect(() => {
     elapsedTimeRef.current = phase * totalDuration * 1000;
-    updateDronePosition(phase);
-  }, [elapsedTimeRef, phase, totalDuration, updateDronePosition]);
+    updateDronePosition(phase, pathPositions, modelEntityRef, viewerRef);
+  }, [elapsedTimeRef, pathPositions, phase, totalDuration]);
 
 
 
