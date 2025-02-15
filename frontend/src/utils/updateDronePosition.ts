@@ -1,7 +1,5 @@
 import * as Cesium from "cesium";
-import { degToRad } from "three/src/math/MathUtils";
 
-const adjustDroneHeading = degToRad(216);
 
 export const updateDronePosition = (
   currentPhase: number,
@@ -26,21 +24,35 @@ export const updateDronePosition = (
   );
 
   // 방향 계산 및 업데이트
-  if (index > 0) {
-    const prevPosition = pathPositions[index-1]
-    const direction = Cesium.Cartesian3.subtract(
-      currentPosition,
-      prevPosition,
-      new Cesium.Cartesian3(),
+  if (index < pathPositions.length - 1) {
+    const nextPosition = pathPositions[index + 1];
+
+    // 현재 위치와 다음 위치를 카르토그래픽(경도/위도/높이) 좌표로 변환
+    const currentCartographic =
+      Cesium.Cartographic.fromCartesian(currentPosition);
+    const nextCartographic = Cesium.Cartographic.fromCartesian(nextPosition);
+
+    // 측지선(geodesic) 속성을 사용하여 헤딩 계산
+    const geodesic = new Cesium.EllipsoidGeodesic(
+      new Cesium.Cartographic(
+        currentCartographic.longitude,
+        currentCartographic.latitude,
+      ),
+      new Cesium.Cartographic(
+        nextCartographic.longitude,
+        nextCartographic.latitude,
+      ),
     );
 
-    if (Cesium.Cartesian3.magnitudeSquared(direction) > 0) {
-      Cesium.Cartesian3.normalize(direction, direction);
-      const heading = Math.atan2(direction.y, direction.x);
+    const distance = geodesic.surfaceDistance; //단위:미터
+
+    if(distance >= 1){
+      const heading = geodesic.startHeading;
       const orientation = Cesium.Transforms.headingPitchRollQuaternion(
         currentPosition,
-        new Cesium.HeadingPitchRoll(heading + adjustDroneHeading, 0, 0),
+        new Cesium.HeadingPitchRoll(heading, 0, 0),
       );
+      
       modelEntityRef.current.orientation = new Cesium.ConstantProperty(
         orientation,
       );
