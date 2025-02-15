@@ -10,8 +10,8 @@ import { degToRad } from "three/src/math/MathUtils";
 
 import { PhaseContext } from "@/contexts/PhaseContext";
 import { useAnimation } from "@/hooks/useAnimation";
+import { usePositionData } from "@/hooks/usePositionData";
 import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
-import { formatTime } from "@/utils/formatTime";
 
 import PlayHead from "../map/PlayHead";
 import ProgressBar from "../map/ProgressBar";
@@ -29,20 +29,24 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
   const [isInitialized, setIsInitialized] = useState(false);
   const [showInitialInfo, setShowInitialInfo] = useState(false);
 
-  // 시간 관련 상태
-  const [totalDuration, setTotalDuration] = useState<number>(0);
-  const [startEndTime, setStartEndTime] = useState<{
-    startTime: string;
-    endTime: string;
-  }>({ startTime: "", endTime: "" });
-  const [flightStartTime, setFlightStartTime] = useState(0);
   const { phase, setPhase } = useContext(PhaseContext);
+  const { 
+    totalDuration, 
+    startEndTime, 
+    flightStartTime, 
+    pathPositions
+  } = usePositionData({
+    positionData: positionData
+  })
 
   const { 
-    isPlaying, speed, elapsedTimeRef ,handlePlay, handlePause, handleStop, handlePlaySpeed 
-  } = useAnimation({duration: totalDuration, onUpdate: (progress) => {
-    setPhase(progress);
-    updateDronePosition(progress);
+    isPlaying, speed, elapsedTimeRef,
+    handlePlay, handlePause, handleStop, handlePlaySpeed 
+  } = useAnimation({
+    duration: totalDuration, 
+    onUpdate: (progress) => {
+      setPhase(progress);
+      updateDronePosition(progress);
   }})
 
 
@@ -140,25 +144,7 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
 
     viewerRef.current.entities.removeAll();
 
-    // 시간 정보 설정
-    const flightStart = positionData[0].timestamp;
-    const flightEnd = positionData[positionData.length - 1].timestamp;
-    setFlightStartTime(flightStart);
-    setStartEndTime({
-      startTime: formatTime(new Date(flightStart)),
-      endTime: formatTime(new Date(flightEnd)),
-    });
-    setTotalDuration((flightEnd - flightStart) / 1000);
-
     // 경로 라인 추가
-    const pathPositions = positionData.map((item) =>
-      Cesium.Cartesian3.fromDegrees(
-        item.payload.lon,
-        item.payload.lat,
-        item.payload.alt,
-      ),
-    );
-
     viewerRef.current.entities.add({
       polyline: {
         positions: pathPositions,
@@ -179,13 +165,15 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
     // 초기 위치 설정
     updateDronePosition(0);
 
+    // 초기 카메라 스크롤 안내문구
     setShowInitialInfo(true);
     const timer = setTimeout(() => {
       setShowInitialInfo(false);
     }, 5000);
-
     return () => clearTimeout(timer);
-  }, [positionData, isInitialized, updateDronePosition]);
+
+  }, [isInitialized, pathPositions, positionData, updateDronePosition]);
+
 
   // phase 변경 시 드론 위치 업데이트
   useEffect(() => {
