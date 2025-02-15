@@ -3,10 +3,10 @@ import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
 import { PhaseContext } from "@/contexts/PhaseContext";
+import { useAnimationTime } from "@/hooks/useAnimationTime";
 import { LatLonAlt } from "@/types/latLonAlt";
 import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
 import calculateMarkerHeading from "@/utils/calculateMarkerHeading";
-import { formatTime } from "@/utils/formatTime";
 
 import ProgressBar from "../map/ProgressBar";
 import PlayHead from "./PlayHead";
@@ -21,24 +21,20 @@ export default function Map2D({ positionData }: Props) {
   const markerRef = useRef<mapboxgl.Marker | null>(null);
   const [mapLoaded, setMapLoaded] = useState(false);
 
-  // 데이터 관련
   const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>();
-  const [totalDuration, setTotalDuration] = useState<number>(0);
-  const [startEndTime, setStartEndTime] = useState<{
-    startTime: string;
-    endTime: string;
-  }>({ startTime: "", endTime: "" });
-  const [flightStartTime, setFlightStartTime] = useState(0);
-
-  // 애니메이션 관련 변수
-  const [isPlaying, setIsPlaying] = useState(false);
-  const animationRef = useRef<number>();
-  const elapsedTimeRef = useRef<number>(0);
-  const lastTimeRef = useRef<number>(0);
-  const { phase, setPhase } = useContext(PhaseContext);
-  const [speed, setSpeed] = useState(1);
   const [headings, setHeadings] = useState<number[]>();
-  const speedRef = useRef(1);
+  const { phase, setPhase } = useContext(PhaseContext);
+
+  const { 
+    isPlaying, speed, elapsedTimeRef,
+    handlePlay, handlePause, handleStop, handlePlaySpeed,
+    totalDuration, startEndTime, flightStartTime,
+  } = useAnimationTime({
+    positionData: positionData, 
+    onUpdate: (progress) => {
+      setPhase(progress);
+    }})
+
 
   // 경로, 운행시간 셋팅
   useEffect(() => {
@@ -58,17 +54,6 @@ export default function Map2D({ positionData }: Props) {
     const calculatedHeadings = calculateMarkerHeading(payloadData);
     setHeadings(calculatedHeadings);
 
-    const flightStartTime = positionData[0].timestamp; // Unix 타임스탬프
-    const flightEndTime = positionData[positionData.length - 1].timestamp;
-    const formattedStartTime = formatTime(new Date(flightStartTime)); // HH:mm:ss(string 타입)으로 포맷
-    const formattedEndTime = formatTime(new Date(flightEndTime));
-    setStartEndTime({
-      startTime: formattedStartTime,
-      endTime: formattedEndTime,
-    });
-    setFlightStartTime(flightStartTime);
-
-    setTotalDuration((flightEndTime - flightStartTime) / 1000);
 
     // 맵 초기화
     if (mapRef.current) {
@@ -116,36 +101,8 @@ export default function Map2D({ positionData }: Props) {
   useEffect(() => {
     elapsedTimeRef.current = phase * totalDuration * 1000;
     updateCamera(phase);
-  }, [phase, totalDuration, updateCamera]);
+  }, [elapsedTimeRef, phase, totalDuration, updateCamera]);
 
-  // play 버튼으로 애니메이션 실행
-  const animate = (currentTime: number) => {
-    if (!latLonAlt) return;
-
-    if (!lastTimeRef.current) {
-      lastTimeRef.current = currentTime;
-    }
-
-    const deltaTime = currentTime - lastTimeRef.current;
-    elapsedTimeRef.current += deltaTime * speedRef.current;
-    lastTimeRef.current = currentTime;
-
-    const animationDuration = totalDuration * 1000; // 단위: 밀리초
-
-    const phase = Math.min(1, elapsedTimeRef.current / animationDuration);
-
-    updateCamera(phase);
-    setPhase(phase);
-
-    if (phase >= 1) {
-      setIsPlaying(false);
-      setPhase(0);
-      lastTimeRef.current = 0;
-      elapsedTimeRef.current = 0;
-      return;
-    }
-    animationRef.current = window.requestAnimationFrame(animate);
-  };
 
   const addRouteSourceAndLayer = useCallback(() => {
     if (!mapRef.current || !latLonAlt) return;
@@ -258,35 +215,6 @@ export default function Map2D({ positionData }: Props) {
     element.style.objectFit = "contain";
     return element;
   }
-
-  const handlePlay = () => {
-    setIsPlaying(true);
-    lastTimeRef.current = 0;
-    animationRef.current = window.requestAnimationFrame(animate);
-  };
-
-  const handlePause = () => {
-    setIsPlaying(false);
-    if (animationRef.current) {
-      window.cancelAnimationFrame(animationRef.current);
-      lastTimeRef.current = 0;
-    }
-  };
-
-  const handlePlaySpeed = (value: string) => {
-    const newSpeed = Number(value);
-    setSpeed(Number(value));
-    speedRef.current = newSpeed;
-  };
-
-  const handleStop = () => {
-    setIsPlaying(false);
-    setPhase(0);
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      lastTimeRef.current = 0;
-    }
-  };
 
   const handleMapLoad = useCallback(() => {
     setMapLoaded(true);
