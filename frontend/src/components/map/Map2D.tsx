@@ -1,4 +1,3 @@
-import mapboxgl from "mapbox-gl";
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 import Map, { MapRef } from "react-map-gl";
 
@@ -6,6 +5,7 @@ import { PhaseContext } from "@/contexts/PhaseContext";
 import { useAnimationTime } from "@/hooks/useAnimationTime";
 import { LatLonAlt } from "@/types/latLonAlt";
 import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
+import { addMapSourceLayerMarker } from "@/utils/addMapSourceLayerMarker";
 import calculateMarkerHeading from "@/utils/calculateMarkerHeading";
 
 import ProgressBar from "../map/ProgressBar";
@@ -24,7 +24,7 @@ export default function Map2D({ positionData }: Props) {
   const [latLonAlt, setLatLonAlt] = useState<LatLonAlt[] | null>();
   const [headings, setHeadings] = useState<number[]>();
   const { phase, setPhase } = useContext(PhaseContext);
-
+  
   const { 
     isPlaying, speed, elapsedTimeRef,
     handlePlay, handlePause, handleStop, handlePlaySpeed,
@@ -34,13 +34,40 @@ export default function Map2D({ positionData }: Props) {
     onUpdate: (progress) => {
       setPhase(progress);
     }})
+    
+  // 지도 및 마커 초기화
+  useEffect(() => {
+    if (!mapRef.current || !latLonAlt) return;
+    if (!mapLoaded) return;
 
-
+    const map = mapRef.current.getMap();
+  
+    try {
+      addMapSourceLayerMarker(mapRef, latLonAlt, positionData, markerRef);
+    } catch (error) {
+      console.error("Failed to add route: ", error);
+    }
+  
+    return () => {
+      if (!mapLoaded) return;
+      if (map.getLayer("route-line")) {
+        map.removeLayer("route-line");
+      }
+      if (map.getSource("route")) {
+        map.removeSource("route");
+      }
+    };
+  }, [latLonAlt, mapLoaded, positionData]);
+  
+  const handleMapLoad = useCallback(() => {
+    setMapLoaded(true);
+  }, []);
+    
   // 경로, 운행시간 셋팅
   useEffect(() => {
     if (!positionData) {
       setLatLonAlt(null);
-      return;
+    return;
     }
     setPhase(0);
 
@@ -61,14 +88,6 @@ export default function Map2D({ positionData }: Props) {
       map.jumpTo({
         center: [positionData[0].payload.lon, positionData[0].payload.lat],
       });
-
-      if (!markerRef.current) {
-        markerRef.current = new mapboxgl.Marker({
-          element: createMarkerElement("/images/map/droneMarker.svg"),
-        })
-          .setLngLat([positionData[0].payload.lon, positionData[0].payload.lat])
-          .addTo(map);
-      }
     }
   }, [positionData, setPhase]);
 
@@ -104,121 +123,6 @@ export default function Map2D({ positionData }: Props) {
   }, [elapsedTimeRef, phase, totalDuration, updateCamera]);
 
 
-  const addRouteSourceAndLayer = useCallback(() => {
-    if (!mapRef.current || !latLonAlt) return;
-
-    const map = mapRef.current.getMap();
-    const pathCoordinates = latLonAlt.map((point) => [point.lon, point.lat]);
-
-    if (map.getSource("route")) {
-      map.removeLayer("route-line");
-      map.removeSource("route");
-    }
-
-    map.addSource("route", {
-      type: "geojson",
-      data: {
-        type: "FeatureCollection",
-        features: [
-          {
-            type: "Feature",
-            geometry: {
-              type: "LineString",
-              coordinates: pathCoordinates,
-            },
-            properties: {},
-          },
-        ],
-      },
-    });
-
-    map.addLayer({
-      id: "route-line",
-      type: "line",
-      source: "route",
-      layout: {
-        "line-cap": "round",
-        "line-join": "round",
-      },
-      paint: {
-        "line-width": 4,
-        "line-color": "#007cbf",
-      },
-    });
-
-    setTimeout(() => {
-      const source = map.getSource("route") as
-        | mapboxgl.GeoJSONSource
-        | undefined;
-      if (source) {
-        source.setData({
-          type: "FeatureCollection",
-          features: [
-            {
-              type: "Feature",
-              geometry: {
-                type: "LineString",
-                coordinates: pathCoordinates,
-              },
-              properties: {},
-            },
-          ],
-        });
-      }
-    }, 500);
-  }, [latLonAlt]);
-
-  // 지도 및 마커 초기화
-  useEffect(() => {
-    if (!mapRef.current || !latLonAlt) return;
-    if (!mapLoaded) return;
-
-    const map = mapRef.current.getMap();
-
-    try {
-      addRouteSourceAndLayer();
-    } catch (error) {
-      console.error("Failed to add route: ", error);
-    }
-
-    if (!markerRef.current) {
-      const initialPoint =
-        latLonAlt.length > 0
-          ? latLonAlt[0]
-          : { lat: 37.572398, lon: 126.976944 };
-      const markerLngLat: [number, number] = [
-        initialPoint.lon,
-        initialPoint.lat,
-      ];
-
-      markerRef.current = new mapboxgl.Marker()
-        .setLngLat(markerLngLat)
-        .addTo(map);
-    }
-
-    return () => {
-      if (!mapLoaded) return;
-      if (map.getLayer("route-line")) {
-        map.removeLayer("route-line");
-      }
-      if (map.getSource("route")) {
-        map.removeSource("route");
-      }
-    };
-  }, [addRouteSourceAndLayer, latLonAlt, mapLoaded]);
-
-  function createMarkerElement(imageUrl: string) {
-    const element = document.createElement("img");
-    element.src = imageUrl;
-    element.style.width = "50px";
-    element.style.height = "50px";
-    element.style.objectFit = "contain";
-    return element;
-  }
-
-  const handleMapLoad = useCallback(() => {
-    setMapLoaded(true);
-  }, []);
 
   return (
     <>
