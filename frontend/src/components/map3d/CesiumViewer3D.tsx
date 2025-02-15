@@ -23,9 +23,15 @@ const PATH_LINE_WIDTH = 3;
 
 interface CesiumViewerProps {
   positionData: FormattedTelemetryPositionData[] | null;
+  attitudeData: {
+    payload: {
+      roll: number;
+      pitch: number;
+      yaw: number;
+    };}[]| null;
 }
 
-const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
+const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData, attitudeData }) => {
   const cesiumContainerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const modelEntityRef = useRef<Cesium.Entity | null>(null);
@@ -42,7 +48,7 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
     positionData: positionData, 
     onUpdate: (progress) => {
       setPhase(progress);
-      updateDronePosition(progress, pathPositions, modelEntityRef, viewerRef);
+      updateDronePosition(progress, pathPositions, modelEntityRef, viewerRef, attitudeData);
   }})
 
 
@@ -76,12 +82,7 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
 
   // 경로 데이터 설정
   useEffect(() => {
-    if (
-      !viewerRef.current ||
-      !pathPositions ||
-      !isInitialized 
-    )
-      return;
+    if (!viewerRef.current || !pathPositions || !isInitialized) return;
 
     viewerRef.current.entities.removeAll();
 
@@ -106,17 +107,28 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
     });
 
     // 초기 위치 설정
-    updateDronePosition(0, pathPositions, modelEntityRef, viewerRef);
+    updateDronePosition(
+      0,
+      pathPositions,
+      modelEntityRef,
+      viewerRef,
+      attitudeData,
+    );
     setPhase(0);
-
-  }, [isInitialized, pathPositions, setPhase]);
+  }, [attitudeData, isInitialized, pathPositions, setPhase]);
 
 
   // phase 변경 시 드론 위치 업데이트
   useEffect(() => {
     elapsedTimeRef.current = phase * totalDuration * 1000;
-    updateDronePosition(phase, pathPositions, modelEntityRef, viewerRef);
-  }, [elapsedTimeRef, pathPositions, phase, totalDuration]);
+    updateDronePosition(
+      phase,
+      pathPositions,
+      modelEntityRef,
+      viewerRef,
+      attitudeData,
+    );
+  }, [attitudeData, elapsedTimeRef, pathPositions, phase, totalDuration]);
 
 
 

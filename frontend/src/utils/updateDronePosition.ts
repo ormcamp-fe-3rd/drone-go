@@ -5,27 +5,32 @@ export const updateDronePosition = (
   currentPhase: number,
   pathPositions: Cesium.Cartesian3[] | undefined,
   modelEntityRef: React.MutableRefObject<Cesium.Entity | null>,
-  viewerRef: React.MutableRefObject<Cesium.Viewer | null>
+  viewerRef: React.MutableRefObject<Cesium.Viewer | null>,
+  attitudeData: {payload: {roll: number, pitch: number, yaw: number}}[] | null
 ) => {
-  if (!viewerRef.current || !pathPositions || !modelEntityRef.current)
+  if (!viewerRef.current || !pathPositions || !modelEntityRef.current || !attitudeData)
     return;
 
-  const index = Math.min(
+  const pathIndex = Math.min(
     Math.floor(currentPhase * (pathPositions.length - 1)),
     pathPositions.length - 1,
   );
+  const attitudeIndex = Math.min(
+    Math.floor(currentPhase * (attitudeData.length -1)),
+    attitudeData.length - 1,
+  );
 
-  if (!pathPositions[index]) return;
+  if (!pathPositions[pathIndex]) return;
 
   // 위치 업데이트
-  const currentPosition = pathPositions[index]
+  const currentPosition = pathPositions[pathIndex];
   modelEntityRef.current.position = new Cesium.ConstantPositionProperty(
     currentPosition,
   );
 
-  // 방향 계산 및 업데이트
-  if (index < pathPositions.length - 1) {
-    const nextPosition = pathPositions[index + 1];
+
+  if (pathIndex < pathPositions.length - 1) {
+    const nextPosition = pathPositions[pathIndex + 1];
 
     // 현재 위치와 다음 위치를 카르토그래픽(경도/위도/높이) 좌표로 변환
     const currentCartographic =
@@ -46,13 +51,22 @@ export const updateDronePosition = (
 
     const distance = geodesic.surfaceDistance; //단위:미터
 
-    if(distance >= 1){
+    const currentAttitude = attitudeData[attitudeIndex].payload;
+    const rollRadians = currentAttitude.roll;
+    const pitchRadians = currentAttitude.pitch;
+
+    if (distance >= 1) {
       const heading = geodesic.startHeading;
+      const hpr = new Cesium.HeadingPitchRoll(
+        heading,
+        rollRadians,
+        pitchRadians,
+      );
       const orientation = Cesium.Transforms.headingPitchRollQuaternion(
         currentPosition,
-        new Cesium.HeadingPitchRoll(heading, 0, 0),
+        hpr,
       );
-      
+
       modelEntityRef.current.orientation = new Cesium.ConstantProperty(
         orientation,
       );
