@@ -65,11 +65,6 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (positionData) {
-      setPhase(0);
-    }
-  }, [positionData, setPhase]);
 
   // phase에 따른 드론 위치 업데이트
   const updateDronePosition = useCallback(
@@ -164,6 +159,7 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
 
     // 초기 위치 설정
     updateDronePosition(0);
+    setPhase(0);
 
     // 초기 카메라 스크롤 안내문구
     setShowInitialInfo(true);
@@ -172,7 +168,7 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
     }, 5000);
     return () => clearTimeout(timer);
 
-  }, [isInitialized, pathPositions, positionData, updateDronePosition]);
+  }, [isInitialized, pathPositions, positionData, setPhase, updateDronePosition]);
 
 
   // phase 변경 시 드론 위치 업데이트
