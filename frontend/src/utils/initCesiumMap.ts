@@ -31,6 +31,7 @@ export const initCesiumMap = async (
       baseLayerPicker: false,
       vrButton: false,
       projectionPicker: false,
+      shouldAnimate: true,
     });
 
     const buildingTileset = await Cesium.Cesium3DTileset.fromIonAssetId(

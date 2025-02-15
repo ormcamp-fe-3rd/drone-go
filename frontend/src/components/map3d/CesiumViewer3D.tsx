@@ -100,6 +100,8 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
         uri: DRONE_MODEL_URI,
         minimumPixelSize: DRONE_MODEL_MIN_PIXEL_SIZE,
         scale: DRONE_MODEL_SCALE,
+        runAnimations: true,
+        clampAnimations: false,
       },
     });
 
