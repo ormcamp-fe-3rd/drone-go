@@ -9,7 +9,7 @@ import React, {
 import { degToRad } from "three/src/math/MathUtils";
 
 import { PhaseContext } from "@/contexts/PhaseContext";
-import { useAnimation } from "@/hooks/useAnimation";
+import { useAnimationTime } from "@/hooks/useAnimationTime";
 import { usePositionData } from "@/hooks/usePositionData";
 import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
 
@@ -31,9 +31,6 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
 
   const { phase, setPhase } = useContext(PhaseContext);
   const { 
-    totalDuration, 
-    startEndTime, 
-    flightStartTime, 
     pathPositions
   } = usePositionData({
     positionData: positionData
@@ -41,9 +38,10 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
 
   const { 
     isPlaying, speed, elapsedTimeRef,
-    handlePlay, handlePause, handleStop, handlePlaySpeed 
-  } = useAnimation({
-    duration: totalDuration, 
+    handlePlay, handlePause, handleStop, handlePlaySpeed,
+    totalDuration, startEndTime, flightStartTime,
+  } = useAnimationTime({
+    positionData: positionData, 
     onUpdate: (progress) => {
       setPhase(progress);
       updateDronePosition(progress);
