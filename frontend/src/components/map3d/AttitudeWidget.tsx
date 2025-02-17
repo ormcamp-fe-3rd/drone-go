@@ -107,6 +107,7 @@ const AttitudeWidget = ({
               yAnimationHeight={0}
               height={"100%"}
               width={"100%"}
+              axesHelper={true}
             />
           </Suspense>
         </div>
