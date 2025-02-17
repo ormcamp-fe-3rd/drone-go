@@ -1,3 +1,4 @@
+import { OrbitControls } from "@react-three/drei";
 import { Canvas, useLoader } from "@react-three/fiber";
 import { useEffect,useRef } from "react";
 import * as THREE from "three";
@@ -10,6 +11,7 @@ interface DroneProp {
   height: string; // 캔버스 높이
   width: string; // 캔버스 너비
   axesHelper?: boolean;
+  orbitControls?: boolean;
 }
 
 export default function Drone({
@@ -19,6 +21,7 @@ export default function Drone({
   height,
   width,
   axesHelper=false,
+  orbitControls=false,
 }: DroneProp) {
   const glb = useLoader(GLTFLoader, "../../public/objects/drone.glb");
   const mixerRef = useRef<THREE.AnimationMixer | null>(null);
@@ -87,7 +90,7 @@ export default function Drone({
 
           mesh.rotation.set(
             THREE.MathUtils.degToRad(rotation[0]),
-            THREE.MathUtils.degToRad(rotation[1]),
+            THREE.MathUtils.degToRad(-rotation[1]),
             THREE.MathUtils.degToRad(rotation[2]),
           );
         }
@@ -102,6 +105,9 @@ export default function Drone({
   return (
     <div className="absolute right-0" style={{ height, width }}>
       <Canvas camera={{ position: [0, 50, 100], fov: 75 }}>
+        {orbitControls && 
+          <OrbitControls enableDamping={true} dampingFactor={0.1} />
+        }
         <ambientLight intensity={3} />
         <directionalLight position={[0, 0, 5]} color="white" />
         <primitive object={glb.scene} />
