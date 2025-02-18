@@ -24,6 +24,18 @@ export const useAnimationTime = ({positionData, onUpdate}: Props) => {
   const speedRef = useRef(1);
 
   useEffect(() => {
+    return () => {
+      if (animationRef.current) {
+        cancelAnimationFrame(animationRef.current);
+        animationRef.current = undefined;
+      }
+      lastTimeRef.current = 0;
+      elapsedTimeRef.current = 0;
+      setIsPlaying(false);
+    };
+  }, []);
+  
+  useEffect(() => {
     if (!positionData) return;
 
     const flightStart = positionData[0].timestamp;

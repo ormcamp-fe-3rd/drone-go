@@ -15,8 +15,9 @@ import WeatherWidget from "@/components/map3d/WeatherWidget";
 import { MSG_ID } from "@/constants";
 import { AuthContext } from "@/contexts/AuthContext";
 import { CurrentTimeProvider } from "@/contexts/CurrentTimeContext";
-import PhaseContextProvider from "@/contexts/PhaseContext";
+import PhaseContextProvider, { PhaseContext } from "@/contexts/PhaseContext";
 import SelectedDataContext from "@/contexts/SelectedDataContext";
+import { useAnimationTime } from "@/hooks/useAnimationTime";
 import { useTelemetry2D } from "@/hooks/useTelemetry2D";
 import { Telemetry2dData } from "@/types/telemetry2dDataTypes";
 import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
@@ -32,6 +33,13 @@ export default function Map3dPage() {
     FormattedTelemetryPositionData[] | null
   >(null);
   const [stateData, setStateData] = useState<Telemetry2dData[] | null>(null);
+  const { setPhase } = useContext(PhaseContext);
+  const { handleStop } = useAnimationTime({
+    positionData: positionData,
+    onUpdate: (progress) => {
+      setPhase(progress);
+    },
+  });
 
   useEffect(() => {
     if (isAuth === null) return;
@@ -83,9 +91,14 @@ export default function Map3dPage() {
   const batteryRemainingData =
     rawbatteryRemainingData.length > 0 ? rawbatteryRemainingData : null;
 
-  const switchMap = () => {
-    setIs2dMap(!is2dMap);
-  };
+const switchMap = () => {
+  handleStop();
+
+  requestAnimationFrame(() => {
+    setPhase(0);
+    setIs2dMap((prev) => !prev);
+  });
+};
 
   return (
     <>
