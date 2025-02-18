@@ -11,22 +11,22 @@ export default function TeamSection() {
       </div>
       <div className="grid grid-cols-1 gap-14 sm:grid-cols-2 lg:grid-cols-4">
         <MemberCard
-          img={"/public/images/introduce/section03-01.png"}
+          img={"/images/introduce/section03-01.png"}
           name={"BanJaeYeong"}
           roles={["TeamLeader", "Frontend"]}
         />
         <MemberCard
-          img={"/public/images/introduce/section03-02.png"}
+          img={"/images/introduce/section03-02.png"}
           name={"KimDoYeon"}
           roles={["Frontend"]}
         />
         <MemberCard
-          img={"/public/images/introduce/section03-03.png"}
+          img={"/images/introduce/section03-03.png"}
           name={"KimSuJin"}
           roles={["Frontend"]}
         />
         <MemberCard
-          img={"/public/images/introduce/section03-04.png"}
+          img={"/images/introduce/section03-04.png"}
           name={"KimHyeBin"}
           roles={["Frontend", "Designer"]}
         />

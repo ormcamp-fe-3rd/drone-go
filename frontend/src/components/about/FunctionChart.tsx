@@ -62,21 +62,21 @@ export function FunctionChart() {
       <div className="chart relative aspect-[10/7] w-full py-10 lg:w-[920px]">
         <img
           className="absolute drop-shadow-lg"
-          src="/public/images/introduce/section01-chart-01.png"
+          src="/images/introduce/section01-chart-01.png"
           alt="기능소개 배경"
         />
         <ul>
           <li>
             <img
               className="chart1 absolute"
-              src="/public/images/introduce/section01-chart-01.png"
+              src="/images/introduce/section01-chart-01.png"
               alt="기능소개 문구1"
             />
           </li>
           <li>
             <img
               className="chart2 absolute"
-              src="/public/images/introduce/section01-chart-02.png"
+              src="/images/introduce/section01-chart-02.png"
               alt="기능소개 문구2"
             />
           </li>
