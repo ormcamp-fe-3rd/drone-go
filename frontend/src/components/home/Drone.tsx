@@ -1,7 +1,8 @@
-import { useRef, useEffect } from "react";
+import { OrbitControls } from "@react-three/drei";
 import { Canvas, useLoader } from "@react-three/fiber";
-import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { useEffect,useRef } from "react";
 import * as THREE from "three";
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 
 interface DroneProp {
   scale: number;
@@ -9,6 +10,8 @@ interface DroneProp {
   yAnimationHeight: number;
   height: string; // 캔버스 높이
   width: string; // 캔버스 너비
+  axesHelper?: boolean;
+  orbitControls?: boolean;
 }
 
 export default function Drone({
@@ -17,8 +20,10 @@ export default function Drone({
   yAnimationHeight,
   height,
   width,
+  axesHelper=false,
+  orbitControls=false,
 }: DroneProp) {
-  const glb = useLoader(GLTFLoader, "../../public/objects/drone.glb");
+  const glb = useLoader(GLTFLoader, "/objects/drone.glb");
   const mixerRef = useRef<THREE.AnimationMixer | null>(null);
   const clock = new THREE.Clock();
 
@@ -64,15 +69,11 @@ export default function Drone({
   useEffect(() => {
     if (glb.scene) {
       glb.scene.scale.set(scale, scale, scale);
-      glb.scene.rotation.set(
-        THREE.MathUtils.degToRad(rotation[0]),
-        THREE.MathUtils.degToRad(rotation[1]),
-        THREE.MathUtils.degToRad(rotation[2]),
-      );
 
       glb.scene.traverse((child) => {
         if ((child as THREE.Mesh).isMesh) {
           const mesh = child as THREE.Mesh;
+
           if (Array.isArray(mesh.material)) {
             mesh.material.forEach((material) => {
               if (material instanceof THREE.MeshStandardMaterial) {
@@ -86,14 +87,27 @@ export default function Drone({
             mesh.material.roughness = 0.3;
             mesh.material.needsUpdate = true;
           }
+
+          mesh.rotation.set(
+            THREE.MathUtils.degToRad(rotation[0]),
+            THREE.MathUtils.degToRad(rotation[1]),
+            THREE.MathUtils.degToRad(rotation[2]),
+          );
         }
       });
+
+      if(axesHelper===true){
+        glb.scene.add(new THREE.AxesHelper(5));
+      }
     }
-  }, [glb, scale, rotation]);
+  }, [glb, scale, rotation, axesHelper]);
 
   return (
     <div className="absolute right-0" style={{ height, width }}>
       <Canvas camera={{ position: [0, 50, 100], fov: 75 }}>
+        {orbitControls && 
+          <OrbitControls enableDamping={true} dampingFactor={0.1} />
+        }
         <ambientLight intensity={3} />
         <directionalLight position={[0, 0, 5]} color="white" />
         <primitive object={glb.scene} />

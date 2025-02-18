@@ -14,7 +14,7 @@ export default function ListDrone({
   rotation,
   yAnimationHeight,
 }: ListDroneProp) {
-  const glb = useLoader(GLTFLoader, "../../public/objects/drone.glb");
+  const glb = useLoader(GLTFLoader, "/objects/drone.glb");
   const mixerRef = useRef<THREE.AnimationMixer | null>(null);
   const clock = new THREE.Clock();
 
