@@ -36,7 +36,7 @@ export function HomeHeader() {
           <Link to={"/"} className="flex">
             <img
               className="h-8 w-8"
-              src="../public/icons/drone.svg"
+              src="/icons/drone.svg"
               alt="Drone Icon"
             />
             <p className="text-3xl font-bold text-[#0800A1]">DroneGo</p>

@@ -1,55 +1,62 @@
 import * as Cesium from "cesium";
 import React, {
-  useCallback,
   useContext,
   useEffect,
   useRef,
   useState,
 } from "react";
-import { degToRad } from "three/src/math/MathUtils";
 
 import { PhaseContext } from "@/contexts/PhaseContext";
+import { useAnimationTime } from "@/hooks/useAnimationTime";
 import { FormattedTelemetryPositionData } from "@/types/telemetryPositionDataTypes";
-import { formatTime } from "@/utils/formatTime";
+import { initCesiumMap } from "@/utils/initCesiumMap";
+import { updateDronePosition } from "@/utils/updateDronePosition";
 
 import PlayHead from "../map/PlayHead";
 import ProgressBar from "../map/ProgressBar";
 import ProgressBarBtns from "../map/ProgressBarBtns";
 
-const adjustDroneHeading = degToRad(216);
+const DRONE_MODEL_URI = "/objects/drone.glb";
+const DRONE_MODEL_MIN_PIXEL_SIZE = 64;
+const DRONE_MODEL_SCALE = 10;
+const PATH_LINE_WIDTH = 3;
+
 interface CesiumViewerProps {
   positionData: FormattedTelemetryPositionData[] | null;
+  attitudeData: {
+    payload: {
+      roll: number;
+      pitch: number;
+      yaw: number;
+    };}[]| null;
 }
 
-const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
+const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData, attitudeData }) => {
   const cesiumContainerRef = useRef<HTMLDivElement | null>(null);
   const viewerRef = useRef<Cesium.Viewer | null>(null);
   const modelEntityRef = useRef<Cesium.Entity | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
-  const [showInitialInfo, setShowInitialInfo] = useState(false);
 
-  // 애니메이션 관련 상태
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1);
-  const animationRef = useRef<number>();
-  const lastTimeRef = useRef<number>(0);
-  const elapsedTimeRef = useRef<number>(0);  
-  const speedRef = useRef(1);
-
-  // 시간 관련 상태
-  const [totalDuration, setTotalDuration] = useState<number>(0);
-  const [startEndTime, setStartEndTime] = useState<{
-    startTime: string;
-    endTime: string;
-  }>({ startTime: "", endTime: "" });
-  const [flightStartTime, setFlightStartTime] = useState(0);
   const { phase, setPhase } = useContext(PhaseContext);
+  const [pathPositions, setPathPositions] = useState<Cesium.Cartesian3[]>();
+
+  const { 
+    isPlaying, speed, elapsedTimeRef,
+    handlePlay, handlePause, handleStop, handlePlaySpeed,
+    totalDuration, startEndTime, flightStartTime,
+  } = useAnimationTime({
+    positionData: positionData, 
+    onUpdate: (progress) => {
+      setPhase(progress);
+      updateDronePosition(progress, pathPositions, modelEntityRef, viewerRef, attitudeData);
+  }})
+
 
   // Cesium viewer 초기화
   useEffect(() => {
     if (!cesiumContainerRef.current || isInitialized) return;
 
-    initViewer(viewerRef, cesiumContainerRef, setIsInitialized);
+    initCesiumMap(viewerRef, cesiumContainerRef, setIsInitialized);
 
     return () => {
       if (viewerRef.current) {
@@ -60,96 +67,8 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (positionData) {
-      setPhase(0);
-    }
-  }, [positionData, setPhase]);
-
-  // phase에 따른 드론 위치 업데이트
-  const updateDronePosition = useCallback(
-    (currentPhase: number) => {
-      if (!viewerRef.current || !positionData || !modelEntityRef.current)
-        return;
-
-      const index = Math.min(
-        Math.floor(currentPhase * (positionData.length - 1)),
-        positionData.length - 1,
-      );
-
-      if (!positionData[index] || !positionData[index].payload) return;
-
-      const currentItem = positionData[index];
-      const position = Cesium.Cartesian3.fromDegrees(
-        currentItem.payload.lon,
-        currentItem.payload.lat,
-        currentItem.payload.alt,
-      );
-
-      // 위치 업데이트
-      modelEntityRef.current.position = new Cesium.ConstantPositionProperty(
-        position,
-      );
-
-      // 방향 계산 및 업데이트
-      if (index > 0) {
-        const prevItem = positionData[index - 1];
-        const prevPosition = Cesium.Cartesian3.fromDegrees(
-          prevItem.payload.lon,
-          prevItem.payload.lat,
-          prevItem.payload.alt,
-        );
-
-        const direction = Cesium.Cartesian3.subtract(
-          position,
-          prevPosition,
-          new Cesium.Cartesian3(),
-        );
-
-        if (Cesium.Cartesian3.magnitudeSquared(direction) > 0) {
-          Cesium.Cartesian3.normalize(direction, direction);
-          const heading = Math.atan2(direction.y, direction.x);
-          const orientation = Cesium.Transforms.headingPitchRollQuaternion(
-            position,
-            new Cesium.HeadingPitchRoll(heading + adjustDroneHeading, 0, 0),
-          );
-          modelEntityRef.current.orientation = new Cesium.ConstantProperty(
-            orientation,
-          );
-        }
-      }
-
-      // 카메라 업데이트
-      if (!viewerRef.current.trackedEntity) {
-        viewerRef.current.trackedEntity = modelEntityRef.current;
-      }
-    },
-    [positionData],
-  );
-
-  // 경로 데이터 설정
-  useEffect(() => {
-    if (
-      !viewerRef.current ||
-      !positionData ||
-      !isInitialized ||
-      positionData.length === 0
-    )
-      return;
-
-    viewerRef.current.entities.removeAll();
-
-    // 시간 정보 설정
-    const flightStart = positionData[0].timestamp;
-    const flightEnd = positionData[positionData.length - 1].timestamp;
-    setFlightStartTime(flightStart);
-    setStartEndTime({
-      startTime: formatTime(new Date(flightStart)),
-      endTime: formatTime(new Date(flightEnd)),
-    });
-    setTotalDuration((flightEnd - flightStart) / 1000);
-
-    // 경로 라인 추가
+  useEffect(()=>{
+    if(!positionData) return;
     const pathPositions = positionData.map((item) =>
       Cesium.Cartesian3.fromDegrees(
         item.payload.lon,
@@ -157,99 +76,61 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
         item.payload.alt,
       ),
     );
+    setPathPositions(pathPositions);
+  },[positionData])
 
+
+  // 경로 데이터 설정
+  useEffect(() => {
+    if (!viewerRef.current || !pathPositions || !isInitialized) return;
+
+    viewerRef.current.entities.removeAll();
+
+    // 경로 라인 추가
     viewerRef.current.entities.add({
       polyline: {
         positions: pathPositions,
         material: Cesium.Color.BLUE,
-        width: 3,
+        width: PATH_LINE_WIDTH,
       },
     });
 
     // 드론 모델 엔티티 추가
     modelEntityRef.current = viewerRef.current.entities.add({
       model: {
-        uri: "/objects/drone.glb",
-        minimumPixelSize: 64,
-        scale: 10,
+        uri: DRONE_MODEL_URI,
+        minimumPixelSize: DRONE_MODEL_MIN_PIXEL_SIZE,
+        scale: DRONE_MODEL_SCALE,
+        runAnimations: true,
+        clampAnimations: false,
       },
     });
 
     // 초기 위치 설정
-    updateDronePosition(0);
+    updateDronePosition(
+      0,
+      pathPositions,
+      modelEntityRef,
+      viewerRef,
+      attitudeData,
+    );
+    setPhase(0);
+  }, [attitudeData, isInitialized, pathPositions, setPhase]);
 
-    setShowInitialInfo(true);
-    const timer = setTimeout(() => {
-      setShowInitialInfo(false);
-    }, 5000);
-
-    return () => clearTimeout(timer);
-  }, [positionData, isInitialized, updateDronePosition]);
 
   // phase 변경 시 드론 위치 업데이트
   useEffect(() => {
     elapsedTimeRef.current = phase * totalDuration * 1000;
-    updateDronePosition(phase);
-  }, [phase, totalDuration, updateDronePosition]);
+    updateDronePosition(
+      phase,
+      pathPositions,
+      modelEntityRef,
+      viewerRef,
+      attitudeData,
+    );
+  }, [attitudeData, elapsedTimeRef, pathPositions, phase, totalDuration]);
 
-  // 애니메이션 프레임 처리
-  const animate = useCallback(
-    (currentTime: number) => {
-      if (!totalDuration) return;
 
-      if (!lastTimeRef.current) {
-        lastTimeRef.current = currentTime;
-      }
-
-      const deltaTime = currentTime - lastTimeRef.current;
-      elapsedTimeRef.current += deltaTime * speedRef.current;
-      lastTimeRef.current = currentTime;
-
-      const animationDuration = totalDuration * 1000;
-      const newPhase = Math.min(1, elapsedTimeRef.current / animationDuration);
-      setPhase(newPhase);
-
-      if (newPhase >= 1) {
-        setIsPlaying(false);
-        setPhase(0);
-        lastTimeRef.current = 0;
-        elapsedTimeRef.current = 0;
-        return;
-      }
-
-      animationRef.current = requestAnimationFrame(animate);
-    },
-    [totalDuration, speed, setPhase],
-  );
-
-  const handlePlay = () => {
-    setIsPlaying(true);
-    lastTimeRef.current = 0;
-    animationRef.current = requestAnimationFrame(animate);
-  };
-
-  const handlePause = () => {
-    setIsPlaying(false);
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      lastTimeRef.current = 0;
-    }
-  };
-
-  const handlePlaySpeed = (value: string) => {
-    const newSpeed = Number(value);
-    setSpeed(Number(value));
-    speedRef.current = newSpeed;
-  };
-
-  const handleStop = () => {
-    setIsPlaying(false);
-    setPhase(0);
-    if (animationRef.current) {
-      cancelAnimationFrame(animationRef.current);
-      lastTimeRef.current = 0;
-    }
-  };
 
   return (
     <>
@@ -264,15 +145,6 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
             height: "100%",
           }}
         />
-        {showInitialInfo && (
-          <div className="fixed left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 items-center justify-center">
-            <div className="pointer-events-none flex h-20 w-56 items-center rounded-2xl bg-white bg-opacity-90 drop-shadow-md">
-              <p className="w-full text-center">
-                Scroll to zoom out <br /> for a better view!
-              </p>
-            </div>
-          </div>
-        )}
       </div>
       <div className="fixed bottom-10 w-screen">
         <ProgressBar
@@ -298,45 +170,3 @@ const CesiumViewer3D: React.FC<CesiumViewerProps> = ({ positionData }) => {
 };
 
 export default CesiumViewer3D;
-
-const initViewer = async (
-  viewerRef: React.MutableRefObject<Cesium.Viewer | null>,
-  cesiumContainerRef: React.MutableRefObject<HTMLDivElement | null>,
-  setIsInitialized: React.Dispatch<React.SetStateAction<boolean>>,
-) => {
-  try {
-    Cesium.Ion.defaultAccessToken = import.meta.env.VITE_CESIUM_ION_API_KEY;
-    const terrainProvider = await Cesium.createWorldTerrainAsync();
-
-    if (viewerRef.current) {
-      viewerRef.current.destroy();
-    }
-    if (!cesiumContainerRef.current) return;
-    viewerRef.current = new Cesium.Viewer(cesiumContainerRef.current, {
-      terrainProvider,
-      animation: false,
-      timeline: false,
-      homeButton: false,
-      sceneModePicker: false,
-      selectionIndicator: false,
-      navigationHelpButton: false,
-      fullscreenButton: false,
-      geocoder: false,
-      infoBox: false,
-      navigationInstructionsInitiallyVisible: false,
-      baseLayerPicker: false,
-      vrButton: false,
-      projectionPicker: false,
-    });
-
-    const buildingTileset = await Cesium.Cesium3DTileset.fromIonAssetId(96188, {
-      maximumScreenSpaceError: 16,
-    });
-
-    viewerRef.current.scene.primitives.add(buildingTileset);
-
-    setIsInitialized(true);
-  } catch (error) {
-    console.error("Failed to initialize Cesium:", error);
-  }
-};
