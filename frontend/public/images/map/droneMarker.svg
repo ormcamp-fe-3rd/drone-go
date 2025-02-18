@@ -1,13 +1,13 @@
-<svg width="114" height="114" viewBox="0 0 114 114" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<svg width="103" height="104" viewBox="0 0 103 104" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g filter="url(#filter0_d_579_2204)">
-<rect x="4" y="12.1335" width="94.5795" height="94.5795" transform="rotate(-7.3708 4 12.1335)" fill="url(#pattern0_579_2204)" shape-rendering="crispEdges"/>
-<rect x="4" y="12.1335" width="94.5795" height="94.5795" transform="rotate(-7.3708 4 12.1335)" fill="white" fill-opacity="0.2" shape-rendering="crispEdges"/>
+<rect x="4" y="0.676025" width="94.5795" height="94.5795" fill="url(#pattern0_579_2204)" shape-rendering="crispEdges"/>
+<rect x="4" y="0.676025" width="94.5795" height="94.5795" fill="white" fill-opacity="0.2" shape-rendering="crispEdges"/>
 </g>
 <g filter="url(#filter1_d_579_2204)">
-<path d="M46.5411 22.7694L49.224 12.3935C49.4389 11.5615 50.4101 11.4261 50.845 12.1675L56.2636 21.4139C56.7544 22.2511 56.0681 23.287 55.243 22.9531L51.7334 21.533C51.4605 21.4226 51.1628 21.4641 50.9311 21.6448L47.9437 23.9708C47.2413 24.517 46.2975 23.7096 46.5411 22.7694Z" fill="white"/>
+<path d="M46.0918 17.1351L50.1818 7.2291C50.5095 6.4347 51.4901 6.4347 51.8184 7.2291L55.9084 17.1351C56.2789 18.0321 55.4561 18.9633 54.685 18.5187L51.4051 16.6275C51.1501 16.4805 50.8495 16.4805 50.5951 16.6275L47.3151 18.5187C46.544 18.9627 45.7207 18.0327 46.0918 17.1351Z" fill="#FF0000"/>
 </g>
 <defs>
-<filter id="filter0_d_579_2204" x="0" y="0" width="113.932" height="113.931" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<filter id="filter0_d_579_2204" x="0" y="0.676025" width="102.58" height="102.579" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
 <feOffset dy="4"/>
@@ -20,7 +20,7 @@
 <pattern id="pattern0_579_2204" patternContentUnits="objectBoundingBox" width="1" height="1">
 <use xlink:href="#image0_579_2204" transform="scale(0.000833333)"/>
 </pattern>
-<filter id="filter1_d_579_2204" x="42.502" y="11.6826" width="17.9263" height="20.4653" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<filter id="filter1_d_579_2204" x="42" y="6.6333" width="18" height="20" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
 <feFlood flood-opacity="0" result="BackgroundImageFix"/>
 <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
 <feOffset dy="4"/>
