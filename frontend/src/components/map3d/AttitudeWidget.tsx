@@ -69,7 +69,7 @@ const AttitudeWidget = ({
 
   const currentRollInDegrees = radToDeg(currentRoll);
   const currentPitchInDegrees = radToDeg(currentPitch);
-  const currentYawInDegrees = radToDeg(currentYaw);
+  const currentYawInDegrees = -radToDeg(currentYaw);
 
   return (
     <div className="toolbar-attitude mx-6 my-0 hidden h-[27vh] w-[30vw] max-w-[19rem] rounded-[10px] bg-white bg-opacity-80 sm:flex sm:flex-col md:block drop-shadow-md">

@@ -14,7 +14,7 @@ export function HomePage() {
   const droneRef = useRef<HTMLDivElement>(null);
   const dataListRef = useRef<HTMLDivElement>(null);
   const [rotation, setRotation] = useState<[number, number, number]>([
-    0, 110, 0,
+    0, -110, 0,
   ]);
   const { isAuth } = useContext(AuthContext);
 

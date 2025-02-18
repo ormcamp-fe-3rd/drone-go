@@ -23,7 +23,7 @@ export default function Drone({
   axesHelper=false,
   orbitControls=false,
 }: DroneProp) {
-  const glb = useLoader(GLTFLoader, "../../public/objects/drone.glb");
+  const glb = useLoader(GLTFLoader, "/objects/drone.glb");
   const mixerRef = useRef<THREE.AnimationMixer | null>(null);
   const clock = new THREE.Clock();
 
@@ -90,7 +90,7 @@ export default function Drone({
 
           mesh.rotation.set(
             THREE.MathUtils.degToRad(rotation[0]),
-            THREE.MathUtils.degToRad(-rotation[1]),
+            THREE.MathUtils.degToRad(rotation[1]),
             THREE.MathUtils.degToRad(rotation[2]),
           );
         }
