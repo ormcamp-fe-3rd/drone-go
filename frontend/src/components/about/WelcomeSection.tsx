@@ -13,7 +13,7 @@ export default function WelcomeSection() {
         perfect drone for your needs!
       </p>
       <div>
-        <img src="/public/images/introduce/drone.png" alt="" />
+        <img src="/images/introduce/drone.png" alt="" />
       </div>
     </div>
   );
